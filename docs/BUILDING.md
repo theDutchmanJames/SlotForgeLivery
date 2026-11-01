@@ -73,6 +73,8 @@ These sources are available at the same download location as the installers, wit
 
 `scripts/collect-sources.sh` reproduces the source archives. `.github/workflows/native-release.yml` checks out an immutable commit, builds on native runners, tests each packaged converter, collects source, and publishes a draft only after verifying all expected assets and hashes. Publishing is opt-in through the workflow's `publish` checkbox. Existing releases are never silently overwritten.
 
+If only publication fails after every build passes, run the workflow again with `publish` enabled and `resume_run` set to the completed run ID. It verifies every native job, rejects changed runtime/licence files, downloads that run's existing artifacts, and resumes an identical draft without overwriting differing assets. The release tag still points to the original tested commit.
+
 ## Dependency audit
 
 The release preparation checks `npm audit --omit=dev` separately from build dependencies. The packaging toolchain currently inherits a moderate minimatch glob-complexity advisory. Its globs are maintained repository build configuration, not imported user artwork. No incompatible major override is forced into the packaging toolchain. Sharp was updated to 0.35.5 to address its reported image-library advisories. Recheck the audit when updating tools.

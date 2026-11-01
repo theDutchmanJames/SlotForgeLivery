@@ -7,6 +7,10 @@ on:
         description: Publish a preview release after every native build and source archive passes
         type: boolean
         default: false
+      resume_run:
+        description: Optional completed run ID to resume publishing its verified builds
+        type: string
+        default: ''
 permissions:
   contents: read
 concurrency:
@@ -14,6 +18,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   sources:
+    if: inputs.resume_run == ''
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
@@ -31,6 +36,7 @@ jobs:
           if-no-files-found: error
           compression-level: 0
   build:
+    if: inputs.resume_run == ''
     name: ${{ matrix.platform }} ${{ matrix.arch }}
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 60
@@ -93,17 +99,28 @@ jobs:
             dist/v${{ steps.version.outputs.value }}/SlotForgeLivery-*
             dist/v${{ steps.version.outputs.value }}/SHA256SUMS-*.txt
   publish:
-    if: inputs.publish
+    if: always() && inputs.publish && (inputs.resume_run != '' || (needs.sources.result == 'success' && needs.build.result == 'success'))
     needs: [sources, build]
     runs-on: ubuntu-24.04
     permissions:
       contents: write
+      actions: read
     steps:
       - uses: actions/checkout@v6
         with:
           persist-credentials: false
+      - name: Validate source build before publishing
+        id: source
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RESUME_RUN: ${{ inputs.resume_run }}
+          CURRENT_SHA: ${{ github.sha }}
+        run: node --test tests/release-publish.test.cjs && node scripts/validate-release-run.cjs
       - uses: actions/download-artifact@v6
         with:
+          github-token: ${{ github.token }}
+          run-id: ${{ inputs.resume_run || github.run_id }}
           pattern: release-*
           path: release-assets
           merge-multiple: true
@@ -111,7 +128,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
-          SOURCE_SHA: ${{ github.sha }}
+          SOURCE_SHA: ${{ steps.source.outputs.sha }}
         run: |
           cd release-assets
           for manifest in SHA256SUMS-*.txt; do sha256sum -c "$manifest"; done
