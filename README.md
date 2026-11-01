@@ -1,7 +1,7 @@
 <p align="center"><img src="assets/icon.svg" width="88" height="88" alt="SlotForge Livery brush icon"></p>
 
 <h1 align="center">SlotForge Livery</h1>
-<p align="center"><strong>From white kit to your colours.</strong><br>Import your car. Pick your panels. Create your livery. Share it with the community.</p>
+<p align="center"><strong>From White Kits to your Design Concept</strong><br>Import your car. Pick your panels. Create your livery. Share it with the community.</p>
 
 <p align="center"><strong>Windows · macOS · Linux</strong><br>Free &amp; open source · Works offline · Your own car library</p>
 
