@@ -1,47 +1,86 @@
 <p align="center"><img src="assets/icon.svg" width="88" height="88" alt="SlotForge Livery brush icon"></p>
 
 <h1 align="center">SlotForge Livery</h1>
-<p align="center"><strong>Your car. Your colours. Your next livery.</strong><br>A 2D design studio for planning the paintwork on your slotcar.</p>
+<p align="center"><strong>From white kit to your colours.</strong><br>Import your car. Pick your panels. Create your livery. Share it with the community.</p>
+
+<p align="center"><strong>Windows · macOS · Linux</strong><br>Free &amp; open source · Works offline · Your own car library</p>
 
 <p align="center">
-  <a href="https://github.com/theDutchmanJames/SlotForgeLivery/releases">Downloads</a> ·
+  <a href="https://github.com/theDutchmanJames/SlotForgeLivery/releases/latest"><strong>Download Livery</strong></a> ·
   <a href="#your-first-livery">Getting started</a> ·
   <a href="#what-you-can-do">Features</a> ·
   <a href="#sharing-and-backups">Sharing</a> ·
   <a href="https://github.com/theDutchmanJames/SlotForgeLivery/issues">Report an issue</a>
 </p>
 
-Bring in your own car artwork, choose the panels you want to paint, and experiment with colours, racing stripes, numbers and decals before opening a tin of paint. Save the design, share reusable artwork with another Livery user, or print a workshop reference to take to your workbench.
+**Design your next slotcar livery before the first coat of paint.** SlotForge Livery turns your own car artwork into a reusable 2D painting template. Try a colour scheme, draw a sweeping stripe, add your race number and place your decals—all while keeping the parts of your design editable.
 
 Livery works locally on your computer. No account, subscription or cloud library is needed. **The car library starts empty:** you create your own templates, so you are never limited to a maintained catalogue of supported kits.
 
 <table>
-  <tr><th>Dark studio</th><th>Light studio</th></tr>
+  <tr><th>☀ Light studio</th><th>☾ Dark studio</th></tr>
   <tr>
-    <td><a href="docs/screenshots/studio-dark.png"><img src="docs/screenshots/studio-dark.png" alt="Livery in dark mode, showing a teal club racer with editable racing stripes, a number roundel and layers"></a></td>
-    <td><a href="docs/screenshots/studio-light.png"><img src="docs/screenshots/studio-light.png" alt="The same livery in light mode with gradient paint controls and its user-created car view"></a></td>
+    <td width="50%"><a href="docs/screenshots/welcome-light.png"><img src="docs/screenshots/welcome-light.png" width="100%" alt="SlotForge Livery in light mode: the compact drawing toolbox, spacious canvas, and buttons to add a car or import a shared package"></a></td>
+    <td width="50%"><a href="docs/screenshots/welcome-dark.png"><img src="docs/screenshots/welcome-dark.png" width="100%" alt="SlotForge Livery in dark mode: the same workspace with dark panels, coral accents, and a step-by-step introduction to creating a livery"></a></td>
   </tr>
 </table>
 
-*Actual application screenshots with original demonstration artwork. This car is not preinstalled.*
+<p align="center"><em>One studio, two looks. Switch between light and dark whenever you like.<br>Click either screenshot for a closer look.</em></p>
 
+---
 
 ## What you can do
 
-| From an idea… | …to a workshop-ready design |
+### ① Import your car — make any project your own
+
+**Vector import is at the heart of Livery.** Bring in supported **SVG, EPS or vector PDF** artwork and prepare it for painting directly inside the app. EPS/PDF conversion is included and works offline, without a separate converter installation.
+
+- **Your cars, your choice:** build templates from your own artwork instead of waiting for a car to be added to a catalogue.
+- **Six view slots:** front, top, left, right, rear and angled. Import each view independently and remove or replace it later.
+- **Multi-page PDFs:** choose the page you want to use for a view.
+- **Photograph tracing:** use a PNG, JPEG or WebP picture as a reference and draw the paintable regions yourself.
+- **Reusable car templates:** prepare a car once, save it to your library, and use it for future designs.
+
+### ② Click your panels — choose exactly what gets painted
+
+**Click an enclosed area, select a few more, then give them a label.** Labelling makes those areas paintable together. Create a Bodywork group, then move on to Windows, Lights, Wheels, Tyres or Trim. You can paint a whole label group or select individual areas within it.
+
+- **Select in batches:** click panels or drag a selection box, then label several at once.
+- **Keep control:** mark areas **Reference only** when you want to preserve them without painting over them.
+- **Recover paintable areas:** turn supported enclosed spaces in line artwork into paintable panels—even when the white body is part of the drawing's empty space.
+- **Bring back small details:** complex artwork is filtered to keep preparation manageable; **Add filtered areas** restores the details you want to include.
+- **Refine whenever you need:** return to **Edit areas & labels**, or trace a missing area manually.
+
+### ③ Paint, draw and personalise — approachable tools, editable results
+
+The compact toolbox keeps your canvas spacious, while the layer list and collapsible property folders keep the controls within reach. **Choose a shape tool and start drawing: Livery creates the layer for you.**
+
+- **Colours and gradients:** use a solid colour or blend 2–8 colour stops, with controls for direction, stop positions and strength.
+- **Paint finishes:** explore matte, satin and gloss, with metallic or pearl effects and subtle on-screen finish cues.
+- **Shapes and smooth curves:** draw rectangles, ellipses and freeform shapes. Click for corners, drag for Bézier handles, and snap back to the starting point to close a shape.
+- **Racing stripes:** draw open curved lines with adjustable thickness, double or triple stripes, or custom combinations of widths, gaps and colours.
+- **Decals and lettering:** upload transparent PNG graphics, add text and race numbers, and import your own TTF, OTF, WOFF or WOFF2 fonts.
+- **Fit an angled view:** position, resize and rotate artwork, then use skew and pinch presets as a starting point for fine adjustments.
+- **Familiar layers:** drag to reorder, bring artwork forward or send it back, and group elements while keeping every child editable.
+- **Work on several parts together:** multi-select areas or artwork, change their appearance together, and copy/paste styling between layers.
+- **Comfortable editing:** pan, zoom, undo/redo, switch themes, and clear the selection to admire your design without selection boxes.
+
+### ④ Save, export and share — let another builder keep creating
+
+**Share a design that others can keep editing.** Choose items from your library, export a **`.sfpaint` package**, and send it to another Livery user. They import the file into their own library and can keep working with its editable contents.
+
+| Export | What it is for |
 | --- | --- |
-| **Bring your own car** | Import vector artwork or trace a photograph. Add front, top, left, right, rear and angled views independently. |
-| **Choose what gets painted** | Click enclosed panels, select several at once, and label them as Bodywork, Windows, Lights, Wheels, Tyres, Trim, Interior or Chassis. Labelling makes an area paintable; Reference only excludes it. |
-| **Recover missing panels** | Recover enclosed areas from line artwork. Complex drawings are filtered to keep preparation manageable; **Add filtered areas** brings back details you want to include. Trace open outlines manually. |
-| **Explore colour and finish** | Solid colours or gradients with 2–8 colour stops, angle and strength controls. Matte, satin and gloss finishes, plus metallic and pearl effects, include a light visual preview. |
-| **Draw the livery** | Rectangles, ellipses and freeform shapes with Bézier handles. Draw open curved lines with adjustable width, double or triple stripes, and custom line combinations. |
-| **Add the finishing touches** | Transparent PNG decals, text, race numbers and your own fonts. Adjust size, rotation, opacity, skew and pinch, with presets to help fit an angled view. |
-| **Work with layers** | Drag layers to reorder artwork, or use front/back buttons. Group elements without flattening them, edit individual children, and copy/paste appearance settings. |
-| **Edit together** | Select several paintable areas or artwork layers and change their appearance together. Each part remains independently editable. |
-| **Build your own library** | Save cars, liveries, images and editable shapes or groups. Shapes enter the library when you choose **Add to Library**. Edit names and other details later. |
-| **Reuse and share** | Apply a saved livery to another car, or export selected library items in a self-contained package another Livery user can import. |
-| **Take it to the workshop** | Export a PDF with views and notes, or save a freestanding transparent PNG of your car. |
-| **Make yourself comfortable** | Light and dark themes, collapsible property folders, zoom, canvas panning and undo/redo. |
+| **Editable `.sfpaint` package** | Share selected cars, liveries, shapes, images or complete projects with other Livery users. Projects include their car template; grouped artwork keeps its separate editable elements. |
+| **Workshop PDF** | Print your design views, paint references and notes to take to the workbench. |
+| **Transparent PNG** | Export a freestanding image of your car, without the canvas background, to show your design. |
+| **Whole-library backup** | Keep a portable copy of your collection for safekeeping or moving to another computer. |
+
+Your **User Library** grows with you: save car templates, favourite liveries, decals, custom fonts and reusable shapes. Choose **Add to Library** to save a shape—or select several and save an editable group. Rename items and update their details later. Apply a saved livery to a different car, then adjust the fit for its bodywork.
+
+**A simple sharing workflow:** build a car template → design a livery → export both in a package → let a friend import them and make their own version.
+
+---
 
 ## Install and open Livery
 
