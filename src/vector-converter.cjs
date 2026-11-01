@@ -26,7 +26,7 @@ async function convertVector({ bytes, format, page = null }) {
         const timeout = setTimeout(()=>stop('EPS conversion took too long. Simplify the illustration and try again.'),20000);
         const sizeCheck = setInterval(async()=>{try{if((await fs.stat(output)).size>50*1024*1024)stop('Converted EPS is too large. Simplify it first.');}catch{}},200);
         child.stderr.on('data',()=>{});
-        child.once('error',error=>{clearTimeout(timeout);clearInterval(sizeCheck);reject(new Error(error.code==='ENOENT'?'The EPS converter is missing. Rebuild or reinstall this preview.':'Could not start the EPS converter.'));});
+        child.once('error',error=>{clearTimeout(timeout);clearInterval(sizeCheck);reject(new Error(error.code==='ENOENT'?'The EPS converter is missing. Rebuild or reinstall Livery.':'Could not start the EPS converter.'));});
         child.once('close',code=>{clearTimeout(timeout);clearInterval(sizeCheck);if(failure)reject(failure);else if(code!==0)reject(new Error('This EPS could not be converted. Re-export it as a standard EPS or SVG.'));else resolve();});
       });
       if ((await fs.stat(output)).size > 50*1024*1024) throw new Error('Converted EPS is too large.');

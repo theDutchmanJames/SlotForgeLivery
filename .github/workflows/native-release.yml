@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       publish:
-        description: Publish a preview release after every native build and source archive passes
+        description: Publish an official release after every native build and source archive passes
         type: boolean
         default: false
       resume_run:

@@ -29,6 +29,9 @@ function simulate(existing){
 test('publisher creates the tag, verifies all 20 assets by draft ID, then publishes',()=>{
  const {release,calls}=simulate();assert.equal(release.assets.length,20);assert.equal(release.draft,false);
  assert.equal(calls.at(-1)[1],'edit');
+ assert(calls.at(-1).includes('--prerelease=false'));
+ assert(calls.at(-1).includes('--latest'));
+ assert(!calls.find(c=>c[1]==='create').includes('--prerelease'));
 });
 test('publisher rejects conflicting draft assets before uploading',()=>{
  assert.throws(()=>simulate({assets:[{name:'SlotForgeLivery-source.tar.gz',digest:'sha256:wrong'}]}),/Existing draft asset differs/);

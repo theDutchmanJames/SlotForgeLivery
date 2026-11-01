@@ -10,6 +10,7 @@ const {_electron:electron}=require('playwright');
  try{
   const page=await app.firstWindow(),errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.waitForSelector('#tools button');assert(page.url().includes('app.asar'),'Launch packaged source');
+  assert.equal(await page.locator('.version').innerText(),`v${require('../package.json').version}`,'Official version label is packaged');
   await page.locator('[data-action="add-car"]').first().click();
   await page.locator('#car-name').fill('Native release verification');
   await page.locator('#choose-svg').click({noWaitAfter:true});

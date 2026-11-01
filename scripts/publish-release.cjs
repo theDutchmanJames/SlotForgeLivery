@@ -17,7 +17,7 @@ const refs=JSON.parse(gh(['api',`repos/${process.env.GH_REPO}/git/matching-refs/
 if(!refs.some(r=>r.ref===`refs/tags/${tag}`))gh(['api',`repos/${process.env.GH_REPO}/git/refs`,'--method','POST','-f',`ref=refs/tags/${tag}`,'-f',`sha=${process.env.SOURCE_SHA}`]);
 assert.equal(JSON.parse(gh(['api',`repos/${process.env.GH_REPO}/commits/${tag}`])).sha,process.env.SOURCE_SHA,'Release tag must match the tested source');
 if(!release){
- gh(['release','create',tag,'--draft','--prerelease','--verify-tag','--target',process.env.SOURCE_SHA,'--title',`SlotForge Livery ${version} · Public preview`,'--notes-file','RELEASE_NOTES.md']);
+ gh(['release','create',tag,'--draft','--verify-tag','--target',process.env.SOURCE_SHA,'--title',`SlotForge Livery ${version}`,'--notes-file','RELEASE_NOTES.md']);
  release=JSON.parse(gh(['api',`repos/${process.env.GH_REPO}/releases?per_page=100`])).find(r=>r.tag_name===tag);
 }
 assert(release?.draft,'Expected a draft release');
@@ -29,4 +29,4 @@ for(const name of expected)if(!release.assets.some(a=>a.name===name))gh(['releas
 release=JSON.parse(gh(['api',`repos/${process.env.GH_REPO}/releases/${release.id}`]));
 for(const name of expected){const hash=crypto.createHash('sha256').update(fs.readFileSync(path.join(dir,name))).digest('hex');assert.equal(release.assets.find(a=>a.name===name)?.digest,`sha256:${hash}`,`Uploaded asset differs: ${name}`);}
 assert.equal(JSON.parse(gh(['api',`repos/${process.env.GH_REPO}/commits/${tag}`])).sha,process.env.SOURCE_SHA,'Release tag must match the tested source');
-gh(['release','edit',tag,'--draft=false']);console.log(`Published ${tag} with ${expected.length} verified downloads.`);
+gh(['release','edit',tag,'--draft=false','--prerelease=false','--latest']);console.log(`Published ${tag} with ${expected.length} verified downloads.`);

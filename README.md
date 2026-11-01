@@ -64,7 +64,7 @@ You do **not** need Node.js, Git, a terminal or programming experience to use a 
 
 Download the Windows executable and open it. Follow any installer prompts shown by that release. For a portable release, place it in a folder you want to keep and run it there. If a release provides a ZIP instead, right-click it, choose **Extract All**, then open the Livery executable inside the extracted folder.
 
-Unsigned preview builds may show an unknown-publisher warning. Check that you downloaded from this repository and that the filename matches the release before deciding to open it. A warning does not establish that a download is safe.
+Unsigned builds may show an unknown-publisher warning. Check that you downloaded from this repository and that the filename matches the release before deciding to open it. A warning does not establish that a download is safe.
 
 ### macOS
 
@@ -80,7 +80,7 @@ For an AppImage, save it in a permanent folder. Right-click it, open **Propertie
 
 ### Updating
 
-Close Livery and install the newer release, or replace the old portable executable. Your library lives in your user profile, separately from the application. Export a backup before updating, especially between preview releases. Keep the backup somewhere outside the app folder.
+Close Livery and install the newer release, or replace the old portable executable. Your library lives in your user profile, separately from the application. Export a backup before updating. Keep the backup somewhere outside the app folder.
 
 ## Your first livery
 
@@ -121,7 +121,7 @@ Only share images, fonts and car artwork you have permission to redistribute. A 
 
 | Purpose | Supported formats |
 | --- | --- |
-| Vector car artwork in the local preview | SVG, EPS, PDF |
+| Vector car artwork | SVG, EPS, PDF |
 | Reference pictures and decals | PNG, JPEG, WebP; PNG transparency is preserved |
 | Custom fonts | TTF, OTF, WOFF, WOFF2 |
 | Workshop export | PDF |
