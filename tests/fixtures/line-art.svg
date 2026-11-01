@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 500">
+  <path fill="white" d="M0 0H900V500H0Z"/>
+  <path fill="#222" fill-rule="evenodd" d="M70 400V250Q80 210 220 210L330 100H570L700 210Q830 220 830 270V400Z M250 210L345 120H440V210Z M460 120H555L660 210H460Z M250 235H650V370H250Z"/>
+  <path fill="#222" d="M400 290H440V310H400Z"/>
+  <path fill="none" stroke="#222" stroke-width="3" d="M300 250H600"/>
+</svg>

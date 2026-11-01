@@ -1,0 +1,43 @@
+const fs=require('node:fs/promises'),path=require('node:path'),assert=require('node:assert/strict');
+const {_electron:electron}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
+const root=path.resolve(__dirname,'..'),out=path.join(root,'test-output'),profile=path.join(out,'fonts-'+Date.now()),fontFile=process.env.TEST_FONT||'C:/Windows/Fonts/AGENCYR.TTF';
+let app,page;
+async function launch(){const env={...process.env,PAINTSHOP_TEST_DATA:profile,PAINTSHOP_TEST_PDF:path.join(out,'fonts.pdf')};delete env.ELECTRON_RUN_AS_NODE;app=await electron.launch({executablePath:process.env.ELECTRON_BINARY||require('electron'),args:process.env.PAINTSHOP_PACKAGED?[]:[root],env});page=await app.firstWindow();await page.waitForSelector('#tools button');}
+(async()=>{
+ await launch();const errors=[];page.on('pageerror',error=>errors.push(error.message));
+ await page.evaluate(()=>{const v=V.importSVG('<svg xmlns="http://www.w3.org/2000/svg"><rect width="1000" height="600" fill="white"/></svg>');setProject(M.newProject({id:M.uid(),name:'Font car',views:{left:v}}));preparing=false;addLayer(M.layer('text',{text:'RACING 27',font:'Arial',x:200,y:200,w:500,h:100,fill:'#ff0000'}));});
+ await page.locator('#font-file').setInputFiles(fontFile);await page.waitForFunction(()=>!!selection()?.fontData);
+ assert.equal(await page.evaluate(()=>store.fonts.length),1);
+ const family=await page.evaluate(()=>selection().fontData.family);
+ assert.equal(await page.locator('#font-value').inputValue(),family);
+ const pixels=await page.evaluate(async()=>{
+   const l=M.clone(selection()),svg=markup=>`<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="600">${markup}</svg>`;
+   const hash=async source=>{const c=await rasterSVG(source,1000,600),data=c.getContext('2d').getImageData(0,0,1000,600).data;return [...new Uint8Array(await crypto.subtle.digest('SHA-256',data))].join(',');};
+   const custom=await hash(svg(V.layerMarkup(l)));delete l.fontData;l.font='Arial';const builtin=await hash(svg(V.layerMarkup(l)));return {custom,builtin};
+ });assert.notEqual(pixels.custom,pixels.builtin,'isolated SVG raster uses embedded font, not fallback');
+ await page.evaluate(()=>{mutate(()=>selection().pinchX=.35);});await page.waitForSelector('#artboard [data-perspective-preview]');
+ await page.evaluate(()=>mutate(()=>selection().pinchX=0));
+ await page.locator('#font-file').setInputFiles(fontFile);await page.waitForTimeout(100);assert.equal(await page.evaluate(()=>store.fonts.length),1,'duplicate file deduplicated');
+ await page.evaluate(()=>{const appearance=M.appearanceOf(selection()),copy=M.layer('text');M.applyAppearance(copy,appearance);window.fontCopy=copy;});
+ assert.equal(await page.evaluate(()=>fontCopy.fontData.family),family);
+ await page.locator('#font-value').selectOption('Arial');assert.equal(await page.evaluate(()=>selection().fontData),undefined);
+ await page.locator('#font-value').selectOption(family);
+ await page.evaluate(()=>openLibrary('fonts'));assert.equal(await page.locator('[data-library-use]').count(),1);
+ await page.locator('[data-library-edit]').click();await page.locator('#library-detail-name').fill('My race lettering');await page.locator('#library-details-save').click();
+ const fontPackage=path.join(out,'custom-font.sfpaint');await app.evaluate(({dialog},file)=>{dialog.showSaveDialog=async()=>({canceled:false,filePath:file});},fontPackage);
+ await page.locator('[data-library-export]').click();await page.waitForFunction(()=>document.querySelector('#toast').textContent==='Package exported.');
+ assert.equal(JSON.parse(await fs.readFile(fontPackage,'utf8')).kind,'font');
+ await page.evaluate(()=>{closeDialog();store.fonts=[];changed();render();});assert.equal(await page.locator('#font-value').inputValue(),family,'removing library entry preserves existing text');
+ await page.evaluate(async()=>{await readPackage(new File([JSON.stringify({format:'slotforge-paintshop',version:1,kind:'project',data:project})],'custom-project.sfpaint'));await importConfirmed();closeDialog();chooseArtwork(layers()[0].id);render();});
+ assert.equal(await page.evaluate(()=>selection().fontData.family),family,'project carries independent font copy');
+ await page.evaluate(async()=>{const html=await preparePrintableReport(makeReport());if(!html.includes('data:image/png;base64,'))throw new Error('Custom font report did not embed design');await exportPDF();await flushSave();});
+ assert.equal((await fs.readFile(path.join(out,'fonts.pdf'))).subarray(0,4).toString(),'%PDF');
+ await page.locator('#package-file').setInputFiles(fontPackage);await page.waitForSelector('[data-action="confirm-import"]');await page.locator('[data-action="confirm-import"]').click();await page.waitForFunction(()=>store.fonts.length===1);await page.evaluate(()=>{closeDialog();});
+ await page.locator('#font-file').setInputFiles({name:'bad.ttf',mimeType:'font/ttf',buffer:Buffer.from('not a font')});await page.waitForFunction(()=>document.querySelector('#toast').textContent.includes('supported font'));assert.equal(await page.evaluate(()=>store.fonts.length),1);
+ await page.evaluate(()=>flushSave());await app.close();await launch();
+ assert.equal(await page.evaluate(()=>store.fonts[0].name),'My race lettering');assert.equal(await page.evaluate(()=>project.views.left[0].fontData.family),family);
+ assert.equal(await page.evaluate(async()=>{await document.fonts.load('20px "'+project.views.left[0].fontData.family+'"');await document.fonts.ready;return document.fonts.check('20px "'+project.views.left[0].fontData.family+'"');}),true);
+ await page.evaluate(()=>{chooseArtwork(layers()[0].id);render();});await page.screenshot({path:path.join(out,'fonts-editor.png')});
+ assert.deepEqual(errors,[]);await app.close();app=null;
+ console.log('PASS: font upload, deduplication, typeface selection, embedded SVG pixels, appearance, library details, independent project sharing, font packages, PDF, invalid-file rejection and restart.');
+})().catch(async error=>{console.error(error);if(app)await app.close().catch(()=>{});process.exitCode=1;});

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 350">
+ <g transform="translate(20 20)">
+  <path fill="#fff" stroke="#222" d="M25 205 L65 163 L210 145 L280 68 Q350 45 440 78 L540 145 L692 173 L730 215 L720 260 L25 260 Z"/>
+  <path fill="#888" d="M230 143 L292 82 L350 73 L350 143 Z"/>
+  <path fill="#888" d="M365 77 L429 89 L512 143 L365 143 Z"/>
+  <circle cx="165" cy="250" r="53" fill="#222"/>
+  <circle cx="600" cy="250" r="53" fill="#222"/>
+  <path fill="none" stroke="#333" d="M355 150 L355 233 L235 233"/>
+ </g>
+</svg>

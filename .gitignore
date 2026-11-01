@@ -1,0 +1,12 @@
+node_modules/
+dist/
+test-output/
+*.log
+.test-data/
+vendor/downloads/
+vendor/ghostscript/
+vendor/sources/
+vendor/build/
+concepts/
+source-assets/
+release-assets/

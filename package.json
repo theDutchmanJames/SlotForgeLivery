@@ -1,0 +1,111 @@
+{
+  "name": "slotforge-livery",
+  "productName": "SlotForge Livery",
+  "version": "0.32.0",
+  "description": "A local 2D livery studio for your own slotcar templates",
+  "private": true,
+  "main": "src/main.cjs",
+  "scripts": {
+    "start": "electron .",
+    "check": "node scripts/check.cjs",
+    "test": "node --test tests/model.test.cjs tests/storage.test.cjs",
+    "test:integration": "node scripts/test-integration.cjs",
+    "pack": "node scripts/pack.cjs",
+    "build:icons": "node scripts/build-icon.cjs",
+    "setup:converter": "node scripts/setup-converter.cjs",
+    "dist:win": "electron-builder --win portable",
+    "dist:mac": "electron-builder --mac",
+    "dist:linux": "electron-builder --linux"
+  },
+  "devDependencies": {
+    "electron": "45.1.0",
+    "electron-builder": "26.18.0",
+    "playwright": "1.56.1",
+    "sharp": "0.35.5"
+  },
+  "dependencies": {
+    "mupdf": "1.28.1"
+  },
+  "license": "AGPL-3.0-or-later",
+  "author": "theDutchmanJames",
+  "homepage": "https://github.com/theDutchmanJames/SlotForgeLivery",
+  "repository": {
+    "url": "git+https://github.com/theDutchmanJames/SlotForgeLivery.git",
+    "type": "git"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "build": {
+    "productName": "SlotForge Livery",
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "maintainer": "theDutchmanJames <thedutchmanjames@gmail.com>",
+      "synopsis": "2D slotcar livery studio",
+      "artifactName": "SlotForgeLivery-${version}-linux-${arch}.${ext}",
+      "icon": "assets/icon.png",
+      "category": "Graphics"
+    },
+    "extraResources": [
+      {
+        "filter": [
+          "bin/gs",
+          "bin/gswin64c.exe",
+          "bin/gsdll64.dll",
+          "doc/COPYING"
+        ],
+        "from": "vendor/ghostscript",
+        "to": "ghostscript"
+      },
+      {
+        "from": "LICENSE",
+        "to": "LICENSE.txt"
+      },
+      {
+        "from": "THIRD-PARTY-NOTICES.txt",
+        "to": "THIRD-PARTY-NOTICES.txt"
+      },
+      {
+        "from": "NOTICE",
+        "to": "NOTICE.txt"
+      }
+    ],
+    "mac": {
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "hardenedRuntime": false,
+      "notarize": false,
+      "identity": "-",
+      "artifactName": "SlotForgeLivery-${version}-mac-${arch}.${ext}",
+      "icon": "assets/icon.png",
+      "category": "public.app-category.graphics-design"
+    },
+    "files": [
+      "src/**/*",
+      "renderer/**/*",
+      "assets/**/*",
+      "package.json",
+      "LICENSE",
+      "THIRD-PARTY-NOTICES.txt",
+      "NOTICE"
+    ],
+    "appId": "nl.slotforge.livery",
+    "directories": {
+      "output": "dist/v${version}"
+    },
+    "win": {
+      "target": "portable",
+      "artifactName": "SlotForgeLivery-${version}-windows-${arch}.${ext}",
+      "icon": "assets/icon.ico",
+      "signExecutable": false
+    },
+    "asarUnpack": [
+      "node_modules/mupdf/**/*"
+    ]
+  }
+}

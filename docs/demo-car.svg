@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 500">
+ <!-- Original fictional club racer; demonstration artwork, not a bundled template. -->
+ <path fill="#ffffff" stroke="#283238" stroke-width="4" d="M85 286Q91 252 135 246L245 229L359 136Q385 116 431 117L587 119Q623 120 651 143L758 230L855 246Q902 255 915 285L935 330L930 365L845 378Q840 304 780 303Q713 302 703 380L299 380Q292 303 225 303Q157 303 151 376L76 363Z"/>
+ <path fill="#344953" stroke="#283238" stroke-width="4" d="M285 226L374 149Q389 140 430 140L447 140L447 225Z"/>
+ <path fill="#344953" stroke="#283238" stroke-width="4" d="M465 140L582 142Q607 143 631 161L712 225L465 225Z"/>
+ <path fill="#273137" d="M76 346L146 350L143 370L78 365ZM308 363L697 363L699 381L301 381ZM851 350L934 337L930 365L850 378Z"/>
+ <path fill="#fff3ce" stroke="#283238" stroke-width="3" d="M854 256L895 267L914 295L871 291Z"/>
+ <path fill="#d84950" stroke="#283238" stroke-width="3" d="M87 277L116 273L113 299L82 302Z"/>
+ <circle cx="225" cy="371" r="62" fill="#20282d"/>
+ <circle cx="780" cy="371" r="62" fill="#20282d"/>
+ <circle cx="225" cy="371" r="42" fill="#c5ccd0" stroke="#69787e" stroke-width="6"/>
+ <circle cx="780" cy="371" r="42" fill="#c5ccd0" stroke="#69787e" stroke-width="6"/>
+ <circle cx="225" cy="371" r="12" fill="#56646a"/>
+ <circle cx="780" cy="371" r="12" fill="#56646a"/>
+ <path fill="none" stroke="#283238" stroke-width="2" d="M458 234L458 349L668 349L697 235M120 316L160 312M837 315L920 307"/>
+ <path fill="#283238" d="M480 250H515V256H480Z"/>
+</svg>

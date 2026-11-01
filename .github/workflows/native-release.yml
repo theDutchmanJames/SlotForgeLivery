@@ -1,0 +1,119 @@
+name: Native desktop release
+run-name: Build Livery ${{ github.sha }}
+on:
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: Publish a preview release after every native build and source archive passes
+        type: boolean
+        default: false
+permissions:
+  contents: read
+concurrency:
+  group: livery-release
+  cancel-in-progress: false
+jobs:
+  sources:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+      - run: bash scripts/collect-sources.sh
+      - uses: actions/upload-artifact@v6
+        with:
+          name: release-sources
+          path: source-assets/*
+          if-no-files-found: error
+          compression-level: 0
+  build:
+    name: ${{ matrix.platform }} ${{ matrix.arch }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {runner: windows-2025, platform: windows, target: win, arch: x64}
+          - {runner: macos-15-intel, platform: mac, target: mac, arch: x64}
+          - {runner: macos-15, platform: mac, target: mac, arch: arm64}
+          - {runner: ubuntu-24.04, platform: linux, target: linux, arch: x64}
+          - {runner: ubuntu-24.04-arm, platform: linux, target: linux, arch: arm64}
+    defaults:
+      run:
+        shell: bash
+    env:
+      CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - name: Read package version
+        id: version
+        run: echo "value=$(node -p 'require("./package.json").version')" >> "$GITHUB_OUTPUT"
+      - run: npm run check && npm test
+      - name: Build bundled EPS converter
+        run: npm run setup:converter
+      - name: Test conversion
+        run: node scripts/converter-smoke.cjs
+      - name: Linux GUI dependencies
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y xvfb libnss3 libatk-bridge2.0-0 libgtk-3-0 libasound2t64 libgbm1
+      - name: Package native applications
+        run: npm run dist:${{ matrix.target }} -- --${{ matrix.arch }} --publish never
+      - name: Test packaged desktop and bundled EPS import (Windows/macOS)
+        if: runner.os != 'Linux'
+        run: node scripts/package-smoke.cjs
+      - name: Test packaged desktop and bundled EPS import (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          # Set the documented setuid sandbox helper for this isolated unpacked CI copy.
+          sandbox=$(find dist -path '*linux*unpacked/chrome-sandbox' -print -quit)
+          test -n "$sandbox"
+          sudo chown root:root "$sandbox"
+          sudo chmod 4755 "$sandbox"
+          xvfb-run -a node scripts/package-smoke.cjs
+      - name: Hash expected installers
+        run: node scripts/release-manifest.cjs ${{ matrix.platform }} ${{ matrix.arch }}
+      - uses: actions/upload-artifact@v6
+        with:
+          name: release-${{ matrix.platform }}-${{ matrix.arch }}
+          if-no-files-found: error
+          compression-level: 0
+          path: |
+            dist/v${{ steps.version.outputs.value }}/SlotForgeLivery-*
+            dist/v${{ steps.version.outputs.value }}/SHA256SUMS-*.txt
+  publish:
+    if: inputs.publish
+    needs: [sources, build]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@v6
+        with:
+          pattern: release-*
+          path: release-assets
+          merge-multiple: true
+      - name: Verify checksums, publish only the complete release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          SOURCE_SHA: ${{ github.sha }}
+        run: |
+          cd release-assets
+          for manifest in SHA256SUMS-*.txt; do sha256sum -c "$manifest"; done
+          cd ..
+          node scripts/publish-release.cjs

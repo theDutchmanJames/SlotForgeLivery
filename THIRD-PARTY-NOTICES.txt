@@ -1,0 +1,35 @@
+SlotForge Livery — third-party notices
+
+First-party application: Copyright (c) 2026 theDutchmanJames and contributors.
+GNU Affero General Public License v3 or later. See LICENSE and NOTICE.
+
+Ghostscript 10.08.0, Copyright Artifex Software, Inc.
+GNU Affero General Public License version 3; bundled COPYING is in
+resources/ghostscript/doc/COPYING. No source modifications are applied.
+Windows binary: https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs10080/gs10080w64.exe
+SHA256: 52a91b8bf09298788d7a57b9206127026c23eacd75405f0a131e26dc381dce50
+Corresponding source: ghostscript-10.08.0.tar.xz, supplied with this release.
+SHA256: c20492bc8ebb96c87fa2e52a0926e1cda8cde95d66145e018ac713fed5da38cf
+Native macOS/Linux binaries are built from that source; see scripts/build-ghostscript.sh.
+Upstream source: https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/tag/gs10080
+
+MuPDF 1.28.1 (JavaScript and WASM), Copyright Artifex Software, Inc.
+GNU Affero General Public License version 3 or later. Its LICENSE is retained
+in node_modules/mupdf. The npm distribution is unmodified.
+Corresponding source: mupdf-1.28.1-complete-source.tar.gz, supplied with this
+release, includes recursive submodules and platform/wasm build instructions.
+Upstream: https://github.com/ArtifexSoftware/mupdf/tree/1.28.1
+Commit: 20061bd45183f5a2bff8f43675e4da91e5ac2901
+The exact npm archive integrity is recorded in package-lock.json.
+
+Electron 45.1.0 is MIT licensed. Electron, Chromium, Node.js and their bundled
+components retain their licence files and third-party notices in the runtime.
+Electron source: https://github.com/electron/electron/tree/v45.1.0
+
+The converter source distributions contain their own dependency copyright
+and licence notices. Those components retain their respective licences.
+Build-only dependencies are not application runtime libraries.
+
+Download the exact application and converter sources alongside the installers:
+https://github.com/theDutchmanJames/SlotForgeLivery/releases
+See docs/BUILDING.md in the source archive for reproducible build commands.
