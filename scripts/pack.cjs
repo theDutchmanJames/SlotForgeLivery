@@ -13,6 +13,6 @@ const {execFileSync}=require('node:child_process');
  const app=path.join(out,'resources','app');await fs.mkdir(app,{recursive:true});
  for(const file of ['src','renderer','assets','package.json','README.md','LICENSE','NOTICE','THIRD-PARTY-NOTICES.txt','node_modules/mupdf'])await fs.cp(path.resolve(file),path.join(app,file),{recursive:true});
  for(const file of ['bin/gswin64c.exe','bin/gsdll64.dll','doc/COPYING']){const target=path.join(app,'vendor/ghostscript',file);await fs.mkdir(path.dirname(target),{recursive:true});await fs.copyFile(path.resolve('vendor/ghostscript',file),target);}
- await fs.writeFile(path.join(out,'README-FIRST.txt'),'SlotForge Livery 1.0.0\r\n\r\nDouble-click SlotForge Livery.exe. Keep this folder together.\r\nEPS and PDF conversion is included and works offline.\r\nYour library is stored in the Windows app-data folder, not in this folder.\r\nUse Import & Export to back up or share your library.\r\n\r\nThis unsigned build may trigger a Windows publisher warning.\r\n');
+ await fs.writeFile(path.join(out,'README-FIRST.txt'),'SlotForge Livery 1.1.0\r\n\r\nDouble-click SlotForge Livery.exe. Keep this folder together.\r\nEPS and PDF conversion is included and works offline.\r\nYour library is stored in the Windows app-data folder, not in this folder.\r\nUse Import & Export to back up or share your library.\r\n\r\nThis unsigned build may trigger a Windows publisher warning.\r\n');
  console.log('Desktop test build: '+path.join(out,'SlotForge Livery.exe'));
 })().catch(e=>{console.error(e);process.exitCode=1;});

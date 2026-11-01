@@ -1,14 +1,25 @@
-The first official release of **SlotForge Livery**, a local 2D slotcar livery studio.
+**SlotForge Livery 1.1.0 — Your studio, your colours**
+
+**From White Kits to your Design Concept**
+
+## New in 1.1.0
+
+- A dedicated **Settings** page after **Import & Export** in the header.
+- Eight familiar SlotForge themes: Dark, Light, Midnight blue, Forest green, Sunset orange, Violet, Carbon and yellow, and Ocean.
+- A **Custom** theme with your own background, panel, text, quiet text, border and accent colours.
+- Live previews, preset starting colours, contrast guidance, and explicit Save/Cancel controls.
+- Theme preferences survive restarts. Your livery paint and exported artwork remain unchanged.
+- A responsive header keeps navigation and Help accessible in smaller windows.
 
 Bring your own car artwork, label paintable panels, and design with colours, gradients, finish previews, editable shapes, curved stripes, numbers, custom fonts and transparent decals. Organise artwork in layers, reuse library items, exchange `.sfpaint` packages, and export workshop PDFs or transparent PNGs.
 
 ## Downloads
 
-- **Windows Intel/AMD:** `SlotForgeLivery-1.0.0-windows-x64.exe` — portable; download and run.
-- **Mac Apple silicon:** `SlotForgeLivery-1.0.0-mac-arm64.dmg` — open and drag Livery to Applications.
-- **Mac Intel:** `SlotForgeLivery-1.0.0-mac-x64.dmg` — open and drag Livery to Applications.
-- **Ubuntu/Debian Intel/AMD:** `SlotForgeLivery-1.0.0-linux-amd64.deb`.
-- **Other Linux Intel/AMD:** `SlotForgeLivery-1.0.0-linux-x86_64.AppImage` — mark executable in file properties.
+- **Windows Intel/AMD:** `SlotForgeLivery-1.1.0-windows-x64.exe` — portable; download and run.
+- **Mac Apple silicon:** `SlotForgeLivery-1.1.0-mac-arm64.dmg` — open and drag Livery to Applications.
+- **Mac Intel:** `SlotForgeLivery-1.1.0-mac-x64.dmg` — open and drag Livery to Applications.
+- **Ubuntu/Debian Intel/AMD:** `SlotForgeLivery-1.1.0-linux-amd64.deb`.
+- **Other Linux Intel/AMD:** `SlotForgeLivery-1.1.0-linux-x86_64.AppImage` — mark executable in file properties.
 - **Linux ARM64:** the `arm64.deb` or `arm64.AppImage`.
 
 macOS ZIPs are also supplied. Do not choose GitHub's source archives if you just want to run the app. See the README for step-by-step installation and first-project instructions.

@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="panel-studio.css">
   <link rel="stylesheet" href="library-theme.css">
+  <link rel="stylesheet" href="themes.css">
 </head>
 <body>
   <header class="app-header">
@@ -17,11 +18,13 @@
       <button class="active" data-action="studio"><span data-icon="brush"></span>Paint Studio</button>
       <button data-action="library"><span data-icon="folder"></span>User Library</button>
       <button data-action="sharing"><span data-icon="share"></span>Import & Export</button>
+      <button data-action="settings"><span data-icon="settings"></span>Settings</button>
     </nav>
-    <div class="header-tools"><span class="version">v1.0.0</span><div class="theme-switch" role="group" aria-label="Colour theme"><button data-theme-choice="light" aria-pressed="false"><span aria-hidden="true">☀</span> Light</button><button data-theme-choice="dark" aria-pressed="true"><span aria-hidden="true">☾</span> Dark</button></div><button class="help-button" data-action="help" title="Help and shortcuts">HELP</button></div>
+    <div class="header-tools"><span class="version">v1.1.0</span><div class="theme-switch" role="group" aria-label="Colour theme"><button data-theme-choice="light" aria-pressed="false"><span aria-hidden="true">☀</span> Light</button><button data-theme-choice="dark" aria-pressed="true"><span aria-hidden="true">☾</span> Dark</button></div><button class="help-button" data-action="help" title="Help and shortcuts">HELP</button></div>
   </header>
   <section class="project-bar"><div class="project-identity"><span class="section-icon" data-icon="car"></span><div><button id="project-name" class="name-button" data-action="rename">Your next livery starts here</button><small id="project-meta">Your cars. Your colours. Your workshop.</small></div></div><div class="project-actions"><span id="save-status" class="save-status">● Local library</span><button data-action="save-livery" class="project-only"><span data-icon="save"></span>Save livery</button><button data-action="png" class="project-only"><span data-icon="image"></span>Export PNG</button><button data-action="pdf" class="primary project-only"><span data-icon="pdf"></span>Export PDF</button></div></section>
-  <main class="workspace">
+  <main id="settings-page" aria-label="Settings" hidden></main>
+<main class="workspace">
     <aside class="toolbox" aria-label="Drawing tools"><div class="toolbox-label">TOOLS</div><div id="tools"></div><div class="tool-separator"></div><div class="tool-colours"><input id="quick-colour" type="color" value="#f28a35" title="Current paint colour" aria-label="Current paint colour"><span id="base-swatch" title="Base paint"></span></div><div class="tool-separator"></div><button data-action="library" title="User library" aria-label="User library"><span data-icon="folder"></span><small>Library</small></button><button data-action="add-car" title="Add your own car" aria-label="Add your own car"><span data-icon="carplus"></span><small>Add car</small></button><div class="toolbox-bottom"><button data-action="help" title="Help" aria-label="Help">HELP</button></div></aside>
     <section class="drawing-area">
       <div class="context-bar"><strong id="tool-label">Select</strong><span class="context-divider"></span><label><input id="snap" type="checkbox"> Snap</label><label><input id="grid" type="checkbox"> Grid</label><label title="Subtle finish cues on screen; workshop PDF keeps the paint colours"><input id="paint-preview" type="checkbox" checked> Finish preview</label><div class="context-right"><button id="prepare-button" data-action="prepare" class="project-only"><span data-icon="nodes"></span>Prepare template</button><button data-action="undo" class="icon-button" title="Undo (Ctrl+Z)" aria-label="Undo"><span data-icon="undo"></span></button><button data-action="redo" class="icon-button" title="Redo (Ctrl+Shift+Z)" aria-label="Redo"><span data-icon="redo"></span></button></div></div>
@@ -37,5 +40,5 @@
   <input id="font-file" type="file" accept=".ttf,.otf,.woff,.woff2" multiple hidden>
   <input id="package-file" type="file" accept=".sfpaint,.json" hidden>
   <div id="toast" role="status" aria-live="polite"></div>
-  <script src="model.js"></script><script src="fonts.js"></script><script src="mask-preview.js"></script><script src="svg.js"></script><script src="perspective-preview.js"></script><script src="repair.js"></script><script src="panel-studio.js"></script><script src="app.js"></script>
+  <script src="model.js"></script><script src="fonts.js"></script><script src="mask-preview.js"></script><script src="svg.js"></script><script src="perspective-preview.js"></script><script src="repair.js"></script><script src="panel-studio.js"></script><script src="theme.js"></script><script src="settings.js"></script><script src="app.js"></script>
 </body></html>

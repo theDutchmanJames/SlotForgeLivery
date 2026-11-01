@@ -64,6 +64,7 @@ The compact toolbox keeps your canvas spacious, while the layer list and collaps
 - **Familiar layers:** drag to reorder, bring artwork forward or send it back, and group elements while keeping every child editable.
 - **Work on several parts together:** multi-select areas or artwork, change their appearance together, and copy/paste styling between layers.
 - **Comfortable editing:** pan, zoom, undo/redo, switch themes, and clear the selection to admire your design without selection boxes.
+- **Your own interface colours:** open **Settings** in the header for eight SlotForge themes, or create a custom palette for backgrounds, panels, text, borders and accents. Preview before saving; your car's paint colours stay unchanged.
 
 ### ④ Save, export and share — let another builder keep creating
 
