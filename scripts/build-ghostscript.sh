@@ -18,7 +18,7 @@ chmod 755 "$root/vendor/ghostscript/bin/gs"
 # Reject accidental dependencies on libraries installed only on the build runner.
 if [[ "$(uname -s)" == Darwin ]]; then
   otool -L "$root/vendor/ghostscript/bin/gs"
-  if otool -L "$root/vendor/ghostscript/bin/gs" | tail -n +2 | grep -Ev '^\s*(/usr/lib/|/System/Library/)' ; then
+  if otool -L "$root/vendor/ghostscript/bin/gs" | tail -n +2 | grep -Ev '^[[:space:]]*(/usr/lib/|/System/Library/)' ; then
     echo 'Converter links a non-system library; refuse to package it.' >&2; exit 1
   fi
 else

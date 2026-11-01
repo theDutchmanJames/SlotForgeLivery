@@ -5,6 +5,7 @@ const path = require('node:path');
 const { LibraryStorage } = require('../src/library-storage.cjs');
 const empty = () => ({ schema: 1, templates: [], liveries: [], assets: [], projects: [], current: null });
 async function fixture(t, io = fs) {
+  await fs.mkdir(path.resolve('test-output'), {recursive:true});
   const dir = await fs.mkdtemp(path.resolve('test-output/storage-'));
   t.after(() => fs.rm(dir, { recursive: true, force: true }));
   const target = path.join(dir, 'library.json');
