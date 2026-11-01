@@ -17,8 +17,8 @@ const refs=JSON.parse(gh(['api',`repos/${process.env.GH_REPO}/git/matching-refs/
 if(!refs.some(r=>r.ref===`refs/tags/${tag}`))gh(['api',`repos/${process.env.GH_REPO}/git/refs`,'--method','POST','-f',`ref=refs/tags/${tag}`,'-f',`sha=${process.env.SOURCE_SHA}`]);
 assert.equal(JSON.parse(gh(['api',`repos/${process.env.GH_REPO}/commits/${tag}`])).sha,process.env.SOURCE_SHA,'Release tag must match the tested source');
 if(!release){
- gh(['release','create',tag,'--draft','--verify-tag','--target',process.env.SOURCE_SHA,'--title',`SlotForge Livery ${version}`,'--notes-file','RELEASE_NOTES.md']);
- release=JSON.parse(gh(['api',`repos/${process.env.GH_REPO}/releases?per_page=100`])).find(r=>r.tag_name===tag);
+ // Use the create response directly: the release list can briefly lag behind it.
+ release=JSON.parse(gh(['api',`repos/${process.env.GH_REPO}/releases`,'--method','POST','-f',`tag_name=${tag}`,'-f',`target_commitish=${process.env.SOURCE_SHA}`,'-f',`name=SlotForge Livery ${version}`,'-F','draft=true','-F','prerelease=false','-F','body=@RELEASE_NOTES.md']));
 }
 assert(release?.draft,'Expected a draft release');
 for(const name of expected){

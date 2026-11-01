@@ -10,6 +10,7 @@ function simulate(existing){
   if(args[0]==='api'){
    const endpoint=args[1];assert(!endpoint.includes('/releases/tags/'),'Draft lookup must use release ID');
    if(endpoint.endsWith('/releases?per_page=100'))return JSON.stringify(release?[release]:[]);
+   if(endpoint.endsWith('/releases')&&args.includes('POST')){assert(ref);release={id:1,tag_name:'v0.32.0',target_commitish:sha,draft:true,assets:[]};return JSON.stringify(release);}
    if(endpoint.includes('/git/matching-refs/'))return JSON.stringify(ref?[{ref:'refs/tags/v0.32.0'}]:[]);
    if(endpoint.endsWith('/git/refs')){ref=true;return '{}';}
    if(endpoint.includes('/commits/')){assert(ref,'Tag must exist before verification');return JSON.stringify({sha});}
@@ -31,7 +32,8 @@ test('publisher creates the tag, verifies all 20 assets by draft ID, then publis
  assert.equal(calls.at(-1)[1],'edit');
  assert(calls.at(-1).includes('--prerelease=false'));
  assert(calls.at(-1).includes('--latest'));
- assert(!calls.find(c=>c[1]==='create').includes('--prerelease'));
+ const create=calls.find(c=>c[1].endsWith('/releases')&&c.includes('POST'));
+ assert(create.includes('draft=true'));assert(create.includes('prerelease=false'));
 });
 test('publisher rejects conflicting draft assets before uploading',()=>{
  assert.throws(()=>simulate({assets:[{name:'SlotForgeLivery-source.tar.gz',digest:'sha256:wrong'}]}),/Existing draft asset differs/);
