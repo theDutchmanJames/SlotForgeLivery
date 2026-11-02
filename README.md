@@ -2,14 +2,15 @@
   <img src="docs/images/slotforge-brand.png" alt="SlotForge — Slotcar App Collection" width="400">
 </p>
 
-<p align="center"><img src="assets/icon.svg" width="88" height="88" alt="SlotForge Livery brush icon"></p>
+# SlotForge Livery
 
-<h1 align="center">SlotForge Livery</h1>
-<p align="center"><strong>From White Kits to your Design Concept</strong><br>Import your car. Pick your panels. Create your livery. Share it with the community.</p>
+<img src="assets/icon.svg" alt="SlotForge Livery brush icon" width="96" align="right">
 
-<p align="center"><strong>Windows · macOS · Linux</strong><br>Free &amp; open source · Works offline · Your own car library</p>
+<p><strong>From White Kits to your Design Concept</strong><br>Import your car. Pick your panels. Create your livery. Share it with the community.</p>
 
-<p align="center">
+<p><strong>Windows · macOS · Linux</strong><br>Free &amp; open source · Works offline · Your own car library</p>
+
+<p>
   <a href="https://github.com/theDutchmanJames/SlotForgeLivery/releases/latest"><strong>Download Livery</strong></a> ·
   <a href="#your-first-livery">Getting started</a> ·
   <a href="#what-you-can-do">Features</a> ·
