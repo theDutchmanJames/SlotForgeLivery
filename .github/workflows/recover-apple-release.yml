@@ -1,0 +1,93 @@
+name: Recover Apple silicon release
+on:
+  workflow_dispatch:
+    inputs:
+      source_run:
+        description: Completed native release run with four successful platforms and a missing Apple silicon build
+        type: string
+        required: true
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: livery-release
+  cancel-in-progress: false
+jobs:
+  apple:
+    runs-on: macos-26
+    timeout-minutes: 45
+    outputs:
+      sha: ${{ steps.source.outputs.sha }}
+      version: ${{ steps.source.outputs.version }}
+    env:
+      CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+      MACOSX_DEPLOYMENT_TARGET: '15.0'
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+      - name: Validate existing builds and release tag
+        id: source
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          SOURCE_RUN: ${{ inputs.source_run }}
+        run: node --test tests/apple-recovery.test.cjs && node scripts/validate-apple-recovery.cjs
+      - name: Check out the exact original release source
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ steps.source.outputs.sha }}
+          persist-credentials: false
+      - run: npm ci
+      - run: npm run check && npm test
+      - run: npm run setup:converter
+      - run: node scripts/converter-smoke.cjs
+      - run: npm run dist:mac -- --arm64 --publish never
+      - run: node scripts/package-smoke.cjs
+      - run: node scripts/release-manifest.cjs mac arm64
+      - uses: actions/upload-artifact@v6
+        with:
+          name: release-mac-arm64
+          if-no-files-found: error
+          compression-level: 0
+          path: |
+            dist/v${{ steps.source.outputs.version }}/SlotForgeLivery-*
+            dist/v${{ steps.source.outputs.version }}/SHA256SUMS-*.txt
+  publish:
+    needs: apple
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.apple.outputs.sha }}
+          persist-credentials: false
+      - name: Retrieve the verified source archives and four existing platforms
+        uses: actions/download-artifact@v6
+        with:
+          github-token: ${{ github.token }}
+          run-id: ${{ inputs.source_run }}
+          pattern: release-*
+          path: release-assets
+          merge-multiple: true
+      - name: Retrieve the new tested Apple silicon build
+        uses: actions/download-artifact@v6
+        with:
+          name: release-mac-arm64
+          path: release-assets
+      - name: Verify and publish the complete release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          SOURCE_SHA: ${{ needs.apple.outputs.sha }}
+        run: |
+          cd release-assets
+          for manifest in SHA256SUMS-*.txt; do sha256sum -c "$manifest"; done
+          cd ..
+          node --test tests/release-publish.test.cjs
+          node scripts/publish-release.cjs
