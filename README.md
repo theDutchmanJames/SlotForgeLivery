@@ -1,3 +1,7 @@
+<p align="left">
+  <img src="docs/images/slotforge-brand.png" alt="SlotForge — Slotcar App Collection" width="400">
+</p>
+
 <p align="center"><img src="assets/icon.svg" width="88" height="88" alt="SlotForge Livery brush icon"></p>
 
 <h1 align="center">SlotForge Livery</h1>
