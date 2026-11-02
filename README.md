@@ -194,17 +194,15 @@ Use the app's export controls for portable backups rather than editing the stora
 
 ## SlotForge App Collection
 
-Livery is part of the **SlotForge App Collection**: practical tools for your slotcar hobby, from planning a track and preparing your cars to racing and designing their next look. Explore the other apps:
+SlotForge Livery is part of the **SlotForge App Collection**—apps for building tracks, managing your cars, designing their appearance and exploring their performance.
 
-| App | What it helps you do |
-| --- | --- |
-| [**SlotForge Timing**](https://github.com/theDutchmanJames/SlotForgeTiming) | Time laps and manage your slotcar races. |
-| [**SlotForge Paddock**](https://github.com/theDutchmanJames/SlotForgePaddock) | Organise your slotcar collection and car details. |
-| [**SlotForge Telemetry**](https://github.com/theDutchmanJames/SlotForgeTelemetry) | Explore gearing, motors, tyres and weight, and compare setups and lap times. |
-| [**SlotForge Decals**](https://github.com/theDutchmanJames/SlotForgeDecals) | Size your artwork, arrange decal sheets and export print-ready PDFs. |
-| [**SlotForge Circuit**](https://github.com/theDutchmanJames/SlotForgeCircuit) | Plan and design your slotcar tracks. |
+- <img src="https://raw.githubusercontent.com/theDutchmanJames/SlotForgeTiming/main/build/icon.png" alt="" width="24" height="24" align="absmiddle"> **[SlotForge Timing](https://github.com/theDutchmanJames/SlotForgeTiming)** — Time laps, manage races and create custom race displays for analogue slotcar tracks.
+- <img src="https://raw.githubusercontent.com/theDutchmanJames/SlotForgePaddock/main/assets/icon.png" alt="" width="24" height="24" align="absmiddle"> **[SlotForge Paddock](https://github.com/theDutchmanJames/SlotForgePaddock)** — Organize your slotcar collection, photographs, parts, setups and maintenance in a virtual garage and workshop.
+- <img src="https://raw.githubusercontent.com/theDutchmanJames/SlotForgeTelemetry/main/assets/icon.png" alt="" width="24" height="24" align="absmiddle"> **[SlotForge Telemetry](https://github.com/theDutchmanJames/SlotForgeTelemetry)** — Explore gearing, motors, tyres and weight, compare setups, and analyse recorded lap times.
+- <img src="https://raw.githubusercontent.com/theDutchmanJames/SlotForgeDecals/main/assets/icon.png" alt="" width="24" height="24" align="absmiddle"> **[SlotForge Decals](https://github.com/theDutchmanJames/SlotForgeDecals)** — Size and arrange artwork into decal sheets, then export a PDF for printing.
+- <img src="https://raw.githubusercontent.com/theDutchmanJames/SlotForgeCircuit/main/app/icon.png" alt="" width="24" height="24" align="absmiddle"> **[SlotForge Circuit](https://github.com/theDutchmanJames/SlotForgeCircuit)** — Design slotcar tracks, including routed and FreeForm layouts, and export track data for Timing's Live Tracker.
 
-Each link opens the app's repository, with its own features, installation instructions and downloads.
+Visit each app's repository for its features, downloads and getting-started guide. Circuit was previously called SlotForge Track Builder; its repository is now SlotForgeCircuit.
 
 ## Development
 
