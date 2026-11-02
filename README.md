@@ -4,7 +4,7 @@
 
 # SlotForge Livery
 
-<img src="assets/icon.svg" alt="SlotForge Livery brush icon" width="96" align="right">
+<img src="assets/icon.svg" alt="SlotForge Livery ribbon icon" width="96" align="right">
 
 <p><strong>From White Kits to your Design Concept</strong><br>Import your car. Pick your panels. Create your livery. Share it with the community.</p>
 

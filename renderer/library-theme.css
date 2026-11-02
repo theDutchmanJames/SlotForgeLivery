@@ -97,3 +97,6 @@ dialog.library-dialog,dialog.package-dialog{width:92vw;max-width:1600px;height:8
 .library-card .library-edit{margin:10px 0 8px;font-size:11px;min-height:32px}.library-card .library-edit .icon{width:14px;height:14px}
 
 .png-preview{height:clamp(160px,32vh,330px);margin:14px 0;border:1px solid var(--line);border-radius:7px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:repeating-conic-gradient(#d6d9dd 0% 25%,#f5f6f7 0% 50%) 0/20px 20px}.png-preview canvas{max-width:100%;max-height:100%;object-fit:contain}
+
+/* The app mark uses the approved livery ribbon proportions. */
+.brand-icon .livery-icon{width:43px;height:43px}
