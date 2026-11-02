@@ -191,9 +191,19 @@ Projects and the library are saved on your computer. The storage directory keeps
 
 Use the app's export controls for portable backups rather than editing the storage JSON by hand.
 
-## Part of the SlotForge family
+## SlotForge App Collection
 
-Livery follows the SlotForge visual language: compact tools, clear panels, familiar accents and a practical workshop focus. It joins **Timing**, **Paddock**, **Telemetry** and **Circuit**. Explore the family on [theDutchmanJames's GitHub page](https://github.com/theDutchmanJames).
+Livery is part of the **SlotForge App Collection**: practical tools for your slotcar hobby, from planning a track and preparing your cars to racing and designing their next look. Explore the other apps:
+
+| App | What it helps you do |
+| --- | --- |
+| [**SlotForge Timing**](https://github.com/theDutchmanJames/SlotForgeTiming) | Time laps and manage your slotcar races. |
+| [**SlotForge Paddock**](https://github.com/theDutchmanJames/SlotForgePaddock) | Organise your slotcar collection and car details. |
+| [**SlotForge Telemetry**](https://github.com/theDutchmanJames/SlotForgeTelemetry) | Explore gearing, motors, tyres and weight, and compare setups and lap times. |
+| [**SlotForge Decals**](https://github.com/theDutchmanJames/SlotForgeDecals) | Size your artwork, arrange decal sheets and export print-ready PDFs. |
+| [**SlotForge Circuit**](https://github.com/theDutchmanJames/SlotForgeTrackBuilder) | Plan and design your slotcar tracks. |
+
+Each link opens the app's repository, with its own features, installation instructions and downloads.
 
 ## Development
 
