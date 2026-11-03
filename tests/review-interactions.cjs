@@ -14,7 +14,7 @@ const root=path.resolve(__dirname,'..');
    if(end==='Escape')await page.keyboard.press('Escape');else await page.evaluate(end=>{if(end==='blur')window.dispatchEvent(new Event('blur'));else art.dispatchEvent(new PointerEvent('lostpointercapture',{pointerId:drag.pointerId}));},end);
    const saved=await page.evaluate(()=>({drag:!!drag,layer:M.clone(layers()[0]),undo:undo.length}));assert.equal(saved.drag,false,end+' finishes the drag');assert.equal(saved.undo,1);assert.notEqual(saved.layer.x,300);
    await page.mouse.move(start.x+100,start.y+40);await page.mouse.up();assert.deepEqual(await page.evaluate(()=>layers()[0]),saved.layer,end+' cannot leave sticky movement');
-   await page.evaluate(()=>flushSave());const data=JSON.parse(await fs.readFile(path.join(profile,'paintshop-library.json'),'utf8'));assert.deepEqual(data.projects.find(p=>p.id===data.current).views.left[0],saved.layer,'Interrupted movement persists');
+   await page.evaluate(()=>flushSave());const data=await page.evaluate(()=>window.desktop.librarySnapshot());assert.deepEqual(data.projects.find(p=>p.id===data.current).views.left[0],saved.layer,'Interrupted movement persists');
    await page.evaluate(()=>actions.undo());assert.equal(await page.evaluate(()=>layers()[0].x),300);
   }
   // A cancelled pen gesture discards only its in-progress anchor and releases capture.

@@ -1,3 +1,9 @@
+# SQLite storage review — unreleased
+
+The new storage implementation and its validation are described in [SQLite review](docs/SQLITE-REVIEW.md) and [storage/recovery](docs/SQLITE-STORAGE.md). Run `npm test`, `npm run test:integration`, and `npm run benchmark:library` with Node 24 or newer. Desktop tests use isolated profiles. The packaged smoke check now verifies legacy migration, worker operation and reopening on each native release target.
+
+The historical reviews below describe the earlier implementation and remain for context.
+
 # Preview 0.31 review
 
 The review covers changes since the 0.22 reliability review: custom fonts, simplification and restoration of filtered areas, rendering caches, canvas pan/zoom, and simultaneous painting of selected areas. Related asynchronous export and gesture cleanup paths were also inspected.

@@ -11,7 +11,8 @@ async function recoverWindow(reason){
   const result=await dialog.showMessageBox(mainWindow,{type:'error',title:'Livery could not load',message:'The Livery interface stopped responding.',detail:'Your saved library is still on this computer. Restart Livery to try loading it again. Any unsaved changes may be lost.',buttons:['Restart Livery','Close'],defaultId:0,cancelId:1});
   if(result.response===0)app.relaunch();mainWindow.closing=true;mainWindow.destroy();
 }
-const { LibraryStorage } = require('./library-storage.cjs');
+const { SQLiteService } = require('./sqlite-service.cjs');
+const { assertExportTarget } = require('./export-path.cjs');
 let converting = false;
 ipcMain.handle('vector:convert', async (_, payload) => {
   if(converting)throw new Error('Please wait for the current import to finish.');
@@ -40,13 +41,25 @@ function safeWindow(options = {}) {
   win.webContents.on('will-navigate', e => e.preventDefault());
   return win;
 }
-const libraryStorage = new LibraryStorage(dataPath());
-ipcMain.handle('library:load', () => libraryStorage.load());
+const libraryStorage = new SQLiteService(dataPath());
+ipcMain.handle('library:load', async () => {
+  // Verified first-run migration may legitimately take longer than normal UI
+  // startup. The worker remains off the main thread and originals stay intact.
+  clearTimeout(startupTimer);
+  try { return await libraryStorage.load(); }
+  finally { if(!rendererReady)startupTimer=setTimeout(()=>recoverWindow('Renderer did not finish opening the library.'),20000); }
+});
 ipcMain.handle('library:save', (_, data) => libraryStorage.save(data));
-ipcMain.handle('library:restore', (_, data) => libraryStorage.save(data, { restore: true }));
+ipcMain.handle('library:restore', (_, data) => libraryStorage.restore(data));
+ipcMain.handle('library:item', (_, key) => libraryStorage.get(key));
+ipcMain.handle('library:preview', (_, key) => libraryStorage.preview(key));
+ipcMain.handle('library:thumbnail', (_, data) => libraryStorage.thumbnail(data));
+ipcMain.handle('library:missing-media', (_, hashes) => libraryStorage.missingMedia(hashes));
+ipcMain.handle('library:snapshot', () => libraryStorage.snapshot());
 ipcMain.handle('package:save', async (_, { name, data }) => {
   const result = await dialog.showSaveDialog(mainWindow, { title: 'Export library package', defaultPath: name.replace(/[<>:"/\\|?*]/g, '-').slice(0,100) + '.sfpaint', filters: [{ name: 'SlotForge Livery package', extensions: ['sfpaint'] }] });
   if (result.canceled) return false;
+  await assertExportTarget(result.filePath,app.getPath('userData'));
   await fs.writeFile(result.filePath, JSON.stringify(data, null, 2));
   return true;
 });
@@ -56,12 +69,14 @@ ipcMain.handle('png:save', async (_, { name, dataURL }) => {
   if(!bytes.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10])))throw new Error('Invalid PNG image');
   const result=await dialog.showSaveDialog(mainWindow,{title:'Export transparent PNG',defaultPath:String(name||'Livery').replace(/[<>:"/\\|?*]/g,'-').slice(0,100)+'.png',filters:[{name:'PNG image',extensions:['png']}]});
   if(result.canceled)return false;
+  await assertExportTarget(result.filePath,app.getPath('userData'));
   await fs.writeFile(result.filePath,bytes);return true;
 });
 ipcMain.handle('pdf:save', async (_, { name, html }) => {
   if (typeof html !== 'string' || html.length > 100 * 1024 * 1024) throw new Error('Invalid report');
   const result = process.env.PAINTSHOP_TEST_PDF ? { filePath: process.env.PAINTSHOP_TEST_PDF } : await dialog.showSaveDialog(mainWindow, { title: 'Export workshop PDF', defaultPath: name.replace(/[<>:"/\\|?*]/g, '-').slice(0,100) + '.pdf', filters: [{ name: 'PDF document', extensions: ['pdf'] }] });
   if (result.canceled) return false;
+  await assertExportTarget(result.filePath,app.getPath('userData'));
   const win = safeWindow({ show: false, width: 1100, height: 800 });
   const temp = path.join(app.getPath('userData'), 'workshop-report.html');
   try {

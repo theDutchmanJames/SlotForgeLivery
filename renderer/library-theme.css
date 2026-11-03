@@ -100,3 +100,4 @@ dialog.library-dialog,dialog.package-dialog{width:92vw;max-width:1600px;height:8
 
 /* The app mark uses the approved livery ribbon proportions. */
 .brand-icon .livery-icon{width:43px;height:43px}
+.library-paging{display:flex;align-items:center;justify-content:center;gap:16px;padding:16px 0}

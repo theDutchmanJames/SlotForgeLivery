@@ -176,7 +176,9 @@ Import limits are **5 MB for SVG**, **25 MB for EPS/PDF**, **10 MB per image or 
 
 ### Local storage and backups
 
-Your projects and library are stored on your computer. Livery autosaves and retains the previous successful storage file; use **Import & Export** to keep a separate whole-library backup as well.
+Your projects and library are stored on your computer in SQLite. Livery saves changed objects independently, reuses identical media, and loads library artwork when you need it. Use **Import & Export** to keep separate backups; packages remain limited to 180 MB, so larger collections should be exported in selections.
+
+Existing JSON libraries migrate automatically after verification, with the original files preserved. After migration, use the updated app: older executables still read the original, now-outdated JSON. See [library storage and recovery](docs/SQLITE-STORAGE.md) for details.
 
 The data folder retains its original **SlotForge Paintshop** name for compatibility:
 

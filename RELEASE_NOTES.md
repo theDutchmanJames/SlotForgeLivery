@@ -1,39 +1,43 @@
-**SlotForge Livery 1.1.1 — A new mark for Livery**
+**SlotForge Livery 1.2.0 — A library built to grow**
 
 **From White Kits to your Design Concept**
 
-## New in 1.1.1
+## What's new
 
-- A new Livery ribbon icon: three racing stripes form the letter L.
-- Updated desktop application icons for Windows, macOS and Linux, plus the in-app brand mark and README icon.
-- The new in-app mark follows your selected interface theme.
+- **SQLite library storage:** templates, projects, views, paintable areas, layers and groups are stored as separate records. Ordinary saves update changed records instead of rewriting the whole library.
+- **Less duplication:** identical images, fonts and large vector strings share storage while designs remain independently editable.
+- **Lighter browsing:** library items load when needed, with cached thumbnails and 32 items per page.
+- **Verified migration:** existing JSON libraries are migrated automatically on first launch. Livery reconstructs and compares the complete library before switching; the original JSON and backup remain untouched.
+- **Safer saving and recovery:** transactions protect interrupted writes, stale saves are rejected, and exports cannot overwrite the library files.
+- **SlotForge branding:** theme-aware logos in the header and footer.
 
-Bring your own car artwork, label paintable panels, and design with colours, gradients, finish previews, editable shapes, curved stripes, numbers, custom fonts and transparent decals. Organise artwork in layers, reuse library items, exchange `.sfpaint` packages, and export workshop PDFs or transparent PNGs.
+Your editable shapes, groups, custom fonts, paintable labels and existing `.sfpaint` packages continue to work. PDF and transparent PNG exports remain available.
+
+## Updating safely
+
+Export a library backup before updating. Your data stays in the existing `SlotForge Paintshop` user-data folder; no database installation or account is needed.
+
+After migration, new work is saved to SQLite. **The preserved JSON is a migration snapshot, not an ongoing backup.** An older Livery version will not see subsequent SQLite changes. Export compatible `.sfpaint` packages from this version before downgrading.
+
+The 180 MiB whole-library save limit has been removed. The existing **180 MiB package import/export limit** still applies; share selected items in smaller packages for larger collections.
 
 ## Downloads
 
-- **Windows Intel/AMD:** `SlotForgeLivery-1.1.1-windows-x64.exe` — portable; download and run.
-- **Mac Apple silicon:** `SlotForgeLivery-1.1.1-mac-arm64.dmg` — open and drag Livery to Applications.
-- **Mac Intel:** `SlotForgeLivery-1.1.1-mac-x64.dmg` — open and drag Livery to Applications.
-- **Ubuntu/Debian Intel/AMD:** `SlotForgeLivery-1.1.1-linux-amd64.deb`.
-- **Other Linux Intel/AMD:** `SlotForgeLivery-1.1.1-linux-x86_64.AppImage` — mark executable in file properties.
-- **Linux ARM64:** the `arm64.deb` or `arm64.AppImage`.
+- **Windows Intel/AMD:** `SlotForgeLivery-1.2.0-windows-x64.exe` — download and run; portable, no installation required.
+- **Mac Apple silicon:** `SlotForgeLivery-1.2.0-mac-arm64.dmg` — open and drag Livery to Applications.
+- **Mac Intel:** `SlotForgeLivery-1.2.0-mac-x64.dmg` — open and drag Livery to Applications.
+- **Ubuntu/Debian Intel/AMD:** `SlotForgeLivery-1.2.0-linux-amd64.deb`.
+- **Other Linux Intel/AMD:** `SlotForgeLivery-1.2.0-linux-x86_64.AppImage` — mark executable in file properties.
+- **Linux ARM64:** choose the `arm64.deb` or `arm64.AppImage`.
 
-macOS ZIPs are also supplied. Do not choose GitHub's source archives if you just want to run the app. See the README for step-by-step installation and first-project instructions.
+macOS ZIPs are also provided. Choose an application download, not a source archive, to run Livery. See the README for installation instructions.
 
-EPS and vector-PDF import are included and work offline. Each platform's packaged application is launch-tested with EPS import in GitHub Actions. Native runner checks do not replace testing across every desktop distribution and OS version.
+Windows builds are unsigned. macOS builds are ad-hoc signed and not notarised. EPS and vector-PDF conversion are included and work offline.
 
-## Before you start
+## Verification
 
-- The library starts empty; no car catalogue is preinstalled.
-- Export a library backup before updating.
-- Windows builds are unsigned. macOS builds are ad-hoc signed and not notarised. Download only from this repository and review your operating system's per-app prompts.
-- SVG/EPS/PDF imports need supported flat vector artwork. Photographs use manual tracing; there is no automatic photo recognition or 3D model.
-- PDF exports are workshop references, not calibrated cutting templates or colour proofs.
-- Existing local-preview libraries stay in the original `SlotForge Paintshop` user-data folder.
+Local verification passed 46 storage/model tests, 34 desktop integration suites and four release checks, plus packaged Windows migration/save/reopen and EPS import. A disposable copy of an existing personal library migrated exactly. Native release downloads are published only after their build and packaged smoke checks pass.
 
 ## Licence and sources
 
-This Livery release uses **GNU AGPL version 3 or later**, rather than the other SlotForge apps' no-selling licence. This allows the current Ghostscript and MuPDF converters to remain included. There is no purchase or account required.
-
-The source archives, revision list and build instructions attached here accompany the native binaries. `SHA256SUMS-*.txt` files let you verify downloads. Source archives are for developers and redistribution compliance, not needed to run Livery.
+Livery uses **GNU AGPL version 3 or later**, including the current Ghostscript and MuPDF converters. No purchase or account is required. Corresponding source archives, build instructions and `SHA256SUMS-*.txt` files accompany the downloads.

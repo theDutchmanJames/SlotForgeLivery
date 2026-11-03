@@ -4,7 +4,7 @@ Most users should download a native application from [Releases](https://github.c
 
 ## Requirements
 
-- Node.js 22.12 or newer (GitHub builds use Node 24), npm and Git.
+- Node.js 24 or newer (GitHub builds use Node 24), npm and Git.
 - Build on the operating system and architecture you are targeting. macOS Intel and Apple silicon have separate native builds; no cross-compilation is assumed.
 - Windows: 7-Zip in `C:/Program Files/7-Zip/7z.exe`, or set `SEVEN_ZIP` to its executable path.
 - macOS: Apple's Command Line Tools (`xcode-select --install`).

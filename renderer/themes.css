@@ -31,6 +31,20 @@ button.active,button[aria-pressed="true"]{background:color-mix(in srgb,var(--acc
 .app-header nav button.active{color:var(--ink);border-bottom-color:var(--accent)}
 .view-tile.active .thumb,.layer-row.active{background:color-mix(in srgb,var(--accent) 10%,var(--panel))}
 .panel-area-row.selected{background:color-mix(in srgb,var(--accent) 10%,var(--panel));border-color:var(--accent)}
+/* Match Telemetry: retain the text's width and baseline for the wordmark. */
+.brand-wordmark{display:inline-block;position:relative;vertical-align:baseline}
+.brand-wordmark-size{visibility:hidden}
+.brand-wordmark img{position:absolute;left:0;top:50%;transform:translateY(-50%);display:block;width:100%;height:auto}
+.brand-wordmark .brand-wordmark-light{display:none}
+:root[data-tone="light"] .brand-wordmark-light{display:block}
+:root[data-tone="light"] .brand-wordmark-dark{display:none}
+/* Keep the collection wordmark small, with its original proportions. */
+footer{height:30px;min-height:30px;padding:3px 18px;align-items:center}
+#footer-right{display:flex;align-items:center;flex:none}
+#footer-right img{display:block;width:120px;height:22px;object-fit:contain}
+#footer-right .footer-brand-light{display:none}
+:root[data-tone="light"] #footer-right .footer-brand-dark{display:none}
+:root[data-tone="light"] #footer-right .footer-brand-light{display:block}
 #settings-page{flex:1;min-height:0;overflow:auto;padding:28px}
 .settings-content{max-width:1140px;margin:0 auto}
 .settings-heading{display:flex;justify-content:space-between;align-items:center;gap:20px;margin-bottom:22px}
