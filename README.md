@@ -178,7 +178,9 @@ Import limits are **5 MB for SVG**, **25 MB for EPS/PDF**, **10 MB per image or 
 
 Your projects and library are stored on your computer in SQLite. Livery saves changed objects independently, reuses identical media, and loads library artwork when you need it. Use **Import & Export** to keep separate backups; packages remain limited to 180 MB, so larger collections should be exported in selections.
 
-Existing JSON libraries migrate automatically after verification, with the original files preserved. After migration, use the updated app: older executables still read the original, now-outdated JSON. See [library storage and recovery](docs/SQLITE-STORAGE.md) for details.
+**Your existing library converts automatically.** On the first launch of Livery 1.2.0 or later, the app finds your existing JSON library, creates a SQLite database and verifies that its contents match before switching. **Your original JSON library and its backup are kept unchanged.** You do not need to import your designs again, convert files yourself or install SQLite.
+
+If conversion cannot be completed safely, Livery preserves your files and shows recovery options instead of silently starting an empty library. After migration, new changes save to SQLite; the preserved JSON is a snapshot from before the upgrade, not an ongoing backup. Older executables will not see your new SQLite work. See [library storage and recovery](docs/SQLITE-STORAGE.md) for details.
 
 The data folder retains its original **SlotForge Paintshop** name for compatibility:
 
@@ -191,6 +193,8 @@ Use export/import to move your library, rather than editing its storage files by
 ## How to install
 
 Open the **[latest GitHub release](https://github.com/theDutchmanJames/SlotForgeLivery/releases/latest)** and expand **Assets** to see the downloads. Choose the packaged app for your computer. **You do not need Node.js, Git, a terminal or programming experience.** GitHub's **Source code** ZIP and tar.gz files are for building the app yourself.
+
+**Version 1.2.0 provides Windows and Linux downloads.** macOS builds were deferred for this release; the Mac instructions below apply to releases that include Mac downloads.
 
 | Your computer | Download | Open or install |
 | --- | --- | --- |
@@ -220,7 +224,11 @@ AppImage permission labels vary between Linux desktops. Some distributions need 
 
 ### Updating and moving to another computer
 
-Export a whole-library backup, close Livery, then open the new portable executable or install the newer package. Your library is stored separately from the application. Replacing the executable does not move your designs; use the exported backup to transfer them to another computer. Keep backups outside the app folder.
+1. Export a backup through **Import & Export** and keep it outside the app folder. For libraries exceeding the 180 MB package limit, export selections in separate packages.
+2. Close Livery, then open the new portable executable or install the newer package.
+3. Open Livery normally. **If you have an older JSON library, it converts to SQLite automatically on first launch.** Your projects and library items carry over, and your original JSON and backup files remain untouched.
+
+Your library is stored separately from the application. Updating on the same computer does not require reimporting it. To move to another computer, export packages on the old computer and import them on the new one. Continue making backups after upgrading: the preserved JSON does not receive subsequent edits.
 
 ### Run or build from source
 
