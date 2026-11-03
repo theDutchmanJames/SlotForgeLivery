@@ -4,6 +4,7 @@ const version=require('../package.json').version,tag=`v${version}`,dir=path.reso
 const gh=args=>execFileSync('gh',args,{encoding:'utf8'});
 const expected=['SlotForgeLivery-source.tar.gz','ghostscript-10.08.0.tar.xz','mupdf-1.28.1-complete-source.tar.gz','BUILDING.md','MUPDF-SOURCE-REVISIONS.txt','SHA256SUMS-sources.txt'];
 for(const [platform,arch,exts] of [['windows','x64',['exe']],['mac','x64',['dmg','zip']],['mac','arm64',['dmg','zip']],['linux','x64',['AppImage','deb']],['linux','arm64',['AppImage','deb']]]){
+ if(platform==='mac'&&process.env.OMIT_MACOS==='true')continue;
  expected.push(`SHA256SUMS-${platform}-${arch}.txt`);
  for(const ext of exts)expected.push(`SlotForgeLivery-${version}-${platform}-${platform==='linux'&&arch==='x64'?(ext==='deb'?'amd64':'x86_64'):arch}.${ext}`);
 }

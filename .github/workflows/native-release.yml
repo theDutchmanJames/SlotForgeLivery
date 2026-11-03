@@ -11,6 +11,10 @@ on:
         description: Optional completed run ID to resume publishing its verified builds
         type: string
         default: ''
+      omit_macos:
+        description: Resume verified Windows/Linux builds without macOS downloads
+        type: boolean
+        default: false
 permissions:
   contents: read
 concurrency:
@@ -117,7 +121,8 @@ jobs:
           GH_REPO: ${{ github.repository }}
           RESUME_RUN: ${{ inputs.resume_run }}
           CURRENT_SHA: ${{ github.sha }}
-        run: node --test tests/release-publish.test.cjs && node scripts/validate-release-run.cjs
+          OMIT_MACOS: ${{ inputs.omit_macos }}
+        run: node --test tests/release-publish.test.cjs tests/release-resume.test.cjs && node scripts/validate-release-run.cjs
       - uses: actions/download-artifact@v6
         with:
           github-token: ${{ github.token }}
@@ -130,6 +135,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
           SOURCE_SHA: ${{ steps.source.outputs.sha }}
+          OMIT_MACOS: ${{ inputs.omit_macos }}
         run: |
           cd release-assets
           for manifest in SHA256SUMS-*.txt; do sha256sum -c "$manifest"; done

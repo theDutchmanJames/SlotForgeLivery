@@ -24,19 +24,19 @@ The 180 MiB whole-library save limit has been removed. The existing **180 MiB pa
 ## Downloads
 
 - **Windows Intel/AMD:** `SlotForgeLivery-1.2.0-windows-x64.exe` — download and run; portable, no installation required.
-- **Mac Apple silicon:** `SlotForgeLivery-1.2.0-mac-arm64.dmg` — open and drag Livery to Applications.
-- **Mac Intel:** `SlotForgeLivery-1.2.0-mac-x64.dmg` — open and drag Livery to Applications.
 - **Ubuntu/Debian Intel/AMD:** `SlotForgeLivery-1.2.0-linux-amd64.deb`.
 - **Other Linux Intel/AMD:** `SlotForgeLivery-1.2.0-linux-x86_64.AppImage` — mark executable in file properties.
 - **Linux ARM64:** choose the `arm64.deb` or `arm64.AppImage`.
 
-macOS ZIPs are also provided. Choose an application download, not a source archive, to run Livery. See the README for installation instructions.
+macOS downloads are deferred for this release because the hosted Mac builds did not complete in this run. Choose an application download, not a source archive, to run Livery. See the README for installation instructions.
 
-Windows builds are unsigned. macOS builds are ad-hoc signed and not notarised. EPS and vector-PDF conversion are included and work offline.
+Windows builds are unsigned. EPS and vector-PDF conversion are included and work offline.
 
 ## Verification
 
 Local verification passed 46 storage/model tests, 34 desktop integration suites and four release checks, plus packaged Windows migration/save/reopen and EPS import. A disposable copy of an existing personal library migrated exactly. Native release downloads are published only after their build and packaged smoke checks pass.
+
+GitHub Actions passed native builds, storage tests, packaged migration/save/reopen and EPS import on **Windows x64, Linux x64 and Linux ARM64**. The matching source archives and checksums also passed. No unverified Mac installers are included.
 
 ## Licence and sources
 

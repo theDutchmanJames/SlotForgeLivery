@@ -1,6 +1,6 @@
 # Livery library storage
 
-This is an unreleased storage change. SQLite is included in Electron; users do not install a database server. The personal-data directory remains `SlotForge Paintshop` to preserve existing installations.
+Introduced in Livery 1.2.0. SQLite is included in Electron; users do not install a database server. The personal-data directory remains `SlotForge Paintshop` to preserve existing installations.
 
 ## Objects and media
 
@@ -50,4 +50,4 @@ The former 180 MiB **whole-library save** limit no longer applies to SQLite. Ind
 - `npm run benchmark:library`: disposable 100/1,000/5,000-item libraries; measures metadata opening, migration and small edits. It is a backend diagnostic, not a whole-UI timing guarantee.
 - `node scripts/package-smoke.cjs`: migrates legacy data inside the packaged app, saves/reopens through its ASAR worker, checks themes and bundled EPS conversion. Set `LIVERY_PACKAGE_DIR` to test a separate local build.
 
-The native release workflow runs the SQLite unit tests and packaged migration test on every Windows, macOS and Linux target before publishing. Windows testing does not establish macOS/Linux acceptance; those native jobs remain required before release.
+The native release workflow runs the SQLite unit tests and packaged migration test for every supplied platform. Windows testing does not establish macOS/Linux acceptance. An explicit resume option can omit macOS downloads while still requiring successful source, Windows and both Linux jobs from the same tested runtime commit. Version 1.2.0 uses that option; Mac downloads are deferred.

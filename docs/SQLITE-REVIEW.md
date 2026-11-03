@@ -45,3 +45,7 @@ These are single-run synthetic backend measurements with repeated image content,
 - The preserved JSON is a stale migration snapshot after the first SQLite save. Downgrading requires exporting compatible packages first; merely launching an older executable will not show new SQLite work.
 
 See [storage design and recovery](SQLITE-STORAGE.md) for the operational details.
+
+## Release follow-up
+
+The 1.2.0 native run passed sources, Windows x64, Linux x64 and Linux ARM64, including packaged migration/save/reopen and EPS import. macOS was omitted with the owner's approval after Apple silicon remained queued and Intel Mac was still compiling. Publication resumes only verified Windows/Linux artifacts from the original tested runtime commit; additional tests cover the optional-Mac gate and reduced asset list. The unreleased status above records the earlier local review, before release authorization.
