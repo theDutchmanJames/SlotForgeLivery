@@ -98,6 +98,18 @@ Lines remain editable paths. Finish one with **Enter**, **Escape**, right-click 
 
 Import your graphics as images and position them on the car. **PNG transparency is preserved**, so a logo or decal can sit on the bodywork without a rectangular background.
 
+Use **Import decal artwork** in the toolbar, **User Library → Import artwork**, or **Import & Export → Import decal artwork or Decals sheet**. SVG, EPS and PDF decals retain supported gradients, masks, clipping, symbols and embedded images. Imported artwork keeps its own colours and can be positioned, resized, rotated and fitted to an angled panel.
+
+### Bring a sheet from SlotForge Decals
+
+For the most reliable transfer, open a **`.sfsheet` sheet** or **`.sfdecal` pack** exported by SlotForge Decals. Livery lists the individual decals, including grouped badges, so you can select which ones to place on the car or save to your library. Each selected decal becomes a separate vector artwork layer. Embedded custom fonts travel with the artwork, and relative decal sizes are preserved within the selection.
+
+**Import to library** is the default action and leaves your car unchanged. Then click **Place** on the individual library item you want. To place several decals directly from the import window, explicitly enable **Place all selected decals together**; the button shows how many will be added.
+
+If you have a **PDF or SVG sheet**, enable **Select separate decals** and draw a tight box around each graphic. Zoom in for smaller details and optionally remove a plain white page background. Each crop becomes a separate vector decal; overlapping crop boxes can include the same artwork. PDFs do not always retain the original decal groups, so a native Decals sheet is preferable when available.
+
+Imported decals retain their internal vector artwork, but their text and paths are not converted into Livery's text or point-editing tools. Edit those details in Decals and import the updated artwork. Livery's own grouped shapes continue to keep their individual editable elements.
+
 Add text and race numbers, choose a typeface, and adjust their colour, size and placement. Import **TTF, OTF, WOFF or WOFF2** fonts into Livery's library without installing them system-wide. Custom fonts used by shared designs can travel with the package.
 
 ### Fit artwork and work in layers
@@ -109,6 +121,7 @@ The layer list keeps the design organised:
 - Drag layers to reorder them, or use the buttons to bring artwork forward and send it back.
 - Select several shapes or paintable areas and change their appearance together.
 - Group artwork while keeping its individual elements editable; expand the group to work on a child element.
+- Scale a group or multi-selection using its corner handle, linked width/height fields, or a percentage. Proportions, relative positions, line widths and gaps scale together, including artwork fitted to an angled view.
 - Use **Copy Appearance** and **Paste Appearance** to reuse compatible styling on other layers.
 - Open or collapse the property folders to reach the controls you need.
 
@@ -163,16 +176,17 @@ Use pan, zoom, Snap, Grid and undo/redo while editing. Click empty canvas to cle
 | Purpose | Formats |
 | --- | --- |
 | Vector car artwork | SVG, EPS, PDF |
+| Vector decals and decal sheets | SVG, EPS, PDF, `.sfsheet`, `.sfdecal` |
 | Photographs and image decals | PNG, JPEG, WebP |
 | Custom fonts | TTF, OTF, WOFF, WOFF2 |
 | Design exports | PDF, PNG |
 | Editable exchange and backups | `.sfpaint` |
 
-Use flat vector artwork with clear enclosed panels for the easiest preparation. Expand unsupported effects and symbols, and convert text in imported car illustrations to outlines. Embedded scripts and external resources are excluded. EPS/PDF artwork with shading, bitmap content or password protection needs preparation in another editor.
+Use flat vector car artwork with clear enclosed panels for the easiest template preparation. Expand unsupported effects and symbols, and convert text in imported car illustrations to outlines. Car-template import requires flat vectors; decal import also supports gradients and embedded images. Embedded scripts and external resources are excluded. Password-protected files and unsupported effects need preparation in another editor.
 
 Photographs require manual tracing; there is no automatic photo-to-vector conversion or recognition of unseen car surfaces. Detailed illustrations may have small areas filtered out, with manual recovery available.
 
-Import limits are **5 MB for SVG**, **25 MB for EPS/PDF**, **10 MB per image or font**, and **180 MB per package**. Large libraries with many embedded images can use substantial memory and storage.
+Import limits are **5 MB for car SVGs**, **12 MB for decal SVGs**, **25 MB for EPS/PDF**, **10 MB per image or font**, **160 MB per Decals sheet/pack**, and **180 MB per Livery package**. Choose up to **250 decals per import**. Large libraries with many embedded images can use substantial memory and storage. PDF/SVG crops share their source artwork in SQLite storage.
 
 ### Local storage and backups
 

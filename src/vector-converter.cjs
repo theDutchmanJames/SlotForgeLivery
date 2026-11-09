@@ -4,7 +4,7 @@ const path = require('node:path');
 const os = require('node:os');
 const { spawn } = require('node:child_process');
 const LIMIT = 25 * 1024 * 1024;
-async function convertVector({ bytes, format, page = null }) {
+async function convertVector({ bytes, format, page = null, purpose = 'template' }) {
   if (!['eps', 'pdf'].includes(format) || !(bytes instanceof Uint8Array) || bytes.length > LIMIT || !bytes.length) throw new Error('Choose an EPS or PDF file smaller than 25 MB.');
   if (page !== null && (!Number.isInteger(page) || page < 1 || page > 500)) throw new Error('Choose a valid page number.');
   let input = Buffer.from(bytes), temp;
@@ -46,9 +46,9 @@ async function convertVector({ bytes, format, page = null }) {
       writer=new mupdf.DocumentWriter(buffer,'svg','text=path');
       device=writer.beginPage(sheet.getBounds());sheet.run(device,mupdf.Matrix.identity);writer.endPage();device=null;writer.close();
       const svg=buffer.asString();
-      if(svg.length>5e6)throw new Error('This page contains too much detail. Simplify it before importing.');
+      if(svg.length>(purpose==='decal'?12e6:5e6))throw new Error('This page contains too much detail. Simplify it before importing.');
       // Raster images and shading cannot be made into independently paintable regions.
-      if(/<(?:image|pattern|linearGradient|radialGradient)\b/.test(svg))throw new Error('This artwork contains bitmap images or gradients. Export a flat vector-only version, or use a PNG/JPG with Trace a photograph.');
+      if(purpose!=='decal'&&/<(?:image|pattern|linearGradient|radialGradient)\b/.test(svg))throw new Error('This artwork contains bitmap images or gradients. Export a flat vector-only version, or use a PNG/JPG with Trace a photograph.');
       return {pages,page:chosen,svg};
     } finally {device?.destroy();writer?.destroy();buffer?.destroy();sheet?.destroy();doc?.destroy();}
   } finally {if(temp)await fs.rm(temp,{recursive:true,force:true});}

@@ -24,14 +24,14 @@
   // A detached style snapshot: geometry, content, visibility and grouping never enter it.
   function appearanceOf(item,project=null){
     const result={};
-    if(item.kind!=='image'){const paint=project?paintOf(project,item):paintOf(item);result.paint={fill:paint.fill,fillType:paint.fillType,finish:paint.finish,effect:paint.effect};if(paint.gradient)result.paint.gradient=clone(paint.gradient);}
+    if(!['image','vector'].includes(item.kind)){const paint=project?paintOf(project,item):paintOf(item);result.paint={fill:paint.fill,fillType:paint.fillType,finish:paint.finish,effect:paint.effect};if(paint.gradient)result.paint.gradient=clone(paint.gradient);}
     if(item.kind)result.opacity=item.opacity??1;
     if(item.kind==='line')result.line=clone(lineStyle(item));
     if(item.kind==='text'){result.font=item.font||'Arial';if(item.fontData)result.fontData=clone(item.fontData);}
     return result;
   }
   function applyAppearance(item,appearance,mode='layer'){
-    if(appearance.paint&&item.kind!=='image'){
+    if(appearance.paint&&!['image','vector'].includes(item.kind)){
       const p=clone(appearance.paint);item[mode==='panel'?'colour':mode==='base'?'base':'fill']=p.fill;
       item.fillType=p.fillType;item.finish=p.finish;item.effect=p.effect;
       delete item.gradient;if(p.gradient)item.gradient=p.gradient;
@@ -46,11 +46,15 @@
   function newProject(template, title) { return { id:uid(), name:name(title,template.name+' · New livery'), template:clone(template), base:'#ffffff', finish:'Gloss', effect:'Solid', views:Object.fromEntries(VIEWS.map(k=>[k,[]])), notes:'', paints:'', updated:new Date().toISOString() }; }
   function layer(kind, props = {}) { return { id:uid(), kind, name:kind === 'text' ? 'Race number' : kind === 'image' ? 'Image decal' : kind === 'polygon' ? 'Custom shape' : kind === 'ellipse' ? 'Roundel' : kind === 'line' ? 'Racing stripe' : 'Colour shape', x:350,y:240,w:200,h:90, rotation:0, fill:'#f28a35',finish:'Gloss',effect:'Solid',opacity:1,visible:true, ...(kind==='line'?{h:12,lineStripes:[{width:12}],lineGap:4,lineCap:'butt'}:{}), ...props }; }
   function validateLayer(item) {
-    if (!item || !['rect','ellipse','polygon','text','image','line'].includes(item.kind)) throw new Error('Unsupported artwork in package.');
-    const out = layer(item.kind, { id:uid(), name:name(item.name), x:number(item.x), y:number(item.y), w:number(item.w,100,2,10000), h:number(item.h,50,item.kind==='line'?.5:2,10000), rotation:angle(item.rotation), fill:colour(item.fill), opacity:number(item.opacity,1,0,1), visible:item.visible !== false, finish:FINISHES.includes(item.finish)?item.finish:'Gloss',effect:EFFECTS.includes(item.effect)?item.effect:'Solid' });
+    if (!item || !['rect','ellipse','polygon','text','image','vector','line'].includes(item.kind)) throw new Error('Unsupported artwork in package.');
+    const out = layer(item.kind, { id:uid(), name:name(item.name), x:number(item.x), y:number(item.y), w:number(item.w,100,item.kind==='vector'?.01:2,10000), h:number(item.h,50,item.kind==='vector'?.01:item.kind==='line'?.5:2,10000), rotation:angle(item.rotation), fill:colour(item.fill), opacity:number(item.opacity,1,0,1), visible:item.visible !== false, finish:FINISHES.includes(item.finish)?item.finish:'Gloss',effect:EFFECTS.includes(item.effect)?item.effect:'Solid' });
     if(item.kind==='line'){if(!Array.isArray(item.lineStripes)||item.lineStripes.length<1||item.lineStripes.length>5)throw new Error('A line needs between 1 and 5 stripes.');out.lineStripes=item.lineStripes.map(s=>({width:number(s?.width,12,.000001,10000),...(s?.colour?{colour:colour(s.colour)}:{})}));out.lineGap=number(item.lineGap,4,0,10000);out.lineCap=item.lineCap==='round'?'round':'butt';}
     if (item.kind === 'text') { out.text = String(item.text || '27').slice(0,500); out.font = BUILTIN_FONTS.includes(item.font)?item.font:'Arial';if(item.fontData){out.fontData=validateFontData(item.fontData);out.font=out.fontData.family;} }
     if (item.kind === 'image') { if (!validImage(item.src)) throw new Error('Image must be an embedded PNG, JPEG or WebP.'); out.src=item.src; }
+    if(item.kind==='vector'){
+      if(!root.DecalArtwork)throw Error('Vector artwork validation is unavailable.');
+      out.svg=root.DecalArtwork.sanitize(item.svg).svg;if(item.crop){root.DecalArtwork.dimensions(out.svg,item.crop);out.crop={x:item.crop.x,y:item.crop.y,w:item.crop.w,h:item.crop.h};}
+    }
     if (item.kind === 'polygon'||item.kind==='line'&&item.points) { if (!Array.isArray(item.points) || item.points.length < (item.kind==='line'?2:3) || item.points.length > 2000) throw new Error('Invalid custom shape.'); out.points = item.points.map(p=>{const n={x:number(p.x,0,-10,10),y:number(p.y,0,-10,10)};for(const side of ['in','out'])if(p[side])n[side]={x:number(p[side].x,0,-10,10),y:number(p[side].y,0,-10,10)};if(n.in||n.out)n.smooth=p.smooth===true;return n;}); }
     if(typeof item.groupId==='string'&&/^[a-zA-Z0-9_-]{1,100}$/.test(item.groupId)){out.groupId=item.groupId;out.groupName=name(item.groupName,'Grouped artwork');out.groupHidden=item.groupHidden===true;}
     Object.assign(out,fitValues(item),pinchValues(item));
@@ -85,7 +89,7 @@
       const sx=to.w/Math.max(1,from.w),sy=to.h/Math.max(1,from.h);
       result.views[k]=(livery.views[k] || []).map(l=>{
         const n=bakeGroupPose(clone(l));n.id=uid();const cx=to.x+((n.x+n.w/2)-from.x)*sx,cy=to.y+((n.y+n.h/2)-from.y)*sy;
-        const preserve=['text','image','ellipse'].includes(l.kind);n.w=n.w*(preserve?Math.min(sx,sy):sx);n.h=n.h*(preserve?Math.min(sx,sy):sy);n.x=cx-n.w/2;n.y=cy-n.h/2;if(n.kind==='line'&&n.points){const scale=Math.min(sx,sy);n.lineStripes=n.lineStripes.map(s=>({...s,width:s.width*scale}));n.lineGap*=scale;}return n;
+        const preserve=['text','image','vector','ellipse'].includes(l.kind);n.w=n.w*(preserve?Math.min(sx,sy):sx);n.h=n.h*(preserve?Math.min(sx,sy):sy);n.x=cx-n.w/2;n.y=cy-n.h/2;if(n.kind==='line'&&n.points){const scale=Math.min(sx,sy);n.lineStripes=n.lineStripes.map(s=>({...s,width:s.width*scale}));n.lineGap*=scale;}return n;
       });
       const counts=new Map();for(const r of result.template.views[k]?.regions||[]){if(r.role!=='body')continue;delete r.colour;delete r.finish;delete r.effect;delete r.fillType;delete r.gradient;r.paintVisible=true;const label=r.partLabel||'',matches=(livery.panelPaints?.[k]||[]).filter(p=>p.label===label),i=counts.get(label)||0;counts.set(label,i+1);const paint=matches[i]||matches[0];if(paint){r.colour=colour(paint.colour,'#ffffff');r.finish=paint.finish;r.effect=paint.effect;r.paintVisible=paint.visible!==false;Object.assign(r,fillSettings(paint));}}
     } return result;
@@ -105,13 +109,23 @@
   function bakeGroupPose(l){if(!l.groupPose)return l;const m=layerMatrix(l);if(m.length===9){const b=artworkBounds([l]);l.x=b.x+b.w/2-l.w/2;l.y=b.y+b.h/2-l.h/2;l.projective=matrixMultiply([1/l.w,0,0,1/l.h,-l.x/l.w,-l.y/l.h],matrixMultiply(m,[l.w,0,0,l.h,0,0]));delete l.affine;delete l.groupPose;l.rotation=0;Object.assign(l,fitValues(),pinchValues());return l;}const c=transformPoint(m,{x:l.w/2,y:l.h/2});l.x=c.x-l.w/2;l.y=c.y-l.h/2;l.affine=m.slice(0,4);l.rotation=0;Object.assign(l,fitValues());delete l.groupPose;return l;}
   function translateLayer(l,dx,dy,wholeGroup=false){if(l.groupPose&&!wholeGroup){const g=groupMatrix(l),center={x:l.x+l.w/2,y:l.y+l.h/2},world=transformPoint(g,center),after=inversePoint(g,{x:world.x+dx,y:world.y+dy}),delta={x:after.x-center.x,y:after.y-center.y};l.x+=delta.x;l.y+=delta.y;}else{l.x+=dx;l.y+=dy;if(l.groupPose){l.groupPose.x+=dx;l.groupPose.y+=dy;}}}
   function resizeLayer(l,original,w,h){const corner=transformPoint(layerMatrix(original),{x:0,y:0}),target=inversePoint(groupMatrix(original),corner);l.w=w;l.h=h;const current=transformPoint(layerMatrix({...l,groupPose:undefined}),{x:0,y:0});l.x+=target.x-current.x;l.y+=target.y-current.y;}
+  function scaleArtwork(items,factor,anchor){
+    if(!items.length||!Number.isFinite(factor)||factor<=0)throw Error('Choose a positive scale.');
+    const b=artworkBounds(items),a=anchor||{x:b.x+b.w/2,y:b.y+b.h/2};
+    const copies=items.map(original=>{const l=clone(original);l.x=a.x+(l.x-a.x)*factor;l.y=a.y+(l.y-a.y)*factor;l.w*=factor;l.h*=factor;
+      if(l.kind==='line'){l.lineStripes=l.lineStripes.map(s=>({...s,width:s.width*factor}));l.lineGap*=factor;}
+      if(l.groupPose){l.groupPose.x=a.x+(l.groupPose.x-a.x)*factor;l.groupPose.y=a.y+(l.groupPose.y-a.y)*factor;l.groupPose.w*=factor;l.groupPose.h*=factor;if(l.groupPose.w<1||l.groupPose.h<1||l.groupPose.w>10000||l.groupPose.h>10000||Math.abs(l.groupPose.x)>10000||Math.abs(l.groupPose.y)>10000)throw Error('This scale exceeds the group fitting limits.');}
+      if(![l.x,l.y,l.w,l.h].every(Number.isFinite)||l.w<(l.kind==='vector'?.01:2)||l.h<(l.kind==='vector'?.01:l.kind==='line'?.5:2)||l.w>10000||l.h>10000||Math.abs(l.x)>10000||Math.abs(l.y)>10000)throw Error('This scale would make an element too small or too large.');
+      return l;
+    });return copies;
+  }
   function groupAsset(items,title){if(!items.length||items.length>250)throw new Error('Select between 1 and 250 artwork elements.');const copies=items.map(l=>bakeGroupPose(clone(l))),b=artworkBounds(copies);return {id:uid(),name:name(title,'Grouped artwork'),type:'group',layers:copies.map(n=>{n.id=uid();n.x-=b.x;n.y-=b.y;delete n.groupId;delete n.groupName;delete n.groupHidden;return n;})};}
   function placeGroup(asset,cx=500,cy=300){const b=artworkBounds(asset.layers),groupId=uid();return asset.layers.map(l=>({...clone(l),id:uid(),groupId,groupName:asset.name,groupHidden:false,x:l.x+cx-b.x-b.w/2,y:l.y+cy-b.y-b.h/2}));}
   function mapPathPoints(points,transform){return points.map(p=>{const n={...p,...transform(p)};for(const side of ['in','out'])if(p[side])n[side]=transform(p[side]);return n;});}
   function pathBounds(points){return boundsOfPoints(points.flatMap(p=>[p,...(p.in?[p.in]:[]),...(p.out?[p.out]:[])]));}
   function pathData(points,closed=true){if(!points.length)return '';let d=`M ${points[0].x} ${points[0].y}`;for(let i=1;i<points.length+(closed?1:0);i++){const a=points[i-1],b=points[i%points.length],c=a.out||a,f=b.in||b;d+=a.out||b.in?` C ${c.x} ${c.y} ${f.x} ${f.y} ${b.x} ${b.y}`:` L ${b.x} ${b.y}`;}return d+(closed?' Z':'');}
   function shapeFromPoints(points, props={}) {const b=pathBounds(points);return layer('polygon',{...b,points:mapPathPoints(points,p=>({x:(p.x-b.x)/b.w,y:(p.y-b.y)/b.h})),...props});}
-  function mirrorLayer(l) { const n=bakeGroupPose(clone(l));n.id=uid();n.x=1000-n.x-n.w;if(!['image','text'].includes(l.kind)){n.rotation=-n.rotation;n.skewX=-(n.skewX||0);n.skewY=-(n.skewY||0);n.pinchX=-(n.pinchX||0);if(n.projective){const flip=[-1,0,0,1,1,0];n.projective=matrixMultiply(flip,matrixMultiply(n.projective,flip));}if(n.affine){n.affine[1]*=-1;n.affine[2]*=-1;}if(n.points){n.points=mapPathPoints(n.points,p=>({x:1-p.x,y:p.y}));if(n.kind==='line')n.lineStripes.reverse();}}return n; }
+  function mirrorLayer(l) { const n=bakeGroupPose(clone(l));n.id=uid();n.x=1000-n.x-n.w;if(!['image','vector','text'].includes(l.kind)){n.rotation=-n.rotation;n.skewX=-(n.skewX||0);n.skewY=-(n.skewY||0);n.pinchX=-(n.pinchX||0);if(n.projective){const flip=[-1,0,0,1,1,0];n.projective=matrixMultiply(flip,matrixMultiply(n.projective,flip));}if(n.affine){n.affine[1]*=-1;n.affine[2]*=-1;}if(n.points){n.points=mapPathPoints(n.points,p=>({x:1-p.x,y:p.y}));if(n.kind==='line')n.lineStripes.reverse();}}return n; }
   // The array is back-to-front. Groups move as units; a child can be reordered within its group.
   function reorderArtwork(items,ids,action,targetKey=null,side='above',scope=null){
     const chosen=new Set(ids),source=scope?items.filter(l=>l.groupId===scope):items;
@@ -126,6 +140,6 @@
     const ordered=result.flatMap(u=>u.items);if(!scope)return ordered;
     let index=0;return items.map(l=>l.groupId===scope?ordered[index++]:l);
   }
-  const API={BUILTIN_FONTS,validateFontData,VIEWS,LABELS,PART_LABELS,FINISHES,EFFECTS,uid,clone,escape,colour,number,angle,name,emptyStore,newProject,layer,validateLayer,validatePanelPaints,validImage,liveryFromProject,applyLivery,rotatedPoint,boundsOfPoints,artworkBounds,groupAsset,placeGroup,mapPathPoints,pathBounds,pathData,shapeFromPoints,mirrorLayer,fitValues,fitMatrix,matrixMultiply,transformPoint,inversePoint,groupMatrix,layerMatrix,layerCorners,bakeGroupPose,translateLayer,resizeLayer,defaultGradient,validateGradient,fillSettings,paintOf,mixColour,lineStyle,setLineStyle,lineFromEndpoints,pinchValues,pinchMatrix,homogeneous,inverseMatrix,layerLocalBounds,lineThickness,lineFromPoints,lineSamples,offsetPath,reorderArtwork,appearanceOf,applyAppearance};
+  const API={BUILTIN_FONTS,validateFontData,VIEWS,LABELS,PART_LABELS,FINISHES,EFFECTS,uid,clone,escape,colour,number,angle,name,emptyStore,newProject,layer,validateLayer,validatePanelPaints,validImage,liveryFromProject,applyLivery,rotatedPoint,boundsOfPoints,artworkBounds,groupAsset,placeGroup,mapPathPoints,pathBounds,pathData,shapeFromPoints,mirrorLayer,fitValues,fitMatrix,matrixMultiply,transformPoint,inversePoint,groupMatrix,layerMatrix,layerCorners,bakeGroupPose,translateLayer,resizeLayer,scaleArtwork,defaultGradient,validateGradient,fillSettings,paintOf,mixColour,lineStyle,setLineStyle,lineFromEndpoints,pinchValues,pinchMatrix,homogeneous,inverseMatrix,layerLocalBounds,lineThickness,lineFromPoints,lineSamples,offsetPath,reorderArtwork,appearanceOf,applyAppearance};
   if(typeof module!=='undefined')module.exports=API; else root.Model=API;
 })(globalThis);

@@ -83,7 +83,7 @@ jobs:
         run: npm run dist:${{ matrix.target }} -- --${{ matrix.arch }} --publish never
       - name: Test packaged desktop and bundled EPS import (Windows/macOS)
         if: runner.os != 'Linux'
-        run: node scripts/package-smoke.cjs
+        run: node scripts/package-smoke.cjs && node scripts/package-decal-tests.cjs
       - name: Test packaged desktop and bundled EPS import (Linux)
         if: runner.os == 'Linux'
         run: |
@@ -93,6 +93,7 @@ jobs:
           sudo chown root:root "$sandbox"
           sudo chmod 4755 "$sandbox"
           xvfb-run -a node scripts/package-smoke.cjs
+          xvfb-run -a node scripts/package-decal-tests.cjs
       - name: Hash expected installers
         run: node scripts/release-manifest.cjs ${{ matrix.platform }} ${{ matrix.arch }}
       - uses: actions/upload-artifact@v6

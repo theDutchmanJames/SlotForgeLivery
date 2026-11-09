@@ -30,6 +30,13 @@ The converter source distributions contain their own dependency copyright
 and licence notices. Those components retain their respective licences.
 Build-only dependencies are not application runtime libraries.
 
+SlotForge Decals artwork model and SVG rendering utilities
+Copyright theDutchmanJames. GNU Affero General Public License version 3 or later.
+Source: https://github.com/theDutchmanJames/SlotForgeDecals
+Adapted in renderer/decals/ for Livery's vector decal import. Local changes include
+isolated namespaces, embedded-font handling, bounded caches and SVG validation.
+The adapted source is included with Livery; see docs/DECALS-IMPORT.md.
+
 Download the exact application and converter sources alongside the installers:
 https://github.com/theDutchmanJames/SlotForgeLivery/releases
 See docs/BUILDING.md in the source archive for reproducible build commands.

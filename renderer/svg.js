@@ -168,6 +168,7 @@
     if(l.kind==='ellipse')shape=`<ellipse cx="${l.w/2}" cy="${l.h/2}" rx="${l.w/2}" ry="${l.h/2}"/>`;
     if(l.kind==='polygon')shape=`<path d="${M.pathData(M.mapPathPoints(l.points,p=>({x:p.x*l.w,y:p.y*l.h})))}"/>`;
     if(l.kind==='text')shape=`<text x="${l.w/2}" y="${l.h*.8}" text-anchor="middle" font-family="${e(l.fontData?.family||l.font||'Arial')}" font-weight="${l.fontData?'400':'700'}" font-size="${l.h}" textLength="${l.w}" lengthAdjust="spacingAndGlyphs">${e(l.text)}</text>`;
+    if(l.kind==='vector')return `<g ${interactive?`data-layer="${l.id}"`:''} transform="matrix(${matrix.join(' ')})" opacity="${l.opacity??1}" fill="black"><svg width="${l.w}" height="${l.h}" overflow="hidden">${window.DecalArtwork.markup(l.svg,l.crop)}</svg></g>`;
     if(l.kind==='image')shape=`<image width="${l.w}" height="${l.h}" href="${e(l.src)}" preserveAspectRatio="xMidYMid meet"/>`;
     if(l.kind==='line'){
       const style=M.lineStyle(l),samples=l.points?M.lineSamples(l):null,total=M.lineThickness(l);let y=0;
@@ -179,7 +180,7 @@
       }).join('');
       return `<g ${interactive?`data-layer="${l.id}"`:''} transform="matrix(${M.layerMatrix(l).join(' ')})" opacity="${l.opacity??1}">${shape}</g>`;
     }
-    const paint=paintServer(M.paintOf(l),{x:0,y:0,w:l.w,h:l.h},opts.effects&&l.kind!=='image');
+    const paint=paintServer(M.paintOf(l),{x:0,y:0,w:l.w,h:l.h},opts.effects&&!['image','vector'].includes(l.kind));
     return `${l.fontData&&!opts.preview?window.FontLibrary.style(l.fontData):''}<defs>${paint.defs}</defs><g ${interactive?`data-layer="${l.id}"`:''} transform="matrix(${M.layerMatrix(l).join(' ')})" fill="${paint.fill}" opacity="${l.opacity??1}">${shape}${paint.overlays.map(fill=>`<g pointer-events="none" fill="${fill}">${shape}</g>`).join('')}</g>`;
   }
   const maskCache=new Map();let maskBytes=0;

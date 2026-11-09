@@ -20,7 +20,7 @@
       <button data-action="sharing"><span data-icon="share"></span>Import & Export</button>
       <button data-action="settings"><span data-icon="settings"></span>Settings</button>
     </nav>
-    <div class="header-tools"><span class="version">v1.2.0</span><div class="theme-switch" role="group" aria-label="Colour theme"><button data-theme-choice="light" aria-pressed="false"><span aria-hidden="true">☀</span> Light</button><button data-theme-choice="dark" aria-pressed="true"><span aria-hidden="true">☾</span> Dark</button></div><button class="help-button" data-action="help" title="Help and shortcuts">HELP</button></div>
+    <div class="header-tools"><span class="version">v1.3.0</span><div class="theme-switch" role="group" aria-label="Colour theme"><button data-theme-choice="light" aria-pressed="false"><span aria-hidden="true">☀</span> Light</button><button data-theme-choice="dark" aria-pressed="true"><span aria-hidden="true">☾</span> Dark</button></div><button class="help-button" data-action="help" title="Help and shortcuts">HELP</button></div>
   </header>
   <section class="project-bar"><div class="project-identity"><span class="section-icon" data-icon="car"></span><div><button id="project-name" class="name-button" data-action="rename">Your next livery starts here</button><small id="project-meta">Your cars. Your colours. Your workshop.</small></div></div><div class="project-actions"><span id="save-status" class="save-status">● Local library</span><button data-action="save-livery" class="project-only"><span data-icon="save"></span>Save livery</button><button data-action="png" class="project-only"><span data-icon="image"></span>Export PNG</button><button data-action="pdf" class="primary project-only"><span data-icon="pdf"></span>Export PDF</button></div></section>
   <main id="settings-page" aria-label="Settings" hidden></main>
@@ -36,9 +36,9 @@
   <footer><span id="footer-left">No pre-installed cars · Your personal library</span><span id="footer-right"><img class="footer-brand-dark" src="../assets/slotforge-footer-dark.png" alt="SlotForge" width="120" height="22"><img class="footer-brand-light" src="../assets/slotforge-footer-light.png" alt="SlotForge" width="120" height="22"></span></footer>
   <dialog id="dialog"><div id="dialog-content"></div></dialog>
   <input id="car-file" type="file" accept=".svg,.eps,.pdf,image/svg+xml,.png,.jpg,.jpeg,.webp" hidden>
-  <input id="image-file" type="file" accept="image/png,image/jpeg,image/webp" hidden>
+  <input id="image-file" type="file" accept=".svg,.eps,.pdf,.sfsheet,.sfdecal,.png,.jpg,.jpeg,.webp" hidden>
   <input id="font-file" type="file" accept=".ttf,.otf,.woff,.woff2" multiple hidden>
   <input id="package-file" type="file" accept=".sfpaint,.json" hidden>
   <div id="toast" role="status" aria-live="polite"></div>
-  <script src="storage-codec.js"></script><script src="library-client.js"></script><script src="model.js"></script><script src="fonts.js"></script><script src="mask-preview.js"></script><script src="svg.js"></script><script src="perspective-preview.js"></script><script src="repair.js"></script><script src="panel-studio.js"></script><script src="theme.js"></script><script src="settings.js"></script><script src="app.js"></script>
+  <script src="storage-codec.js"></script><script src="library-client.js"></script><script src="model.js"></script><script src="decals/model.js"></script><script src="decals/art.js"></script><script src="decal-artwork.js"></script><script src="fonts.js"></script><script src="mask-preview.js"></script><script src="svg.js"></script><script src="perspective-preview.js"></script><script src="repair.js"></script><script src="panel-studio.js"></script><script src="theme.js"></script><script src="settings.js"></script><script src="app.js"></script><script src="decal-import.js"></script>
 </body></html>

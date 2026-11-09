@@ -1,7 +1,7 @@
 {
   "name": "slotforge-livery",
   "productName": "SlotForge Livery",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "A local 2D livery studio for your own slotcar templates",
   "private": true,
   "main": "src/main.cjs",

@@ -1,4 +1,12 @@
 const {test}=require('node:test');const assert=require('node:assert/strict');const M=require('../renderer/model.js');
+test('uniform selection scaling preserves projective geometry, stripes and editable children',()=>{
+ const items=[M.layer('rect',{x:250,y:210,w:180,h:80,rotation:22,skewX:16,pinchX:.4}),M.layer('line',{x:300,y:320,w:160,h:60,rotation:-12,lineStripes:[{width:8,colour:'#ff0000'},{width:3}],lineGap:4})];
+ items.forEach(l=>{l.groupId='test';l.groupPose={x:220,y:180,w:350,h:240,rotation:14,pinchY:-.3,skewY:12};});
+ const old=M.clone(items),anchor={x:100,y:150},scaled=M.scaleArtwork(items,1.6,anchor);
+ for(let i=0;i<items.length;i++)for(let j=0;j<4;j++){const before=M.layerCorners(items[i])[j],after=M.layerCorners(scaled[i])[j];assert(Math.abs(after.x-(anchor.x+(before.x-anchor.x)*1.6))<1e-7);assert(Math.abs(after.y-(anchor.y+(before.y-anchor.y)*1.6))<1e-7);}
+ assert.deepEqual(items,old);assert.deepEqual(scaled.map(l=>l.id),items.map(l=>l.id));assert.equal(scaled[1].lineStripes[0].width,12.8);assert.equal(scaled[1].lineGap,6.4);
+ assert.throws(()=>M.scaleArtwork(items,0));assert.throws(()=>M.scaleArtwork(items,NaN));assert.throws(()=>M.scaleArtwork(items,1e6));assert.deepEqual(items,old);
+});
 test('artwork stacking keeps selected order, grouped elements and scoped child moves',()=>{
  const items=['a','b','c','d','e'].map(id=>({id})),ids=list=>list.map(l=>l.id).join('');
  assert.equal(ids(M.reorderArtwork(items,['b','d'],'front')),'acebd');assert.equal(ids(M.reorderArtwork(items,['b','d'],'back')),'bdace');

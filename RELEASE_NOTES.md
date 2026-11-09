@@ -1,43 +1,35 @@
-**SlotForge Livery 1.2.0 — A library built to grow**
+**SlotForge Livery 1.3.0 — Bring your decals into your design**
 
 **From White Kits to your Design Concept**
 
-## What's new
+## What's new and where to find it
 
-- **SQLite library storage:** templates, projects, views, paintable areas, layers and groups are stored as separate records. Ordinary saves update changed records instead of rewriting the whole library.
-- **Less duplication:** identical images, fonts and large vector strings share storage while designs remain independently editable.
-- **Lighter browsing:** library items load when needed, with cached thumbnails and 32 items per page.
-- **Verified migration:** existing JSON libraries are migrated automatically on first launch. Livery reconstructs and compares the complete library before switching; the original JSON and backup remain untouched.
-- **Safer saving and recovery:** transactions protect interrupted writes, stale saves are rejected, and exports cannot overwrite the library files.
-- **SlotForge branding:** theme-aware logos in the header and footer.
+- **Richer vector decal imports:** SVG, EPS and PDF artwork retains supported gradients, masks, clipping, symbols and embedded images. Open **Import & Export → Import decal artwork or Decals sheet**, **User Library → Shapes & Images → Import artwork**, or the artwork tool (**I**).
+- **SlotForge Decals sheets and packs:** import `.sfsheet` and `.sfdecal` files, browse separate decals, search and select the ones you want. Groups, embedded custom fonts and relative sizes are preserved as vector artwork.
+- **Library-first importing:** **Import to library** leaves your car unchanged. Click **Place** on an individual library item when needed. Placing a batch directly requires an explicit choice, and the button shows the decal count.
+- **Separate decals from PDF/SVG sheets:** enable **Select separate decals**, zoom in and draw a box around each graphic. Optional **Remove white page background** removes a plain white page. Crops share source artwork in SQLite to avoid duplicating the sheet's media.
+- **Scale groups and multi-selections:** select a group or several layers, then use **Scale selection** in the right-hand inspector: linked width/height, percentage, or the canvas corner handle. Relative positions, proportions, stripe widths and gaps scale together, including perspective-fitted groups. Livery's individual elements remain editable.
 
-Your editable shapes, groups, custom fonts, paintable labels and existing `.sfpaint` packages continue to work. PDF and transparent PNG exports remain available.
+## Choosing the best import
 
-## Updating safely
+Use the original **Decals `.sfsheet` or `.sfdecal`** when possible: it retains the individual decal boundaries. PDF files may have lost those groups, so rectangular crop selection provides manual control; overlapping boxes can include neighbouring artwork.
 
-Export a library backup before updating. Your data stays in the existing `SlotForge Paintshop` user-data folder; no database installation or account is needed.
+Imported decals keep their original colours and internal vector detail. Their internal text and paths are not converted into Livery text or point-editing tools. Edit those details in Decals and import the updated artwork. Livery uses concept-artboard sizing rather than physical decal printing dimensions.
 
-After migration, new work is saved to SQLite. **The preserved JSON is a migration snapshot, not an ongoing backup.** An older Livery version will not see subsequent SQLite changes. Export compatible `.sfpaint` packages from this version before downgrading.
+## Updating
 
-The 180 MiB whole-library save limit has been removed. The existing **180 MiB package import/export limit** still applies; share selected items in smaller packages for larger collections.
+Your existing library stays in the same location. Older JSON libraries still convert automatically to SQLite, with their original JSON and backup files preserved. Export a library backup for a portable copy.
+
+**Projects and packages containing the new vector decal layers require Livery 1.3.0 or later.** Earlier versions do not understand those layers. Existing shapes, car templates and `.sfpaint` packages continue to work.
 
 ## Downloads
 
-- **Windows Intel/AMD:** `SlotForgeLivery-1.2.0-windows-x64.exe` — download and run; portable, no installation required.
-- **Ubuntu/Debian Intel/AMD:** `SlotForgeLivery-1.2.0-linux-amd64.deb`.
-- **Other Linux Intel/AMD:** `SlotForgeLivery-1.2.0-linux-x86_64.AppImage` — mark executable in file properties.
-- **Linux ARM64:** choose the `arm64.deb` or `arm64.AppImage`.
+Choose the application for your operating system from the attached downloads. Windows uses a portable `.exe`; Linux offers `.AppImage` and `.deb`; macOS, when supplied, offers separate Intel (`x64`) and Apple silicon (`arm64`) packages. See the README for installation instructions.
 
-macOS downloads are deferred for this release because the hosted Mac builds did not complete in this run. Choose an application download, not a source archive, to run Livery. See the README for installation instructions.
+EPS/PDF conversion is bundled and works offline. No account is required. Windows applications are unsigned; macOS packages are not notarised.
 
-Windows builds are unsigned. EPS and vector-PDF conversion are included and work offline.
+## Verification and source
 
-## Verification
+Release assets are published only after their native build and packaged checks pass. Tests cover separate library placement after restart, SVG rendering, EPS/PDF conversion, font preservation, group scaling, undo, SQLite persistence and package sharing.
 
-Local verification passed 46 storage/model tests, 34 desktop integration suites and four release checks, plus packaged Windows migration/save/reopen and EPS import. A disposable copy of an existing personal library migrated exactly. Native release downloads are published only after their build and packaged smoke checks pass.
-
-GitHub Actions passed native builds, storage tests, packaged migration/save/reopen and EPS import on **Windows x64, Linux x64 and Linux ARM64**. The matching source archives and checksums also passed. No unverified Mac installers are included.
-
-## Licence and sources
-
-Livery uses **GNU AGPL version 3 or later**, including the current Ghostscript and MuPDF converters. No purchase or account is required. Corresponding source archives, build instructions and `SHA256SUMS-*.txt` files accompany the downloads.
+Livery is licensed under **GNU AGPL version 3 or later**. Corresponding source archives, build instructions and checksums accompany the downloads.
