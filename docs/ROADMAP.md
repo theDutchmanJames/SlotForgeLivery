@@ -3,12 +3,12 @@
 The improvement programme agreed on 2026-11-16. Each phase is committed locally once its tests pass. Tick items off as they land.
 
 ## Phase 1 · Foundation
-- [ ] Reformat renderer and main-process code (no behaviour change)
-- [ ] Split `renderer/app.js` into modules by area
-- [ ] Full integration suite matches the pre-split baseline
+- [x] Reformat renderer and main-process code (no behaviour change)
+- [x] Split `renderer/app.js` into modules by area (`renderer/app/*.js`, 18 files)
+- [x] Full integration suite matches the pre-split baseline (all 36 pass; a few timing-sensitive suites fail at random in long runs, see Phase 6)
 
 ## Phase 2 · Quick editing wins
-- [ ] Arrow-key nudge (Shift = larger steps)
+- [x] Arrow-key nudge (Shift = larger steps) — already present
 - [ ] Align and distribute selected artwork
 - [ ] Eyedropper: pick a colour from the canvas
 - [ ] Outline (stroke) on text and shapes
@@ -45,4 +45,5 @@ The improvement programme agreed on 2026-11-16. Each phase is committed locally 
 - [ ] Update check against GitHub releases
 - [ ] Translations: move UI text out of the code; Dutch, German, French
 - [ ] Integration tests that pause like a real user
+- [ ] Fix timing-sensitive suites that fail at random in long runs (seen: canvas-pan, fitting, library-details, pinch-curved-lines)
 - [ ] Code signing for Windows/macOS (needs a paid certificate; owner's decision)
