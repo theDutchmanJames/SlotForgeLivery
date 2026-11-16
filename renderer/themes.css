@@ -31,17 +31,20 @@ button.active,button[aria-pressed="true"]{background:color-mix(in srgb,var(--acc
 .app-header nav button.active{color:var(--ink);border-bottom-color:var(--accent)}
 .view-tile.active .thumb,.layer-row.active{background:color-mix(in srgb,var(--accent) 10%,var(--panel))}
 .panel-area-row.selected{background:color-mix(in srgb,var(--accent) 10%,var(--panel));border-color:var(--accent)}
-/* Match Telemetry: retain the text's width and baseline for the wordmark. */
-.brand-wordmark{display:inline-block;position:relative;vertical-align:baseline}
-.brand-wordmark-size{visibility:hidden}
-.brand-wordmark img{position:absolute;left:0;top:50%;transform:translateY(-50%);display:block;width:100%;height:auto}
+/* Match Telemetry: square app icon beside a wordmark aligned to the tagline. */
+.brand{gap:12px}
+.brand .brand-app-icon{display:block;width:42px;height:42px;flex:none;object-fit:contain}
+.brand-copy{display:grid;grid-template-columns:max-content;align-content:center;gap:5px;height:42px}
+.brand .brand-copy small{margin:0;font-size:9px;line-height:11px;letter-spacing:.19em;font-weight:500}
+.brand-wordmark{display:block;position:relative;width:100%;aspect-ratio:452.81/87.17}
+.brand-wordmark img{position:absolute;inset:0;display:block;width:100%;height:auto}
 .brand-wordmark .brand-wordmark-light{display:none}
 :root[data-tone="light"] .brand-wordmark-light{display:block}
 :root[data-tone="light"] .brand-wordmark-dark{display:none}
 /* Keep the collection wordmark small, with its original proportions. */
 footer{height:30px;min-height:30px;padding:3px 18px;align-items:center}
-#footer-right{display:flex;align-items:center;flex:none}
-#footer-right img{display:block;width:120px;height:22px;object-fit:contain}
+#footer-right{display:flex;align-items:center;flex:none;margin-left:auto;width:120px}
+#footer-right img{display:block;width:120px;height:auto}
 #footer-right .footer-brand-light{display:none}
 :root[data-tone="light"] #footer-right .footer-brand-dark{display:none}
 :root[data-tone="light"] #footer-right .footer-brand-light{display:block}
