@@ -151,6 +151,15 @@ Packages can contain selected templates, liveries, shapes, images, fonts or comp
 
 Prepare a car, design a livery, export both, and let a friend make their own version. Share only artwork and fonts you have permission to redistribute: a package can contain the original embedded files.
 
+### Plan the real paint job
+
+- **Real size:** enter how wide a view is on the real shell (Workshop & reuse → Real size). Sizes then read in millimetres, and the rulers measure from the car's own edge.
+- **Paint catalogue:** choose the actual paint for the base, a panel or a shape. Tamiya (TS sprays, X/XF acrylics) and Humbrol are built in. Add your own Revell, Zero Paints or any other products under **My paints**. Screen colours are approximations; the product name is what matters.
+- **Painting order:** the workshop PDF lists one step per paint, lightest first, with a picture of what each step sprays and a reminder to mask the earlier colours.
+- **Print at true size:** masking templates (one per colour) and the full design at the real size of your car, with a 50 mm bar to check the print scale.
+- **Send decals to SlotForge Decals:** save your numbers, logos and shapes as a `.sfdecal` pack at their real size, ready to arrange on decal paper.
+- **Photo tracing:** fade the reference photo while tracing, and add a centre guide for symmetrical front, rear and top views.
+
 ### Export for the workshop or to show your design
 
 | Export | What you get |
@@ -160,7 +169,7 @@ Prepare a car, design a livery, export both, and let a friend make their own ver
 | **Editable package** | Selected library items or a complete project that another Livery user can continue editing. |
 | **Whole-library backup** | A portable copy of your library for recovery or moving to another computer. |
 
-The PDF is a **visual painting reference**, not a calibrated decal sheet, cutting template or colour proof. Use SlotForge Decals when you need to arrange artwork at printed dimensions on decal paper.
+The workshop PDF is a **visual painting reference**, not a colour proof. For printed dimensions, set the real size and use **Print at true size**, or send your decals to SlotForge Decals to arrange them on decal paper.
 
 ### Make the workspace comfortable
 

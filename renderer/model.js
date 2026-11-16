@@ -80,6 +80,21 @@
     const width = OUTLINE_KINDS.includes(item?.kind) ? number(item.outlineWidth, 0, 0, 500) : 0;
     return width > 0 ? { outlineWidth: width, outlineColour: colour(item.outlineColour, '#ffffff') } : {};
   }
+  // Real-world scale: each view can record how wide the car is on the real
+  // shell, in mm. That gives millimetres per artboard unit for the view.
+  function mmPerUnit(view) {
+    const mm = Number(view?.realWidthMm),
+      w = Number(view?.bounds?.w);
+    return mm > 0 && w > 0 ? mm / w : null;
+  }
+  // A paint product reference, e.g. "Tamiya TS-8 Italian Red".
+  function paintRef(value) {
+    const text = String(value || '')
+      .replace(/[\u0000-\u001f]/g, ' ')
+      .trim()
+      .slice(0, 120);
+    return text || undefined;
+  }
   // Hard drop shadow: an offset copy of the shape (and its outline) behind it.
   function shadowValues(item) {
     if (!OUTLINE_KINDS.includes(item?.kind)) return {};
@@ -292,6 +307,7 @@
     }
     Object.assign(out, fitValues(item), pinchValues(item));
     Object.assign(out, fillSettings(item), outlineValues(item), shadowValues(item), textValues(item));
+    if (paintRef(item.paintRef)) out.paintRef = paintRef(item.paintRef);
     if (item.locked === true) out.locked = true;
     if (item.affine !== undefined) {
       if (
@@ -1043,6 +1059,8 @@
     layer,
     validateLayer,
     OUTLINE_KINDS,
+    mmPerUnit,
+    paintRef,
     shadowValues,
     textValues,
     mirrorView,

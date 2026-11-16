@@ -87,15 +87,27 @@ function renderRulers() {
   const wrap = $('#canvas-wrap').getBoundingClientRect(),
     m = art.getScreenCTM();
   if (!m || !wrap.width) return;
+  // With a real size set, rulers read millimetres from the car's own edge.
+  const mm = M.mmPerUnit(activeView()),
+    bounds = activeView().bounds;
+  $('#ruler-corner').textContent = mm ? 'mm' : '';
   const draw = (svg, horizontal) => {
     const length = horizontal ? wrap.width : wrap.height,
-      scale = horizontal ? m.a : m.d,
-      offset = horizontal ? m.e - wrap.left : m.f - wrap.top,
+      pxPerUnit = horizontal ? m.a : m.d,
+      scale = mm ? pxPerUnit / mm : pxPerUnit,
+      offset =
+        (horizontal ? m.e - wrap.left : m.f - wrap.top) + (mm ? (horizontal ? bounds.x : bounds.y) * pxPerUnit : 0),
       step = rulerStep(scale),
       minor = step / (String(step).startsWith('25') ? 5 : step % 5 === 0 ? 5 : 2),
       from = Math.floor((RULER_SIZE - offset) / scale / minor) * minor,
       to = (length - offset) / scale;
     let ticks = '';
+    // A hidden or collapsing canvas reports a zero scale, which would make the
+    // tick range infinite. Draw nothing then, and never more than 2,000 ticks.
+    if (!(scale > 1e-3) || !Number.isFinite(from) || !Number.isFinite(to) || (to - from) / minor > 2000) {
+      svg.innerHTML = '';
+      return;
+    }
     for (let u = from; u <= to; u += minor) {
       const pos = Math.round(u * scale + offset) + 0.5,
         major = Math.abs(u / step - Math.round(u / step)) < 1e-6,

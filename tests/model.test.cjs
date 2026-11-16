@@ -570,3 +570,14 @@ test('smart snapping picks the nearest edge or centre within the threshold', () 
     left: { x: [10, 20], y: [] }
   });
 });
+test('real size gives millimetres per unit and paint references are cleaned', () => {
+  assert.equal(M.mmPerUnit({ realWidthMm: 140, bounds: { w: 700 } }), 0.2);
+  assert.equal(M.mmPerUnit({ bounds: { w: 700 } }), null, 'no real size set');
+  assert.equal(M.mmPerUnit({ realWidthMm: 140, bounds: { w: 0 } }), null);
+  assert.equal(M.paintRef('  Tamiya TS-8 Italian Red  '), 'Tamiya TS-8 Italian Red');
+  assert.equal(M.paintRef(''), undefined);
+  assert.equal(M.paintRef('x'.repeat(200)).length, 120);
+  assert.equal(M.paintRef('Red\u0000\nline'), 'Red  line', 'control characters become spaces');
+  const l = M.validateLayer(M.layer('rect', { paintRef: 'Humbrol 19 Bright Red' }));
+  assert.equal(l.paintRef, 'Humbrol 19 Bright Red');
+});

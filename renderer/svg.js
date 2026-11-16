@@ -637,7 +637,7 @@
     );
     const photo =
       opts.prepare && v.photo && v.showPhoto
-        ? `<image href="${M.escape(v.photo.src)}" x="${v.photo.x}" y="${v.photo.y}" width="${v.photo.w}" height="${v.photo.h}" opacity=".65"/>`
+        ? `<image href="${M.escape(v.photo.src)}" x="${v.photo.x}" y="${v.photo.y}" width="${v.photo.w}" height="${v.photo.h}" opacity="${v.photoOpacity ?? 0.65}"/>`
         : '';
     const base = bodies
       .map(r => {
@@ -776,6 +776,7 @@
       if (M.EFFECTS.includes(original.effect)) r.effect = original.effect;
       r.paintVisible = original.paintVisible !== false;
       Object.assign(r, M.fillSettings(original));
+      if (M.paintRef(original.paintRef)) r.paintRef = M.paintRef(original.paintRef);
     });
     if (v.vectorSource && !sourceOnly) {
       vectorSource = validateView(v.vectorSource, true);
@@ -811,6 +812,8 @@
       source: v.source === 'photo' ? 'photo' : 'svg',
       photo,
       showPhoto: !!photo,
+      ...(photo && Number.isFinite(v.photoOpacity) ? { photoOpacity: M.number(v.photoOpacity, 0.65, 0.1, 1) } : {}),
+      ...(Number(v.realWidthMm) > 0 ? { realWidthMm: M.number(v.realWidthMm, 0, 1, 3000) } : {}),
       vectorSource,
       panelLabels
     };

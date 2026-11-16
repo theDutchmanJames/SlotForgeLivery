@@ -122,6 +122,27 @@ ipcMain.handle('package:save', async (_, { name, data }) => {
   await fs.writeFile(result.filePath, JSON.stringify(data, null, 2));
   return true;
 });
+// A SlotForge Decals pack (.sfdecal) of livery artwork at its real size.
+ipcMain.handle('decals:save', async (_, { name, data }) => {
+  if (data?.format !== 'slotforge-decals' || data.version !== 1 || !Array.isArray(data.decals))
+    throw new Error('Invalid decal pack');
+  const text = JSON.stringify(data);
+  if (text.length > 160 * 1024 * 1024) throw new Error('The decal pack exceeds 160 MB.');
+  const result = process.env.PAINTSHOP_TEST_DECALS
+    ? { filePath: process.env.PAINTSHOP_TEST_DECALS }
+    : await dialog.showSaveDialog(mainWindow, {
+        title: 'Send decals to SlotForge Decals',
+        defaultPath:
+          String(name || 'Livery decals')
+            .replace(/[<>:"/\\|?*]/g, '-')
+            .slice(0, 100) + '.sfdecal',
+        filters: [{ name: 'SlotForge Decals pack', extensions: ['sfdecal'] }]
+      });
+  if (result.canceled) return false;
+  await assertExportTarget(result.filePath, app.getPath('userData'));
+  await fs.writeFile(result.filePath, text);
+  return true;
+});
 ipcMain.handle('png:save', async (_, { name, dataURL }) => {
   if (
     typeof dataURL !== 'string' ||

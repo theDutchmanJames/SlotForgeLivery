@@ -10,6 +10,7 @@ contextBridge.exposeInMainWorld('desktop', {
   libraryMissingMedia: hashes => ipcRenderer.invoke('library:missing-media', hashes),
   librarySnapshot: () => ipcRenderer.invoke('library:snapshot'),
   exportPackage: payload => ipcRenderer.invoke('package:save', payload),
+  exportDecals: payload => ipcRenderer.invoke('decals:save', payload),
   exportPNG: payload => ipcRenderer.invoke('png:save', payload),
   exportPDF: payload => ipcRenderer.invoke('pdf:save', payload),
   convertVector: payload => ipcRenderer.invoke('vector:convert', payload),

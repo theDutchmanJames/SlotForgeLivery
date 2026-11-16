@@ -32,12 +32,12 @@ The improvement programme agreed on 2026-11-16. Each phase is committed locally 
 - [x] Side-by-side pane showing another view live
 
 ## Phase 5 · Slotcar features
-- [ ] Real-world scale: set the car length in mm; show sizes in mm
-- [ ] Print masking templates and decals at true size
-- [ ] Paint catalogue: hobby paint brands with codes and colours
-- [ ] Workshop PDF: painting order and masking steps per colour
-- [ ] Send decals to SlotForge Decals
-- [ ] Photo tracing aids: photo opacity, symmetry line
+- [x] Real-world scale per view (real width in mm); mm readouts and mm rulers from the car edge
+- [x] Print at true size: one masking template per colour plus the full design, 50 mm check bar
+- [x] Paint catalogue: Tamiya (TS, X/XF) and Humbrol built in; Revell, Zero Paints and others via My paints (exact codes not guessed)
+- [x] Workshop PDF: paint products column and painting order, lightest first, with a picture per step
+- [x] Send decals to SlotForge Decals as a .sfdecal pack at real size
+- [x] Photo tracing aids: photo opacity and a centre guide for symmetry
 
 ## Phase 6 · Systems
 - [ ] Lighter undo (store changes instead of whole-project copies)

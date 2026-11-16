@@ -18,7 +18,9 @@ function addLayer(l) {
     tool = 'select';
   });
 }
-function applyColour(c) {
+// A paint product reference travels with the colour when chosen from the
+// catalogue; any other colour change clears it, as it no longer matches.
+function applyColour(c, ref = null) {
   c = M.colour(c, colour);
   colour = c;
   const recent = store.settings?.recentColours || [];
@@ -26,14 +28,27 @@ function applyColour(c) {
   mutate(() => {
     const items = artworkSelection(),
       parts = paintRegions();
+    const setRef = item => {
+      if (ref) item.paintRef = ref;
+      else delete item.paintRef;
+    };
     if (items.length) {
-      items.filter(l => !['image', 'vector'].includes(l.kind)).forEach(l => (l.fill = c));
+      items
+        .filter(l => !['image', 'vector'].includes(l.kind))
+        .forEach(l => {
+          l.fill = c;
+          setRef(l);
+        });
     } else if (parts.length) {
       for (const r of parts) {
         r.colour = c;
         r.paintVisible = true;
+        setRef(r);
       }
-    } else project.base = c;
+    } else {
+      project.base = c;
+      setRef(project);
+    }
   });
 }
 // Eyedropper: the system picker samples any pixel on screen. Without it, the

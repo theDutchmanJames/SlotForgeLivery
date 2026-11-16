@@ -1569,3 +1569,99 @@ dialog::backdrop {
   text-align: center;
   color: #4b5e70;
 }
+
+/* Ruler unit label (mm once a view has a real size). */
+.ruler-corner {
+  font:
+    8px/18px system-ui,
+    sans-serif;
+  text-align: center;
+  color: var(--muted);
+}
+/* Paint product line under the colour picker. */
+.paint-ref-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 8px;
+  font-size: 11px;
+}
+.paint-ref-line span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.paint-ref-line .icon {
+  width: 14px;
+  height: 14px;
+  flex: none;
+}
+.paint-ref-line button {
+  flex: none;
+  padding: 4px 9px;
+  font-size: 11px;
+}
+/* Paint catalogue dialog. Picks use .paint-pick: .paint-chip is the Layers chip. */
+.paint-filter {
+  margin-bottom: 10px;
+}
+.paint-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  grid-auto-rows: 48px;
+  gap: 6px;
+  max-height: 46vh;
+  overflow: auto;
+  padding-right: 4px;
+}
+.paint-pick {
+  position: relative;
+  justify-content: flex-start;
+  width: 100%;
+  height: 48px;
+  padding: 6px 10px;
+  text-align: left;
+  overflow: hidden;
+}
+.paint-dot {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1px solid #0003;
+}
+.paint-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.25;
+}
+.paint-text strong,
+.paint-text small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.paint-text small {
+  color: var(--muted);
+  font-size: 10px;
+}
+.paint-remove {
+  position: absolute;
+  top: 2px;
+  right: 6px;
+  color: var(--muted);
+  font-size: 14px;
+}
+.paint-add {
+  margin-top: 12px;
+}
+.paint-add summary {
+  cursor: pointer;
+  margin-bottom: 8px;
+}

@@ -204,6 +204,7 @@ function validateLivery(l) {
     name: M.name(l.name, 'Imported livery'),
     ...libraryMetadata(l),
     base: M.colour(l.base, '#ffffff'),
+    ...(M.paintRef(l.paintRef) ? { paintRef: M.paintRef(l.paintRef) } : {}),
     finish: M.FINISHES.includes(l.finish) ? l.finish : 'Gloss',
     effect: M.EFFECTS.includes(l.effect) ? l.effect : 'Solid',
     ...M.fillSettings(l),
