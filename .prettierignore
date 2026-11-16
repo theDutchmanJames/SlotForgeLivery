@@ -1,0 +1,13 @@
+node_modules/
+dist/
+test-output/
+vendor/
+concepts/
+source-assets/
+release-assets/
+renderer/decals/
+package-lock.json
+*.md
+*.html
+*.yml
+*.json
