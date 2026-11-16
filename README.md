@@ -163,7 +163,13 @@ The PDF is a **visual painting reference**, not a calibrated decal sheet, cuttin
 
 Choose from **eight SlotForge themes**, or create a custom palette in **Settings**. Set your background, panel, text, border and accent colours, preview the result, then save or cancel. Interface themes do not change your car's paint or exported designs.
 
-Use pan, zoom, Snap, Grid and undo/redo while editing. Click empty canvas to clear the selection and look at the design without selection boxes. **HELP** explains the tools and shortcuts inside the app.
+Use pan, zoom, Snap, Grid and undo/redo while editing. Click empty canvas to clear the selection and look at the design without selection boxes. **HELP** explains the tools and shortcuts inside the app, one topic at a time.
+
+- **Step-by-step tips** in the corner of the canvas show the next step: prepare, paint, add artwork, then save or export. Dismiss a tip with **Got it**, or turn them off in Settings.
+- Drag the divider above **Layers** to give the layer list more or less room; double-click it to reset.
+- **Settings → Studio** sets the scale for new cars, the number of undo steps, the finish preview, and whether Snap and Grid start switched on.
+- The **User Library** has a compact **List** view that shows how many projects use each car.
+- New projects are numbered per car (for example *Club GT · Livery 2*), and the welcome screen lists your recent projects.
 
 | Action | Control |
 | --- | --- |
@@ -236,6 +242,8 @@ Windows downloads are unsigned. Mac downloads are ad-hoc signed, not Apple-notar
 AppImage permission labels vary between Linux desktops. Some distributions need a FUSE compatibility package; the Debian package is an alternative on supported systems. If the app still will not open, report the error instead of running it as root or disabling its sandbox.
 
 ### Your first livery
+
+No artwork yet? Choose **Try a sample car** on the welcome screen (or in **Add car**) to walk through every step with a ready-made car.
 
 1. Choose **Add car**, name the car and select a view.
 2. Import vector artwork, or choose a photograph and trace the areas you need.

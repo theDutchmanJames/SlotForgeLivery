@@ -23,7 +23,7 @@ function openLibrary(tab = libraryTab) {
       )
       .join(
         ''
-      )}</div><div class="row library-controls"><input id="library-search" placeholder="Search ${tab === 'templates' ? 'cars' : tab === 'liveries' ? 'liveries' : tab === 'fonts' ? 'fonts' : 'shapes & images'}…" aria-label="Search library"><select id="library-sort" aria-label="Sort library"><option value="az">Name A–Z</option><option value="za">Name Z–A</option><option value="recent">Recently added</option></select><button data-action="${tab === 'templates' ? 'add-car' : tab === 'assets' ? 'upload-image' : tab === 'fonts' ? 'upload-font' : 'save-livery'}" ${tab === 'liveries' && !project ? 'disabled' : ''}>${icon('plus')}${tab === 'templates' ? 'Add car' : tab === 'assets' ? 'Import artwork' : tab === 'fonts' ? 'Import font' : 'Save current'}</button></div><p id="library-count" class="note" role="status"></p>${tab === 'fonts' ? '<p class="note">TTF, OTF, WOFF or WOFF2 · Up to 10 MB per font · Existing text keeps its font when a library entry is removed.</p>' : ''}</div><div id="library-items"></div>`,
+      )}</div><div class="row library-controls"><input id="library-search" placeholder="Search ${tab === 'templates' ? 'cars' : tab === 'liveries' ? 'liveries' : tab === 'fonts' ? 'fonts' : 'shapes & images'}…" aria-label="Search library"><select id="library-sort" aria-label="Sort library"><option value="az">Name A–Z</option><option value="za">Name Z–A</option><option value="recent">Recently added</option></select><div class="segmented library-view-toggle" role="group" aria-label="Library layout">${['grid', 'list'].map(v => `<button data-library-view="${v}" aria-pressed="${(store.settings?.libraryView || 'grid') === v}">${v === 'grid' ? 'Cards' : 'List'}</button>`).join('')}</div><button data-action="${tab === 'templates' ? 'add-car' : tab === 'assets' ? 'upload-image' : tab === 'fonts' ? 'upload-font' : 'save-livery'}" ${tab === 'liveries' && !project ? 'disabled' : ''}>${icon('plus')}${tab === 'templates' ? 'Add car' : tab === 'assets' ? 'Import artwork' : tab === 'fonts' ? 'Import font' : 'Save current'}</button></div><p id="library-count" class="note" role="status"></p>${tab === 'fonts' ? '<p class="note">TTF, OTF, WOFF or WOFF2 · Up to 10 MB per font · Existing text keeps its font when a library entry is removed.</p>' : ''}</div><div id="library-items"></div>`,
     `<span class="dialog-foot-note">Share several items in one editable .sfpaint package.</span><button data-action="export-selection">${icon('share')}Export a package</button><button data-action="close-dialog">Done</button>`
   );
   $('#dialog').classList.add('library-dialog');
@@ -148,6 +148,15 @@ async function loadCardPreviews() {
   }
   await Promise.all([next(), next()]);
 }
+// How many projects were started from this car (matched by template id or name).
+function carUsage(template) {
+  const count = store.projects.filter(p =>
+    p.template
+      ? p.template.id === template.id || p.template.name === template.name
+      : p.storageSummary?.templateName === template.name
+  ).length;
+  return count ? `Used by ${count} project${count === 1 ? '' : 's'}` : 'Not used yet';
+}
 function renderLibraryItems() {
   const query = $('#library-search')?.value.toLowerCase() || '',
     items = store[libraryTab].filter(a =>
@@ -163,13 +172,15 @@ function renderLibraryItems() {
   libraryPage = Math.min(libraryPage, Math.max(0, Math.ceil(items.length / LIBRARY_PAGE_SIZE) - 1));
   $('#library-count').textContent = items.length + ' of ' + store[libraryTab].length + ' items';
   $('#library-items').innerHTML = items.length
-    ? '<div class="library-grid">' +
+    ? `<div class="library-grid ${store.settings?.libraryView === 'list' ? 'list' : ''}">` +
       pageSlice(items, libraryPage)
         .map(a => {
           const info = a.storageSummary || StorageCodec.summary(libraryTab, a).storageSummary;
           const detail =
             libraryTab === 'templates'
-              ? [e(a.scale), (info.views || []).map(k => M.LABELS[k]).join(' · ')].filter(Boolean).join(' · ')
+              ? [e(a.scale), (info.views || []).map(k => M.LABELS[k]).join(' · '), carUsage(a)]
+                  .filter(Boolean)
+                  .join(' · ')
               : libraryTab === 'liveries'
                 ? info.layerCount + ' artwork layers · ' + e(a.finish)
                 : libraryTab === 'fonts'
@@ -298,7 +309,15 @@ function useLibrary(id) {
   const item = store[libraryTab].find(a => a.id === id);
   if (!item) return;
   if (libraryTab === 'templates') {
-    setProject(M.newProject(item));
+    setProject(
+      M.newProject(
+        item,
+        M.nextLiveryName(
+          item.name,
+          store.projects.map(p => p.name)
+        )
+      )
+    );
     closeDialog();
     if (!activeView()?.regions.some(r => r.role === 'body')) {
       preparing = true;

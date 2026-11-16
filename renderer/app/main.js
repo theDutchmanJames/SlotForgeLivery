@@ -150,6 +150,7 @@ async function init() {
     }
     defaultPaintSelection();
     if (result.warning) toast(result.warning);
+    applyStartupPreferences();
     applyTheme();
     render();
   } catch (error) {

@@ -518,3 +518,12 @@ test('alignment moves boxes to edges and centres, and distributes evenly', () =>
   ]);
   assert.throws(() => M.alignmentMoves(boxes, 'diagonal', target), /Unknown/);
 });
+test('new projects are numbered per car, reusing the lowest free number', () => {
+  assert.equal(M.nextLiveryName('Club GT'), 'Club GT · Livery 1');
+  assert.equal(
+    M.nextLiveryName('Club GT', ['Club GT · Livery 1', 'Club GT · Livery 3', 'Other · Livery 2']),
+    'Club GT · Livery 2'
+  );
+  assert.equal(M.nextLiveryName('Club GT', ['Club GT · Livery 1', 'Club GT · Livery 2']), 'Club GT · Livery 3');
+  assert.equal(M.nextLiveryName('', []), 'Car · Livery 1');
+});

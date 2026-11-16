@@ -137,6 +137,16 @@
   function emptyStore() {
     return { schema: 1, templates: [], liveries: [], assets: [], fonts: [], projects: [], current: null };
   }
+  // "Club GT · Livery 3": the lowest number not yet used by an existing name.
+  function nextLiveryName(carName, existingNames = []) {
+    const base = name(carName, 'Car') + ' · Livery ',
+      used = new Set(
+        existingNames.map(n => (String(n).startsWith(base) ? Number(String(n).slice(base.length)) : 0)).filter(Boolean)
+      );
+    let n = 1;
+    while (used.has(n)) n++;
+    return base + n;
+  }
   function newProject(template, title) {
     return {
       id: uid(),
@@ -934,6 +944,7 @@
     layer,
     validateLayer,
     OUTLINE_KINDS,
+    nextLiveryName,
     PALETTE_SIZE,
     validatePalette,
     ALIGN_MODES,

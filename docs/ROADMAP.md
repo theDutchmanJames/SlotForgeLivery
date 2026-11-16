@@ -16,13 +16,13 @@ The improvement programme agreed on 2026-11-16. Each phase is committed locally 
 - [x] Team-colour palette per project and recent colours
 
 ## Phase 3 · Interface and ease of use
-- [ ] Resizable split between properties and Layers
-- [ ] Toasts dismiss on navigation and after a shorter time
-- [ ] Compact list view in the library, with usage counts
-- [ ] Settings page: default scale, units, backup folder, undo depth (move the header Light/Dark toggle there)
-- [ ] Recent projects on the welcome screen, sensible default names
-- [ ] "Try a sample car" on the welcome screen
-- [ ] Step-by-step in-app hints instead of one long Help page
+- [x] Resizable split between properties and Layers
+- [x] Toasts clear on navigation and last 2–7 s depending on length (they stay click-through so they never block the canvas)
+- [x] Compact list view in the library, with usage counts for cars
+- [x] Settings → Studio: scale for new cars, undo steps, finish preview, Snap/Grid on start, tips. Kept the header Light/Dark switch (matches the other SlotForge apps). Units move to Phase 5, backup folder to Phase 6
+- [x] Recent projects on the welcome screen, sensible default names
+- [x] "Try a sample car" on the welcome screen and in Add car
+- [x] Step-by-step tips on the canvas; Help split into tabs
 
 ## Phase 4 · Design tools
 - [ ] Rulers and draggable guides; snap to centre line and panel edges

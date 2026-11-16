@@ -337,8 +337,16 @@ function dockInspector() {
     if (i === index - 1 && n.classList.contains('separator')) return;
     (i < index ? props : dock).append(n);
   });
-  box.replaceChildren(props, dock);
+  const resizer = document.createElement('div');
+  resizer.className = 'dock-resizer';
+  resizer.tabIndex = 0;
+  resizer.setAttribute('role', 'separator');
+  resizer.setAttribute('aria-orientation', 'horizontal');
+  resizer.setAttribute('aria-label', 'Resize the Layers panel. Double-click to reset.');
+  resizer.title = 'Drag to resize Layers · double-click to reset';
+  box.replaceChildren(props, resizer, dock);
   box.classList.add('docked');
+  applyDockSize(dock, resizer);
   organiseInspector(props);
   props.querySelector('.heading')?.insertAdjacentHTML('afterend', appearanceButtons());
   const controls = orderButtons();
@@ -354,6 +362,57 @@ function dockInspector() {
     (orderScope() ? ' · Within this group' : '');
   dock.querySelector('h3')?.after(tip);
 }
+// Layers panel height as a share of the inspector, remembered on this computer.
+const DOCK_MIN = 0.2,
+  DOCK_MAX = 0.8;
+function applyDockSize(dock = $('#inspector .layers-dock'), resizer = $('#inspector .dock-resizer')) {
+  const share = store.settings?.layersDock;
+  if (!dock) return;
+  if (typeof share === 'number') {
+    dock.style.flex = `0 0 ${(share * 100).toFixed(1)}%`;
+    dock.style.maxHeight = 'none';
+    dock.style.minHeight = '120px';
+  } else {
+    dock.style.flex = dock.style.maxHeight = dock.style.minHeight = '';
+  }
+  resizer?.setAttribute('aria-valuenow', String(Math.round((share ?? 0.48) * 100)));
+}
+function setDockSize(share, save = true) {
+  const settings = { ...store.settings };
+  if (share === null) delete settings.layersDock;
+  else settings.layersDock = Math.min(DOCK_MAX, Math.max(DOCK_MIN, share));
+  store.settings = settings;
+  applyDockSize();
+  if (save) scheduleSave();
+}
+let dockDrag = null;
+document.addEventListener('pointerdown', ev => {
+  const resizer = ev.target.closest('.dock-resizer');
+  if (!resizer || ev.button !== 0) return;
+  ev.preventDefault();
+  dockDrag = { rect: $('#inspector').getBoundingClientRect(), pointerId: ev.pointerId };
+  resizer.setPointerCapture(ev.pointerId);
+  resizer.classList.add('dragging');
+});
+document.addEventListener('pointermove', ev => {
+  if (!dockDrag || ev.pointerId !== dockDrag.pointerId) return;
+  setDockSize((dockDrag.rect.bottom - ev.clientY) / dockDrag.rect.height, false);
+});
+document.addEventListener('pointerup', ev => {
+  if (!dockDrag || ev.pointerId !== dockDrag.pointerId) return;
+  dockDrag = null;
+  document.querySelector('.dock-resizer.dragging')?.classList.remove('dragging');
+  scheduleSave();
+});
+document.addEventListener('dblclick', ev => {
+  if (ev.target.closest('.dock-resizer')) setDockSize(null);
+});
+document.addEventListener('keydown', ev => {
+  if (!ev.target.closest?.('.dock-resizer') || !['ArrowUp', 'ArrowDown'].includes(ev.key)) return;
+  ev.preventDefault();
+  ev.stopImmediatePropagation();
+  setDockSize((store.settings?.layersDock ?? 0.48) + (ev.key === 'ArrowUp' ? 0.05 : -0.05));
+});
 function renderPreparation() {
   const v = activeView(),
     r = region();

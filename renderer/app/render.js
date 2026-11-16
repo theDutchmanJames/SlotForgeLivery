@@ -42,12 +42,29 @@ function renderTools() {
   $('#quick-colour').value = colour;
   $('#base-swatch').style.background = project ? paintChip(M.paintOf(project)) : '#fff';
 }
+// Recent projects on the welcome screen, newest first.
+function renderWelcomeRecent() {
+  const box = $('#welcome-recent'),
+    recent = project
+      ? []
+      : [...store.projects].sort((a, b) => String(b.updated || '').localeCompare(String(a.updated || ''))).slice(0, 4);
+  box.hidden = !recent.length;
+  $('#welcome').classList.toggle('returning', store.templates.length + store.projects.length > 0);
+  if (!recent.length) return;
+  box.innerHTML = `<span class="eyebrow">Continue where you left off</span><div class="welcome-recent-list">${recent
+    .map(
+      p =>
+        `<button data-project-open="${e(p.id)}"><strong>${e(p.name)}</strong><small>${e(p.template?.name || p.storageSummary?.templateName || '')}${p.updated ? ' · ' + new Date(p.updated).toLocaleDateString() : ''}</small></button>`
+    )
+    .join('')}</div>`;
+}
 function render() {
   renderTools();
   renderHeader();
   renderCanvas();
   renderViews();
   renderInspector();
+  renderStepHint();
   fillIcons();
 }
 function renderHeader() {
@@ -79,6 +96,7 @@ function renderCanvas() {
   art.classList.remove('panning');
   art.style.transform = '';
   $('#welcome').hidden = !!project;
+  renderWelcomeRecent();
   $('#empty-view').hidden = !project || !!activeView();
   $('#view-badge').hidden = !activeView();
   $('#zoom-controls').hidden = !activeView();

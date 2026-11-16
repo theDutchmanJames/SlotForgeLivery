@@ -1277,3 +1277,177 @@ dialog::backdrop {
   font-size: 14px;
   line-height: 1;
 }
+
+/* Draggable divider between inspector properties and the Layers panel. */
+.dock-resizer {
+  flex: none;
+  height: 7px;
+  margin: -3px 0;
+  position: relative;
+  z-index: 2;
+  cursor: row-resize;
+  touch-action: none;
+}
+.dock-resizer::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 2px;
+  width: 36px;
+  height: 3px;
+  margin-left: -18px;
+  border-radius: 2px;
+  background: var(--line);
+  transition: background 0.15s;
+}
+.dock-resizer:hover::after,
+.dock-resizer:focus-visible::after,
+.dock-resizer.dragging::after {
+  background: var(--accent);
+}
+.dock-resizer:focus-visible {
+  outline: none;
+}
+
+/* Next-step tip in the top-right corner of the canvas. */
+.step-hint {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 3;
+  width: min(290px, 45%);
+  padding: 11px 13px 10px;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--accent);
+  border-radius: 8px;
+  background: var(--panel);
+  color: var(--ink);
+  box-shadow: 0 6px 18px #0003;
+  font-size: 12px;
+}
+.step-hint .step-count {
+  display: block;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.step-hint strong {
+  display: block;
+  margin: 2px 0 4px;
+  font-size: 13px;
+}
+.step-hint p {
+  margin: 0 0 8px;
+  line-height: 1.45;
+}
+.step-actions {
+  display: flex;
+  gap: 6px;
+}
+.step-actions button {
+  padding: 4px 10px;
+  font-size: 11px;
+}
+
+/* Studio preferences on the Settings page. */
+.pref-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 6px 18px;
+  margin: 12px 0 6px;
+}
+.pref-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 9px 0;
+  border-top: 1px solid var(--line);
+  cursor: pointer;
+}
+.pref-row input {
+  margin-top: 3px;
+}
+.pref-row span {
+  display: grid;
+  gap: 2px;
+}
+.pref-row small {
+  color: var(--muted);
+}
+#pref-reset-hints {
+  margin-top: 10px;
+}
+
+/* Recent projects on the welcome screen. */
+.welcome-recent {
+  margin-top: 22px;
+  width: min(560px, 100%);
+}
+.welcome-recent-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 8px;
+  margin-top: 8px;
+}
+.welcome-recent-list button {
+  display: grid;
+  justify-items: start;
+  gap: 2px;
+  padding: 10px 12px;
+  text-align: left;
+}
+.welcome-recent-list small {
+  color: var(--muted);
+}
+
+/* Help as tabs. */
+.help-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+.help-tabs button[aria-selected='true'] {
+  border-color: var(--accent);
+  color: var(--ink);
+  background: color-mix(in srgb, var(--accent) 14%, var(--panel));
+}
+.help-panel {
+  min-height: 220px;
+  max-width: 720px;
+}
+.help-panel p {
+  line-height: 1.6;
+}
+/* The welcome canvas is light in every theme, so recent-project cards are too. */
+.welcome-recent-list button {
+  background: #ffffff;
+  color: #1f2a35;
+  border: 1px solid #d3dae2;
+  box-shadow: 0 2px 6px #1f2a3514;
+}
+.welcome-recent-list button:hover {
+  border-color: var(--accent);
+}
+.welcome-recent-list small {
+  color: #5d6976;
+}
+.welcome .label-again,
+.welcome.returning .label-first,
+.welcome.returning > small {
+  display: none;
+}
+.welcome.returning .label-again {
+  display: inline;
+}
+.link-button {
+  display: inline;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}

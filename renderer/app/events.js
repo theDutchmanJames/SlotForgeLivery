@@ -36,6 +36,7 @@ function zoom(factor, point = { x: viewBox.x + viewBox.w / 2, y: viewBox.y + vie
 document.addEventListener('click', async ev => {
   const b = ev.target.closest('button');
   if (!b || b.disabled) return;
+  if (b.closest('.app-header nav')) hideToast();
   try {
     if (b.dataset.linePreset) {
       const preset = LINE_PRESETS.find(p => p.id === b.dataset.linePreset);
@@ -150,6 +151,18 @@ document.addEventListener('click', async ev => {
     }
     if (b.dataset.eyedropper) {
       await pickColour(b.dataset.eyedropper);
+      return;
+    }
+    if (b.dataset.helpTab) {
+      showHelpTab(Number(b.dataset.helpTab));
+      return;
+    }
+    if (b.dataset.libraryView) {
+      setPreference('libraryView', b.dataset.libraryView);
+      document
+        .querySelectorAll('[data-library-view]')
+        .forEach(x => x.setAttribute('aria-pressed', x.dataset.libraryView === b.dataset.libraryView));
+      renderLibraryItems();
       return;
     }
     if (b.dataset.align) {

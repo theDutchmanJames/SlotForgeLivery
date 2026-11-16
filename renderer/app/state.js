@@ -100,6 +100,7 @@ function showSettings(open = true) {
   });
   if (open) {
     themeSettings.render();
+    renderStudioPreferences();
     $('#settings-back').onclick = () => showSettings(false);
   } else render();
 }

@@ -20,6 +20,7 @@ const actions = {
     openSharing();
   },
   'add-car': () => addCarDialog(),
+  'sample-car': () => trySampleCar().catch(reportError),
   'add-view': () => project && addCarDialog(currentView || 'left'),
   import: () => $('#package-file').click(),
   'confirm-import': importConfirmed,

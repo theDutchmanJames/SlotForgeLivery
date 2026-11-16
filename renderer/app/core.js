@@ -2,11 +2,18 @@
 // Classic script: shares top-level names with the other renderer/app/*.js files.
 // Load order is fixed in index.html.
 'use strict';
+// Messages stay long enough to read (about 2–7 s by length) and clear when
+// the user moves to another section or project. They never block clicks.
 function toast(message) {
+  message = String(message);
   $('#toast').textContent = message;
   $('#toast').classList.add('show');
   clearTimeout(toast.timer);
-  toast.timer = setTimeout(() => $('#toast').classList.remove('show'), 4200);
+  toast.timer = setTimeout(hideToast, Math.min(7000, 1800 + message.length * 45));
+}
+function hideToast() {
+  clearTimeout(toast.timer);
+  $('#toast').classList.remove('show');
 }
 function reportError(error) {
   console.error(error);
@@ -31,7 +38,7 @@ function snapshot() {
 function record() {
   if (project) {
     undo.push(snapshot());
-    if (undo.length > 60) undo.shift();
+    while (undo.length > undoLimit()) undo.shift();
     redo = [];
   }
 }
@@ -76,6 +83,7 @@ function needsPreparation(view) {
   return !!view && !view.regions.some(r => r.role === 'body');
 }
 function setProject(p) {
+  hideToast();
   project = p;
   store.current = p.id;
   currentView = Object.keys(p.template.views)[0] || 'left';
