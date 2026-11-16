@@ -35,6 +35,7 @@ function applyStartupPreferences() {
   $('#snap').checked = !!pref('snapDefault', false);
   $('#grid').checked = !!pref('gridDefault', false);
   $('#canvas-wrap').classList.toggle('grid', $('#grid').checked);
+  $('#rulers').checked = pref('showRulers', false) === true;
 }
 document.addEventListener('change', ev => {
   const el = ev.target;

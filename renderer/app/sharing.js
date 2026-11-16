@@ -248,7 +248,7 @@ function validateFontAsset(a) {
 function validateProject(p) {
   const t = validateTemplate(p.template, true),
     l = validateLivery(p);
-  return { ...l, template: t, id: M.uid() };
+  return { ...l, template: t, guides: M.validateGuides(p.guides), id: M.uid() };
 }
 async function readPackage(file) {
   if (file.size > 180 * 1024 * 1024) throw new Error('Package exceeds the 180 MB import limit.');

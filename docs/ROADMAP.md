@@ -25,11 +25,11 @@ The improvement programme agreed on 2026-11-16. Each phase is committed locally 
 - [x] Step-by-step tips on the canvas; Help split into tabs
 
 ## Phase 4 · Design tools
-- [ ] Rulers and draggable guides; snap to centre line and panel edges
-- [ ] Text: letter spacing, drop shadow, text along a curve
-- [ ] Preset shapes: number boards and roundels, chequers, badges
-- [ ] Mirror a whole view to the opposite side
-- [ ] Side-by-side views while designing
+- [x] Rulers and draggable guides (per view, saved with the project); with Snap on, moves snap to guides, the car centre line and panel edges
+- [x] Text: "Space letters" fit (letter spacing follows the box width), hard drop shadow (text and shapes), bend along an arc
+- [x] Preset shapes: number board and roundel (editable groups), chequered band, shield, star
+- [x] Mirror a whole side (left ↔ right), fitted to the other side, groups kept
+- [x] Side-by-side pane showing another view live
 
 ## Phase 5 · Slotcar features
 - [ ] Real-world scale: set the car length in mm; show sizes in mm

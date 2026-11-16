@@ -183,18 +183,96 @@ function shapesDialog() {
       ['rect', 'Rectangle / stripe'],
       ['ellipse', 'Roundel'],
       ['diagonal', 'Diagonal band'],
-      ['chevron', 'Chevron']
+      ['chevron', 'Chevron'],
+      ['number-board', 'Number board'],
+      ['number-roundel', 'Number roundel'],
+      ['chequers', 'Chequered band'],
+      ['shield', 'Shield badge'],
+      ['star', 'Star']
     ]
       .map(
         ([k, n]) =>
-          `<button class="choice-card" data-preset="${k}">${icon(k === 'ellipse' ? 'ellipse' : 'rect')}<strong>${n}</strong><small>Editable colour, position and size</small></button>`
+          `<button class="choice-card" data-preset="${k}">${icon(['ellipse', 'number-roundel'].includes(k) ? 'ellipse' : 'rect')}<strong>${n}</strong><small>${['number-board', 'number-roundel', 'chequers'].includes(k) ? 'An editable group: change each part' : 'Editable colour, position and size'}</small></button>`
       )
       .join('')}</div><button data-action="custom-shape">${icon('pen')}Draw my own shape</button>`
   );
 }
+// Grouped presets are placed at the centre of the car as one editable group.
+function addPresetGroup(name, parts) {
+  if (!activeView()?.regions.some(r => r.role === 'body'))
+    return toast('Prepare at least one paintable body region first.');
+  const b = activeView().bounds,
+    box = M.boundsOfPoints(
+      parts.flatMap(l => [
+        { x: l.x, y: l.y },
+        { x: l.x + l.w, y: l.y + l.h }
+      ])
+    ),
+    dx = b.x + b.w / 2 - (box.x + box.w / 2),
+    dy = b.y + b.h / 2 - (box.y + box.h / 2),
+    groupId = M.uid();
+  mutate(() => {
+    for (const l of parts)
+      layers().push({ ...l, x: l.x + dx, y: l.y + dy, groupId, groupName: name, groupHidden: false });
+    chooseArtwork('group:' + groupId);
+    preparing = false;
+    tool = 'select';
+  });
+}
+const STAR_POINTS = Array.from({ length: 10 }, (_, i) => {
+  const a = -Math.PI / 2 + (i * Math.PI) / 5,
+    r = i % 2 ? 0.2 : 0.5;
+  return { x: 0.5 + r * Math.cos(a), y: 0.52 + r * Math.sin(a) };
+});
 function addPreset(kind) {
   closeDialog();
+  const number = (box, fill) =>
+    M.layer('text', { name: 'Race number', text: '27', fill, x: box.x, y: box.y, w: box.w, h: box.h });
+  if (kind === 'number-board')
+    return addPresetGroup('Number board', [
+      M.layer('rect', {
+        name: 'Board',
+        fill: '#ffffff',
+        x: 0,
+        y: 0,
+        w: 120,
+        h: 90,
+        outlineWidth: 2,
+        outlineColour: '#1f2a35'
+      }),
+      number({ x: 22, y: 14, w: 76, h: 62 }, '#1f2a35')
+    ]);
+  if (kind === 'number-roundel')
+    return addPresetGroup('Number roundel', [
+      M.layer('ellipse', { name: 'Roundel', fill: '#ffffff', x: 0, y: 0, w: 100, h: 100 }),
+      number({ x: 22, y: 24, w: 56, h: 52 }, '#1f2a35')
+    ]);
+  if (kind === 'chequers') {
+    const size = 14,
+      parts = [M.layer('rect', { name: 'White band', fill: '#ffffff', x: 0, y: 0, w: size * 10, h: size * 3 })];
+    for (let row = 0; row < 3; row++)
+      for (let col = row % 2; col < 10; col += 2)
+        parts.push(
+          M.layer('rect', { name: 'Square', fill: '#1f2a35', x: col * size, y: row * size, w: size, h: size })
+        );
+    return addPresetGroup('Chequered band', parts);
+  }
   let l = M.layer(kind === 'ellipse' ? 'ellipse' : 'rect', { fill: colour });
+  if (kind === 'shield')
+    l = M.layer('polygon', {
+      fill: colour,
+      name: 'Shield badge',
+      w: 90,
+      h: 110,
+      points: [
+        { x: 0, y: 0 },
+        { x: 1, y: 0 },
+        { x: 1, y: 0.55, out: { x: 1, y: 0.85 } },
+        { x: 0.5, y: 1, in: { x: 0.85, y: 0.9 }, out: { x: 0.15, y: 0.9 }, smooth: true },
+        { x: 0, y: 0.55, in: { x: 0, y: 0.85 } }
+      ]
+    });
+  if (kind === 'star') l = M.layer('polygon', { fill: colour, name: 'Star', w: 100, h: 100, points: STAR_POINTS });
   if (kind === 'ellipse') {
     l.w = 90;
     l.h = 90;

@@ -165,6 +165,13 @@ document.addEventListener('click', async ev => {
       renderLibraryItems();
       return;
     }
+    if (b.dataset.textFit && selection()?.kind === 'text') {
+      mutate(() => {
+        if (b.dataset.textFit === 'space') selection().textFit = 'space';
+        else delete selection().textFit;
+      });
+      return;
+    }
     if (b.dataset.align) {
       alignArtwork(b.dataset.align);
       return;
@@ -433,6 +440,11 @@ document.addEventListener('change', async ev => {
       } else if (project && !preparing) applyColour(colour);
       return;
     }
+    if (el.id === 'rulers') {
+      setPreference('showRulers', el.checked);
+      renderCanvas();
+      return;
+    }
     if (el.id === 'grid') {
       $('#canvas-wrap').classList.toggle('grid', el.checked);
       return;
@@ -444,6 +456,28 @@ document.addEventListener('change', async ev => {
         return;
       }
       applyColour(el.value);
+      return;
+    }
+    if (['shadow-x', 'shadow-y', 'shadow-colour'].includes(el.id) && selection()) {
+      mutate(() => {
+        const l = selection();
+        delete l.shadowX;
+        delete l.shadowY;
+        delete l.shadowColour;
+        Object.assign(
+          l,
+          M.shadowValues({
+            kind: l.kind,
+            shadowX: $('#shadow-x').value,
+            shadowY: $('#shadow-y').value,
+            shadowColour: $('#shadow-colour').value
+          })
+        );
+      });
+      return;
+    }
+    if (el.id === 'text-bend' && selection()?.kind === 'text') {
+      textBendDraft = false;
       return;
     }
     if ((el.id === 'outline-width' || el.id === 'outline-colour') && selection()) {
@@ -590,4 +624,23 @@ document.addEventListener('contextmenu', ev => {
   const c = b.dataset.teamColour;
   mutate(() => (project.palette = (project.palette || []).filter(x => x !== c)));
   toast('Removed ' + c.toUpperCase() + ' from team colours.');
+});
+
+// Text bend updates live while dragging; one undo step per drag.
+let textBendDraft = false;
+document.addEventListener('input', ev => {
+  if (ev.target.id !== 'text-bend' || selection()?.kind !== 'text') return;
+  if (!textBendDraft) {
+    record();
+    textBendDraft = true;
+  }
+  const l = selection(),
+    bend = M.number(ev.target.value, 0, -100, 100) / 100;
+  if (bend) l.textBend = bend;
+  else delete l.textBend;
+  const output = document.querySelector('[data-bend-output]');
+  if (output) output.textContent = Math.round(bend * 100) + '%';
+  renderCanvas();
+  renderViews();
+  changed();
 });

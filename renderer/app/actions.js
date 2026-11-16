@@ -21,6 +21,7 @@ const actions = {
   },
   'add-car': () => addCarDialog(),
   'sample-car': () => trySampleCar().catch(reportError),
+  'mirror-view': () => mirrorWholeSide(),
   'add-view': () => project && addCarDialog(currentView || 'left'),
   import: () => $('#package-file').click(),
   'confirm-import': importConfirmed,

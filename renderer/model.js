@@ -80,6 +80,23 @@
     const width = OUTLINE_KINDS.includes(item?.kind) ? number(item.outlineWidth, 0, 0, 500) : 0;
     return width > 0 ? { outlineWidth: width, outlineColour: colour(item.outlineColour, '#ffffff') } : {};
   }
+  // Hard drop shadow: an offset copy of the shape (and its outline) behind it.
+  function shadowValues(item) {
+    if (!OUTLINE_KINDS.includes(item?.kind)) return {};
+    const x = number(item.shadowX, 0, -200, 200),
+      y = number(item.shadowY, 0, -200, 200);
+    return x || y ? { shadowX: x, shadowY: y, shadowColour: colour(item.shadowColour, '#000000') } : {};
+  }
+  // Text: 'stretch' fits letters to the box; 'space' keeps letter shapes and
+  // spreads the spacing. Bend arches the baseline (-1 dips, +1 arches up).
+  function textValues(item) {
+    if (item?.kind !== 'text') return {};
+    const out = {},
+      bend = number(item.textBend, 0, -1, 1);
+    if (item.textFit === 'space') out.textFit = 'space';
+    if (bend) out.textBend = bend;
+    return out;
+  }
   // A detached style snapshot: geometry, content, visibility and grouping never enter it.
   function appearanceOf(item, project = null) {
     const result = {};
@@ -90,7 +107,11 @@
     }
     if (item.kind) result.opacity = item.opacity ?? 1;
     if (item.kind === 'line') result.line = clone(lineStyle(item));
-    if (OUTLINE_KINDS.includes(item.kind)) result.outline = outlineValues(item);
+    if (OUTLINE_KINDS.includes(item.kind)) {
+      result.outline = outlineValues(item);
+      result.shadow = shadowValues(item);
+    }
+    if (item.kind === 'text') result.text = textValues(item);
     if (item.kind === 'text') {
       result.font = item.font || 'Arial';
       if (item.fontData) result.fontData = clone(item.fontData);
@@ -113,6 +134,17 @@
       delete item.outlineWidth;
       delete item.outlineColour;
       Object.assign(item, appearance.outline);
+    }
+    if (mode === 'layer' && OUTLINE_KINDS.includes(item.kind) && appearance.shadow) {
+      delete item.shadowX;
+      delete item.shadowY;
+      delete item.shadowColour;
+      Object.assign(item, appearance.shadow);
+    }
+    if (mode === 'layer' && item.kind === 'text' && appearance.text) {
+      delete item.textFit;
+      delete item.textBend;
+      Object.assign(item, appearance.text);
     }
     if (item.kind === 'text' && appearance.font) {
       item.font = appearance.font;
@@ -259,7 +291,7 @@
       out.groupHidden = item.groupHidden === true;
     }
     Object.assign(out, fitValues(item), pinchValues(item));
-    Object.assign(out, fillSettings(item), outlineValues(item));
+    Object.assign(out, fillSettings(item), outlineValues(item), shadowValues(item), textValues(item));
     if (item.locked === true) out.locked = true;
     if (item.affine !== undefined) {
       if (
@@ -660,6 +692,71 @@
   // Moves that align or distribute boxes. `boxes` are unit bounds; `target` is
   // the box to align to. Returns one {dx, dy} per box, in input order.
   const ALIGN_MODES = ['left', 'centre', 'right', 'top', 'middle', 'bottom', 'across', 'down'];
+  // Mirror every layer of one side onto the opposite side, fitted from the
+  // source car bounds to the destination car bounds. Groups stay groups.
+  function mirrorView(list, from, to = from) {
+    const sx = to.w / Math.max(1, from.w),
+      sy = to.h / Math.max(1, from.h),
+      groups = new Map(),
+      shift = 2 * (from.x + from.w / 2) - 1000;
+    return list.map(l => {
+      const n = mirrorLayer(l);
+      n.x += shift;
+      const cx = to.x + (n.x + n.w / 2 - from.x) * sx,
+        cy = to.y + (n.y + n.h / 2 - from.y) * sy,
+        preserve = ['text', 'image', 'vector', 'ellipse'].includes(n.kind);
+      n.w *= preserve ? Math.min(sx, sy) : sx;
+      n.h *= preserve ? Math.min(sx, sy) : sy;
+      n.x = cx - n.w / 2;
+      n.y = cy - n.h / 2;
+      if (n.kind === 'line') {
+        const scale = Math.min(sx, sy);
+        n.lineStripes = n.lineStripes.map(s => ({ ...s, width: s.width * scale }));
+        n.lineGap *= scale;
+      }
+      if (n.shadowX) n.shadowX = -n.shadowX;
+      if (n.groupId) {
+        if (!groups.has(n.groupId)) groups.set(n.groupId, uid());
+        n.groupId = groups.get(n.groupId);
+      }
+      return n;
+    });
+  }
+  // Smart snapping for a moving box: the closest of its left/centre/right
+  // (top/middle/bottom) edges within `threshold` of a target line wins.
+  function smartSnap(box, targets, threshold) {
+    const pick = (edges, lines) => {
+      let best = null;
+      for (const line of lines)
+        for (const edge of edges) {
+          const d = line - edge;
+          if (Math.abs(d) <= threshold && (!best || Math.abs(d) < Math.abs(best.delta))) best = { delta: d, line };
+        }
+      return best;
+    };
+    const x = pick([box.x, box.x + box.w / 2, box.x + box.w], targets.x || []),
+      y = pick([box.y, box.y + box.h / 2, box.y + box.h], targets.y || []);
+    return { dx: x?.delta || 0, dy: y?.delta || 0, x: x?.line ?? null, y: y?.line ?? null };
+  }
+  // Guides per view: up to 40 vertical (x) and horizontal (y) lines.
+  function validateGuides(guides) {
+    const out = {};
+    for (const k of VIEWS) {
+      const g = guides?.[k];
+      if (!g) continue;
+      const list = v =>
+        Array.isArray(v)
+          ? v
+              .filter(Number.isFinite)
+              .map(n => number(n, 0, -5000, 5000))
+              .slice(0, 40)
+          : [];
+      const x = list(g.x),
+        y = list(g.y);
+      if (x.length || y.length) out[k] = { x, y };
+    }
+    return out;
+  }
   function alignmentMoves(boxes, mode, target) {
     if (!ALIGN_MODES.includes(mode)) throw Error('Unknown alignment.');
     const moves = boxes.map(() => ({ dx: 0, dy: 0 }));
@@ -767,6 +864,8 @@
         l.lineGap *= factor;
       }
       if (l.outlineWidth) l.outlineWidth *= factor;
+      if (l.shadowX) l.shadowX *= factor;
+      if (l.shadowY) l.shadowY *= factor;
       if (l.groupPose) {
         l.groupPose.x = a.x + (l.groupPose.x - a.x) * factor;
         l.groupPose.y = a.y + (l.groupPose.y - a.y) * factor;
@@ -944,6 +1043,11 @@
     layer,
     validateLayer,
     OUTLINE_KINDS,
+    shadowValues,
+    textValues,
+    mirrorView,
+    smartSnap,
+    validateGuides,
     nextLiveryName,
     PALETTE_SIZE,
     validatePalette,

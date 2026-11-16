@@ -527,3 +527,46 @@ test('new projects are numbered per car, reusing the lowest free number', () => 
   assert.equal(M.nextLiveryName('Club GT', ['Club GT · Livery 1', 'Club GT · Livery 2']), 'Club GT · Livery 3');
   assert.equal(M.nextLiveryName('', []), 'Car · Livery 1');
 });
+test('shadows and text options validate, scale and copy with appearance', () => {
+  const t = M.validateLayer(
+    M.layer('text', { shadowX: 4, shadowY: -3, shadowColour: '#123456', textFit: 'space', textBend: 0.4 })
+  );
+  assert.deepEqual([t.shadowX, t.shadowY, t.shadowColour, t.textFit, t.textBend], [4, -3, '#123456', 'space', 0.4]);
+  const plain = M.validateLayer(M.layer('text', { shadowX: 0, shadowY: 0, textFit: 'squash', textBend: 7 }));
+  assert.equal(plain.shadowColour, undefined, 'no offset means no shadow');
+  assert.equal(plain.textFit, undefined, 'unknown fit falls back to stretch');
+  assert.equal(plain.textBend, 1, 'bend is clamped');
+  assert.equal(M.validateLayer(M.layer('line', { shadowX: 3 })).shadowX, undefined, 'lines have no shadow');
+  const [scaled] = M.scaleArtwork([M.layer('rect', { shadowX: 2, shadowY: 1 })], 3);
+  assert.deepEqual([scaled.shadowX, scaled.shadowY], [6, 3]);
+  const target = M.layer('text');
+  M.applyAppearance(target, M.appearanceOf(t));
+  assert.deepEqual([target.shadowX, target.textFit, target.textBend], [4, 'space', 0.4]);
+});
+test('mirroring a whole side fits the opposite car and keeps groups together', () => {
+  const from = { x: 100, y: 100, w: 400, h: 200 },
+    to = { x: 500, y: 120, w: 400, h: 200 };
+  const a = M.layer('rect', { x: 100, y: 150, w: 100, h: 40, groupId: 'g1', groupName: 'Band' }),
+    b = M.layer('ellipse', { x: 300, y: 150, w: 50, h: 50, groupId: 'g1', groupName: 'Band' }),
+    c = M.layer('text', { x: 400, y: 200, w: 60, h: 40, shadowX: 3, shadowY: 2 });
+  const [ma, mb, mc] = M.mirrorView([a, b, c], from, to);
+  assert.equal(ma.x, 500 + 300, 'the left edge maps to the right edge of the other car');
+  assert.equal(ma.y, 170, 'vertical position follows the destination bounds');
+  assert.equal(ma.groupId, mb.groupId, 'group members share a new group');
+  assert.notEqual(ma.groupId, 'g1');
+  assert.equal(mc.shadowX, -3, 'shadows mirror too');
+  assert.notEqual(mc.id, c.id);
+});
+test('smart snapping picks the nearest edge or centre within the threshold', () => {
+  const box = { x: 98, y: 50, w: 20, h: 10 };
+  assert.deepEqual(M.smartSnap(box, { x: [100], y: [] }, 5), { dx: 2, dy: 0, x: 100, y: null });
+  assert.deepEqual(
+    M.smartSnap(box, { x: [109], y: [57] }, 3),
+    { dx: 1, dy: 2, x: 109, y: 57 },
+    'centre to x, bottom to y'
+  );
+  assert.deepEqual(M.smartSnap(box, { x: [200], y: [] }, 5), { dx: 0, dy: 0, x: null, y: null });
+  assert.deepEqual(M.validateGuides({ left: { x: [10, 'a', Infinity, 20], y: [] }, nowhere: { x: [1] } }), {
+    left: { x: [10, 20], y: [] }
+  });
+});

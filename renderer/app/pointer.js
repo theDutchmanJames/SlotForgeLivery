@@ -238,13 +238,17 @@ art.addEventListener('pointermove', ev => {
     return;
   }
   if (drag.kind === 'multi-move') {
-    moveArtwork(drag.original, p.x - drag.start.x, p.y - drag.start.y);
+    const d = snapMoveDelta(ev, drag.original);
+    moveArtwork(drag.original, d.dx, d.dy);
     scheduleFitCanvas();
     return;
   }
   const l = selection();
   if (!l) return;
-  if (drag.kind === 'move') moveArtwork([drag.original], p.x - drag.start.x, p.y - drag.start.y);
+  if (drag.kind === 'move') {
+    const d = snapMoveDelta(ev, [drag.original]);
+    moveArtwork([drag.original], d.dx, d.dy);
+  }
 
   if (drag.kind === 'draw') {
     l.x = Math.min(p.x, drag.start.x);
@@ -285,6 +289,7 @@ art.addEventListener('pointermove', ev => {
 });
 function endDrag(ev) {
   if (!drag) return;
+  snapLines = null;
   const kind = drag.kind,
     modified = kind === 'draw' || drag.recorded;
   if (kind === 'pen') {

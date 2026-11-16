@@ -462,18 +462,47 @@
     }
     return markup;
   }
+  function quadraticLength(a, c, b, steps = 24) {
+    let length = 0,
+      prev = a;
+    for (let i = 1; i <= steps; i++) {
+      const t = i / steps,
+        u = 1 - t,
+        p = { x: u * u * a.x + 2 * u * t * c.x + t * t * b.x, y: u * u * a.y + 2 * u * t * c.y + t * t * b.y };
+      length += Math.hypot(p.x - prev.x, p.y - prev.y);
+      prev = p;
+    }
+    return length;
+  }
   function buildLayerMarkup(l, interactive = false, opts = {}) {
     if (l.visible === false || l.groupHidden === true) return '';
     const matrix = M.layerMatrix(l);
     if (matrix.length === 9) return warpedLayer(l, interactive, opts, matrix);
     const e = M.escape;
-    let shape = '';
+    let shape = '',
+      shapeDefs = '';
     if (l.kind === 'rect') shape = `<rect width="${l.w}" height="${l.h}"/>`;
     if (l.kind === 'ellipse') shape = `<ellipse cx="${l.w / 2}" cy="${l.h / 2}" rx="${l.w / 2}" ry="${l.h / 2}"/>`;
     if (l.kind === 'polygon')
       shape = `<path d="${M.pathData(M.mapPathPoints(l.points, p => ({ x: p.x * l.w, y: p.y * l.h })))}"/>`;
-    if (l.kind === 'text')
-      shape = `<text x="${l.w / 2}" y="${l.h * 0.8}" text-anchor="middle" font-family="${e(l.fontData?.family || l.font || 'Arial')}" font-weight="${l.fontData ? '400' : '700'}" font-size="${l.h}" textLength="${l.w}" lengthAdjust="spacingAndGlyphs">${e(l.text)}</text>`;
+    if (l.kind === 'text') {
+      const text = M.textValues(l),
+        font = `text-anchor="middle" font-family="${e(l.fontData?.family || l.font || 'Arial')}" font-weight="${l.fontData ? '400' : '700'}"`,
+        adjust = text.textFit === 'space' ? 'spacing' : 'spacingAndGlyphs';
+      if (text.textBend) {
+        // Bent text follows a quadratic arc inside the box; the font shrinks a
+        // little so the arch stays within the layer bounds.
+        const b = text.textBend,
+          size = l.h * (1 - 0.35 * Math.abs(b)),
+          sag = 0.35 * l.h * b,
+          base = b > 0 ? l.h * 0.97 : size * 0.78,
+          id = 'bend-' + l.id + '-' + ++renderId,
+          arc = quadraticLength({ x: 0, y: base }, { x: l.w / 2, y: base - 2 * sag }, { x: l.w, y: base });
+        shapeDefs = `<path id="${id}" d="M0 ${base} Q${l.w / 2} ${base - 2 * sag} ${l.w} ${base}"/>`;
+        shape = `<text ${font} font-size="${size}"><textPath href="#${id}" startOffset="50%" textLength="${arc}" lengthAdjust="${adjust}">${e(l.text)}</textPath></text>`;
+      } else
+        shape = `<text x="${l.w / 2}" y="${l.h * 0.8}" ${font} font-size="${l.h}" textLength="${l.w}" lengthAdjust="${adjust}">${e(l.text)}</text>`;
+    }
     if (l.kind === 'vector')
       return `<g ${interactive ? `data-layer="${l.id}"` : ''} transform="matrix(${matrix.join(' ')})" opacity="${l.opacity ?? 1}" fill="black"><svg width="${l.w}" height="${l.h}" overflow="hidden">${window.DecalArtwork.markup(l.svg, l.crop)}</svg></g>`;
     if (l.kind === 'image')
@@ -520,7 +549,12 @@
       stroke = outline.outlineWidth
         ? ` stroke="${outline.outlineColour}" stroke-width="${outline.outlineWidth * 2}" paint-order="stroke" stroke-linejoin="round"`
         : '';
-    return `${l.fontData && !opts.preview ? window.FontLibrary.style(l.fontData) : ''}<defs>${paint.defs}</defs><g ${interactive ? `data-layer="${l.id}"` : ''} transform="matrix(${M.layerMatrix(l).join(' ')})" fill="${paint.fill}" opacity="${l.opacity ?? 1}"${stroke}>${shape}${paint.overlays.map(fill => `<g pointer-events="none" fill="${fill}" stroke="none">${shape}</g>`).join('')}</g>`;
+    // Hard drop shadow: the same shape (with its outline) offset behind it.
+    const shadow = M.shadowValues(l),
+      shadowMarkup = shadow.shadowColour
+        ? `<g transform="translate(${shadow.shadowX} ${shadow.shadowY})" fill="${shadow.shadowColour}" pointer-events="none" ${outline.outlineWidth ? `stroke="${shadow.shadowColour}"` : 'stroke="none"'}>${shape}</g>`
+        : '';
+    return `${l.fontData && !opts.preview ? window.FontLibrary.style(l.fontData) : ''}<defs>${paint.defs}${shapeDefs}</defs><g ${interactive ? `data-layer="${l.id}"` : ''} transform="matrix(${M.layerMatrix(l).join(' ')})" fill="${paint.fill}" opacity="${l.opacity ?? 1}"${stroke}>${shadowMarkup}${shape}${paint.overlays.map(fill => `<g pointer-events="none" fill="${fill}" stroke="none">${shape}</g>`).join('')}</g>`;
   }
   const maskCache = new Map();
   let maskBytes = 0;

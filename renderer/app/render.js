@@ -118,6 +118,7 @@ function renderCanvas() {
       : 'Prepare template · Select a region and assign its role';
   if (!project) {
     art.innerHTML = '';
+    renderRulers();
     return;
   }
   const canvasParts = V.renderViewParts(project, currentView, {
@@ -193,6 +194,7 @@ function renderCanvas() {
   if (!art.querySelector('[data-canvas-under]'))
     art.innerHTML =
       '<g data-canvas-under></g><g data-canvas-art></g><g data-canvas-over></g><g data-canvas-selection></g>';
+  markup = guidesMarkup() + markup;
   for (const [name, value] of [
     ['under', canvasParts.under],
     ['over', canvasParts.over],
@@ -230,6 +232,7 @@ function renderCanvas() {
     const rect = art.getBoundingClientRect();
     drag.scale = Math.min(rect.width / viewBox.w, rect.height / viewBox.h);
   }
+  renderRulers();
 }
 function renderViews() {
   if (!project) {
@@ -250,6 +253,7 @@ function renderViews() {
           : tool === 'polygon'
             ? 'Click for corners · Drag for curves · Click near the first point to close · Enter to finish'
             : 'Middle-drag or Ctrl + drag to pan · Shift-click to select several · Delete removes selected artwork';
+  renderCompare();
 }
 function resetViewSelection(keepMode = false) {
   const hadView = !!activeView();

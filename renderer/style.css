@@ -1451,3 +1451,121 @@ dialog::backdrop {
   text-decoration: underline;
   cursor: pointer;
 }
+
+/* Rulers along the canvas edges; guides and snap lines on the artboard. */
+.ruler {
+  position: absolute;
+  z-index: 2;
+  background: color-mix(in srgb, var(--panel) 92%, transparent);
+  color: var(--muted);
+  font:
+    9px/1 system-ui,
+    sans-serif;
+  cursor: copy;
+  user-select: none;
+}
+.ruler line {
+  stroke: currentColor;
+  stroke-width: 1;
+}
+.ruler text {
+  fill: currentColor;
+}
+.ruler-top {
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 18px;
+  border-bottom: 1px solid var(--line);
+  cursor: row-resize;
+}
+.ruler-left {
+  top: 0;
+  left: 0;
+  width: 18px;
+  height: 100%;
+  border-right: 1px solid var(--line);
+  cursor: col-resize;
+}
+.ruler-corner {
+  position: absolute;
+  z-index: 3;
+  top: 0;
+  left: 0;
+  width: 18px;
+  height: 18px;
+  background: var(--panel);
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+.canvas-wrap.with-rulers .view-badge {
+  top: 26px;
+  left: 26px;
+}
+.guide-line {
+  stroke: #12b5cb;
+  stroke-dasharray: 6 4;
+  pointer-events: none;
+}
+.guide-hit {
+  stroke: transparent;
+  cursor: move;
+}
+.guide[data-guide^='x'] .guide-hit {
+  cursor: col-resize;
+}
+.guide[data-guide^='y'] .guide-hit {
+  cursor: row-resize;
+}
+.snap-line {
+  stroke: #e5484d;
+  pointer-events: none;
+}
+
+/* Canvas row: the canvas, plus an optional second view side by side. */
+.canvas-row {
+  display: flex;
+  gap: 10px;
+  flex: 1;
+  min-height: 160px;
+}
+.canvas-row > .canvas-wrap {
+  min-width: 0;
+}
+.compare-pane {
+  flex: 0 0 38%;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  border: 1px solid #cdd7df;
+  border-radius: 9px;
+  background: #e9edf1;
+  overflow: hidden;
+}
+.compare-head {
+  display: flex;
+  gap: 6px;
+  padding: 8px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--line);
+}
+.compare-head select {
+  flex: 1;
+}
+.compare-art {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+  padding: 10px;
+}
+.compare-art svg {
+  width: 100%;
+  height: 100%;
+}
+.compare-empty {
+  margin: auto;
+  padding: 20px;
+  text-align: center;
+  color: #4b5e70;
+}

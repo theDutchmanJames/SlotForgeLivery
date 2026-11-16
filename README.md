@@ -94,7 +94,7 @@ The compact toolbox keeps the canvas open for designing. **Choose a shape tool a
 
 Lines remain editable paths. Finish one with **Enter**, **Escape**, right-click or **Finish line**; use **Cancel** to discard the unfinished line.
 
-Give shapes and text an **outline** in any colour and width. It sits outside the edge, so race numbers keep their full shape. Keep your livery's **team colours** with the design, reuse your **recent colours**, or use the **eyedropper** to pick any colour on screen, including from a reference photo.
+Give shapes and text an **outline** in any colour and width. It sits outside the edge, so race numbers keep their full shape. Add a hard **drop shadow** for depth. Text can **bend** to follow a curved panel, and can keep its letter shapes while you widen it (**Space letters**). **Add a shape** includes number boards and roundels with an editable number, a chequered band, a shield and a star. Keep your livery's **team colours** with the design, reuse your **recent colours**, or use the **eyedropper** to pick any colour on screen, including from a reference photo.
 
 ### Add decals, lettering and your own fonts
 
@@ -128,6 +128,9 @@ The layer list keeps the design organised:
 - **Align** several items by their edges or centres, or **space them evenly**. A single item can be centred on the car.
 - **Lock** a layer so it can't be moved by accident on the canvas. You can still select it in Layers to change its properties.
 - Nudge selected artwork with the **arrow keys**; hold **Shift** for larger steps.
+- Switch on **Rulers** and drag **guides** out of them. With **Snap** on, moved artwork snaps to guides, the car's centre line and panel edges, and a red line shows what it snapped to.
+- **Mirror whole side** copies every layer from the left view to the right (or back), mirrored and fitted to that side. Groups stay groups.
+- **Side by side** shows another view of the car next to the canvas, so stripes and numbers line up across sides.
 - Open or collapse the property folders to reach the controls you need.
 
 Livery is a **2D editor**. Fitting controls help match a drawing's perspective; they do not create a 3D model or automatically wrap a design across different views.

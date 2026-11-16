@@ -67,6 +67,36 @@ function artworkRows() {
     })
     .join('');
 }
+// Copy every layer of this side onto the opposite side, mirrored and fitted
+// to that side's bodywork. Groups stay groups.
+const OPPOSITE_SIDE = { left: 'right', right: 'left' };
+function mirrorWholeSide() {
+  const target = OPPOSITE_SIDE[currentView],
+    source = layers();
+  if (!target) return toast('Mirroring works between the left and right views.');
+  if (!project.template.views[target])
+    return toast(`Add the ${M.LABELS[target]} view first, then mirror this side onto it.`);
+  if (!source.length) return toast('This side has no artwork to mirror yet.');
+  const existing = project.views[target]?.length || 0;
+  openDialog(
+    `Mirror to the ${M.LABELS[target]} view`,
+    'Every layer is mirrored and fitted to the other side. Check the result against its panels.',
+    `<p>${source.length} layer${source.length === 1 ? '' : 's'} from the ${M.LABELS[currentView]} view.</p>${existing ? `<label class="checkbox-line"><input id="mirror-replace" type="checkbox" checked>Replace the ${existing} existing layer${existing === 1 ? '' : 's'} on the ${M.LABELS[target]} view</label>` : ''}<p class="note">Text, images and decals stay readable; shapes, stripes and fitting are mirrored.</p>`,
+    `<button data-action="close-dialog">Cancel</button><button class="primary" id="mirror-apply">Mirror artwork</button>`
+  );
+  $('#mirror-apply').onclick = () => {
+    const replace = $('#mirror-replace')?.checked !== false,
+      mirrored = M.mirrorView(source, activeView().bounds, project.template.views[target].bounds);
+    closeDialog();
+    mutate(() => {
+      project.views[target] = replace ? mirrored : [...(project.views[target] || []), ...mirrored];
+      currentView = target;
+      selected = null;
+      multiSelected.clear();
+    });
+    toast(`Mirrored ${mirrored.length} layer${mirrored.length === 1 ? '' : 's'} to the ${M.LABELS[target]} view.`);
+  };
+}
 // Alignment works on units: a fully selected group moves as one block.
 function alignmentUnits() {
   const items = artworkSelection(),
