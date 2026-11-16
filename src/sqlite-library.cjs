@@ -109,6 +109,10 @@ class SQLiteLibrary{
       const nodes=patch.nodes.filter(x=>nodeGet.get(x.key)?.data!==x.data);
       const deleteItems=patch.deleteItems.filter(k=>itemGet.get(k)),deleteNodes=new Set(patch.deleteNodes.filter(k=>nodeGet.get(k)));
       for(const key of deleteItems)for(const n of db.prepare('SELECT key FROM nodes WHERE owner=?').all(key))deleteNodes.add(n.key);
+      // A client without a node baseline (an item rewritten over a summary
+      // placeholder) sends every record; anything else stored for it is stale.
+      const replaceOwners=patch.replaceOwners||[];if(!Array.isArray(replaceOwners)||replaceOwners.some(k=>typeof k!=='string'))throw Error('Invalid library transaction.');
+      for(const owner of replaceOwners){const keep=new Set(patch.nodes.filter(n=>n.owner===owner).map(n=>n.key));for(const n of db.prepare('SELECT key FROM nodes WHERE owner=?').all(owner))if(!keep.has(n.key))deleteNodes.add(n.key);}
       if(!items.length&&!nodes.length&&!deleteItems.length&&!deleteNodes.size){db.exec('COMMIT');return {revision:this.revision(),changedNodes:0};}
       db.exec('DELETE FROM previous_blobs;DELETE FROM previous_items;DELETE FROM previous_nodes;');
       const remember=(table,key,old)=>db.prepare(`INSERT OR IGNORE INTO ${table}(key,value) VALUES(?,?)`).run(key,old?encoded(old):null);
@@ -134,7 +138,7 @@ class SQLiteLibrary{
       }
       // Validate affected graphs inside the same transaction; no dangling or
       // cross-project references can be committed, even after a failed import.
-      const owners=new Set([...items.map(x=>x.key),...nodes.map(x=>x.owner),...patch.deleteNodes.map(k=>JSON.parse(k)[0])]);
+      const owners=new Set([...items.map(x=>x.key),...nodes.map(x=>x.owner),...patch.deleteNodes.map(k=>JSON.parse(k)[0]),...replaceOwners]);
       for(const owner of owners)db.prepare('DELETE FROM thumbnails WHERE item=?').run(owner);
       for(const owner of owners)if(itemGet.get(owner)){
         const row=itemGet.get(owner),all=db.prepare('SELECT key,data FROM nodes WHERE owner=?').all(owner),map=new Map(all.map(n=>[n.key,n.data])),seen=new Set();

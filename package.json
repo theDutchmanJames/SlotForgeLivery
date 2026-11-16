@@ -8,7 +8,7 @@
   "scripts": {
     "start": "electron .",
     "check": "node scripts/check.cjs",
-    "test": "node --test tests/model.test.cjs tests/storage.test.cjs tests/sqlite-library.test.cjs",
+    "test": "node --test tests/model.test.cjs tests/storage.test.cjs tests/sqlite-library.test.cjs tests/library-client.test.cjs",
     "test:integration": "node scripts/test-integration.cjs",
     "benchmark:library": "node scripts/benchmark-library.cjs",
     "pack": "node scripts/pack.cjs",

@@ -28,13 +28,16 @@
       if(!this.enabled)return this.desktop.save(copy(store));
       const meta=copy(Object.fromEntries(Object.entries(store).filter(([k])=>!C.buckets.includes(k))));
       const entries=[];for(const bucket of C.buckets)if(store[bucket]){meta[bucket]=[];for(let i=0;i<store[bucket].length;i++){const value=store[bucket][i];entries.push({bucket,key:C.keyOf(bucket,value.id),position:i,value:this.isLazy(value)?null:copy(value),item:value});}}
-      const current=new Set(entries.map(x=>x.key)),patch={revision:this.revision,items:[],nodes:[],blobs:[],deleteItems:[...this.known].filter(k=>!current.has(k)),deleteNodes:[]};
+      const current=new Set(entries.map(x=>x.key)),patch={revision:this.revision,items:[],nodes:[],blobs:[],deleteItems:[...this.known].filter(k=>!current.has(k)),deleteNodes:[],replaceOwners:[]};
       const next=new Map(),media=new Map();
       async function prepare(client,key,bucket,value,position){
         if(bucket!=='$meta'){const test={schema:1,templates:[],liveries:[],assets:[],fonts:[],projects:[]};test[bucket]=[value];C.validate(test);}
         const packed=await client.codec.pack(key,value),baseline=client.baselines.get(key),nodes=new Map(packed.nodes),summary=bucket==='$meta'?{}:C.summary(bucket,value);
         for(const [k,data]of nodes)if(baseline?.nodes?.get(k)!==data)patch.nodes.push({key:k,owner:key,data});
         for(const k of baseline?.nodes?.keys()||[])if(!nodes.has(k))patch.deleteNodes.push(k);
+        // A stored item without a node baseline was replaced over its summary
+        // placeholder, so the stored records it no longer uses are unknown here.
+        if(!baseline?.nodes&&client.known.has(key))patch.replaceOwners.push(key);
         for(const [hash,data]of packed.blobs)media.set(hash,data);
         if(!baseline||baseline.summary!==JSON.stringify(summary)||baseline.position!==position)patch.items.push({key,bucket,identity:bucket==='$meta'?'':value.id,position,root:packed.root,summary});
         next.set(key,{nodes,summary:JSON.stringify(summary),position});
