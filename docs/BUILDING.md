@@ -24,12 +24,8 @@ The converter setup verifies the upstream Ghostscript archive's SHA-256. On Wind
 ## Native packages
 
 ```sh
-# Windows (PowerShell)
-npm ci
-npm run setup:converter
-npm run check
-npm test
-npm run dist:win -- --x64 --publish never
+# Windows (double-click, or from a terminal)
+build-windows.cmd --no-pause
 
 # macOS
 bash build-mac.command --no-pause
@@ -38,9 +34,9 @@ bash build-mac.command --no-pause
 bash build-linux.sh --no-pause
 ```
 
-The macOS and Linux scripts install locked dependencies, run checks and unit tests, build the converter and package the native application. The `build-mac-quick.command` and `build-linux-quick.sh` variants reuse matching dependencies and skip tests; use them only after a successful full build. `--help` shows options. Build as a normal user, not root.
+The Windows, macOS and Linux scripts install locked dependencies, run checks and unit tests, build the converter and package the native application. The `build-windows-quick.cmd`, `build-mac-quick.command` and `build-linux-quick.sh` variants reuse matching dependencies and skip tests; use them only after a successful full build. `--help` shows options. Build as a normal user, not root.
 
-Output is in `dist/v<version>/`: a Windows portable executable, macOS DMG and ZIP, or Linux AppImage and Debian package. Each package includes its converter. The macOS apps use ad-hoc signing, without Apple notarisation; Windows builds are unsigned. Release checksums identify the uploaded files but are not a publisher signature.
+Output is in `dist/v<version>/`. Each platform gets an installer and a portable app: Windows `-setup.exe` (NSIS installer) and `-portable.exe`; macOS DMG and ZIP; Linux Debian package and AppImage. Each package includes its converter. The macOS apps use ad-hoc signing, without Apple notarisation; Windows builds are unsigned. Release checksums identify the uploaded files but are not a publisher signature.
 
 ## Tests and artwork
 
@@ -55,7 +51,7 @@ npm run test:integration
 
 Desktop tests use Playwright and Electron in isolated `test-output/` profiles. They never use the normal library. Run GUI tests sequentially, because focus and pointer-capture tests require control of their window. On Linux, use `xvfb-run -a` for a virtual display. For the font suites on a non-Windows host, set `TEST_FONT` to a local redistributable TTF/OTF file. Optional `ELECTRON_BINARY` and `PLAYWRIGHT_MODULE` variables override the installed tools.
 
-`scripts/package-smoke.cjs` starts the unpacked native build and imports an EPS through the bundled converters. This catches missing packaged binaries/WASM files as well as startup errors. GitHub runs it on each native platform before publishing. See `TESTING.md` for the earlier detailed review record.
+`scripts/package-smoke.cjs` starts the unpacked native build and imports an EPS through the bundled converters. This catches missing packaged binaries/WASM files as well as startup errors. GitHub runs it on each native platform before publishing. `scripts/installer-smoke.cjs` then checks the installer and portable app: on Windows it silently installs the setup into a temporary folder, starts it, uninstalls it and starts the portable exe; on macOS and Linux it confirms that the DMG, ZIP, .deb and AppImage contain the app. See `TESTING.md` for the earlier detailed review record.
 
 The README demonstration car is original test artwork. It is not installed as a user template. To regenerate the application icon, run `npm run build:icons`.
 

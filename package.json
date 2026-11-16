@@ -14,9 +14,10 @@
     "pack": "node scripts/pack.cjs",
     "build:icons": "node scripts/build-icon.cjs",
     "setup:converter": "node scripts/setup-converter.cjs",
-    "dist:win": "electron-builder --win portable",
+    "dist:win": "electron-builder --win",
     "dist:mac": "electron-builder --mac",
-    "dist:linux": "electron-builder --linux"
+    "dist:linux": "electron-builder --linux",
+    "build:win": "node scripts/build-desktop.cjs windows"
   },
   "devDependencies": {
     "electron": "45.1.0",
@@ -100,10 +101,39 @@
       "output": "dist/v${version}"
     },
     "win": {
-      "target": "portable",
-      "artifactName": "SlotForgeLivery-${version}-windows-${arch}.${ext}",
+      "target": [
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
       "icon": "assets/icon.ico",
       "signExecutable": false
+    },
+    "portable": {
+      "artifactName": "SlotForgeLivery-${version}-windows-${arch}-portable.${ext}"
+    },
+    "nsis": {
+      "artifactName": "SlotForgeLivery-${version}-windows-${arch}-setup.${ext}",
+      "oneClick": false,
+      "perMachine": false,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "SlotForge Livery",
+      "uninstallDisplayName": "SlotForge Livery",
+      "installerIcon": "assets/icon.ico",
+      "uninstallerIcon": "assets/icon.ico",
+      "deleteAppDataOnUninstall": false
     },
     "asarUnpack": [
       "node_modules/mupdf/**/*"

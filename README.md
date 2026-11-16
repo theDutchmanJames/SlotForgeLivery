@@ -210,16 +210,19 @@ Open the **[latest GitHub release](https://github.com/theDutchmanJames/SlotForge
 
 **Version 1.2.0 provides Windows and Linux downloads.** macOS builds were deferred for this release; the Mac instructions below apply to releases that include Mac downloads.
 
-| Your computer | Download | Open or install |
-| --- | --- | --- |
-| **Windows · Intel/AMD 64-bit** | `SlotForgeLivery-…-windows-x64.exe` | Save the portable executable in a folder you want to keep, then double-click it. |
-| **Mac · Apple silicon (M1 or newer)** | `…-mac-arm64.dmg` | Open the disk image and drag Livery into **Applications**. |
-| **Mac · Intel** | `…-mac-x64.dmg` | Open the disk image and drag Livery into **Applications**. |
-| **Ubuntu/Debian · Intel/AMD 64-bit** | `…-linux-amd64.deb` | Open with your software installer, choose **Install**, then launch Livery from the applications menu. |
-| **Other compatible Linux · Intel/AMD 64-bit** | `…-linux-x86_64.AppImage` | Save it, allow running it as a program in **Properties → Permissions**, then double-click it. |
-| **Linux · ARM64** | `…-linux-arm64.deb` or `…-linux-arm64.AppImage` | Follow the matching Debian or AppImage instructions above. |
+Every system has two choices: an **installer**, which adds Livery to your applications menu like any other program, or a **portable app**, which runs from any folder (or a USB stick) without installing anything. Both open the same library on that computer, so you can switch between them.
 
-On a Mac, **Apple menu → About This Mac** identifies the chip or processor. Mac ZIP downloads are also available: extract the app and move it to Applications. After installing from a DMG, you can eject the disk image.
+| Your computer | Installer | Portable app |
+| --- | --- | --- |
+| **Windows · Intel/AMD 64-bit** | `…-windows-x64-setup.exe`: run it and follow the steps. It adds Start menu and desktop shortcuts, and you can choose the folder. Uninstall from **Settings → Apps**. | `…-windows-x64-portable.exe`: save it in a folder you want to keep, then double-click it. |
+| **Mac · Apple silicon (M1 or newer)** | `…-mac-arm64.dmg`: open the disk image and drag Livery into **Applications**. | `…-mac-arm64.zip`: extract it and open **SlotForge Livery** from any folder. |
+| **Mac · Intel** | `…-mac-x64.dmg`: as above. | `…-mac-x64.zip`: as above. |
+| **Ubuntu/Debian · Intel/AMD 64-bit** | `…-linux-amd64.deb`: open it with your software installer, choose **Install**, then launch Livery from the applications menu. | `…-linux-x86_64.AppImage`: save it, allow running it as a program in **Properties → Permissions**, then double-click it. Works on most other Linux distributions too. |
+| **Linux · ARM64** | `…-linux-arm64.deb` | `…-linux-arm64.AppImage` |
+
+On a Mac, **Apple menu → About This Mac** identifies the chip or processor. After installing from a DMG, you can eject the disk image.
+
+Uninstalling never deletes your library. It stays in the data folder listed under [Local storage and backups](#local-storage-and-backups).
 
 Windows downloads are unsigned. Mac downloads are ad-hoc signed, not Apple-notarised. Your operating system may ask you to approve the app; verify that it came from this repository. On macOS, a per-app approval may be available in **System Settings → Privacy & Security** after you try opening it. SHA-256 manifests accompany release downloads for integrity checks.
 
@@ -239,7 +242,7 @@ AppImage permission labels vary between Linux desktops. Some distributions need 
 ### Updating and moving to another computer
 
 1. Export a backup through **Import & Export** and keep it outside the app folder. For libraries exceeding the 180 MB package limit, export selections in separate packages.
-2. Close Livery, then open the new portable executable or install the newer package.
+2. Close Livery, then run the newer installer or open the newer portable app.
 3. Open Livery normally. **If you have an older JSON library, it converts to SQLite automatically on first launch.** Your projects and library items carry over, and your original JSON and backup files remain untouched.
 
 Your library is stored separately from the application. Updating on the same computer does not require reimporting it. To move to another computer, export packages on the old computer and import them on the new one. Continue making backups after upgrading: the preserved JSON does not receive subsequent edits.

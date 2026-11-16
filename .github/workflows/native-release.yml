@@ -94,6 +94,8 @@ jobs:
           sudo chmod 4755 "$sandbox"
           xvfb-run -a node scripts/package-smoke.cjs
           xvfb-run -a node scripts/package-decal-tests.cjs
+      - name: Test portable app and installer
+        run: node scripts/installer-smoke.cjs ${{ matrix.arch }}
       - name: Hash expected installers
         run: node scripts/release-manifest.cjs ${{ matrix.platform }} ${{ matrix.arch }}
       - uses: actions/upload-artifact@v6

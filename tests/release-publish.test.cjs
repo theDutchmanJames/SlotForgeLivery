@@ -27,8 +27,8 @@ function simulate(existing,omitMacos=false){
  vm.runInNewContext(source,{require:customRequire,process:{env:{GH_REPO:'owner/repo',SOURCE_SHA:sha,OMIT_MACOS:String(omitMacos)}},console:{log(){}}});
  return {release,calls};
 }
-test('publisher creates the tag, verifies all 20 assets by draft ID, then publishes',()=>{
- const {release,calls}=simulate();assert.equal(release.assets.length,20);assert.equal(release.draft,false);
+test('publisher creates the tag, verifies all 21 assets by draft ID, then publishes',()=>{
+ const {release,calls}=simulate();assert.equal(release.assets.length,21);assert.equal(release.draft,false);
  assert.equal(calls.at(-1)[1],'edit');
  assert(calls.at(-1).includes('--prerelease=false'));
  assert(calls.at(-1).includes('--latest'));
@@ -38,8 +38,8 @@ test('publisher creates the tag, verifies all 20 assets by draft ID, then publis
 test('publisher rejects conflicting draft assets before uploading',()=>{
  assert.throws(()=>simulate({assets:[{name:'SlotForgeLivery-source.tar.gz',digest:'sha256:wrong'}]}),/Existing draft asset differs/);
 });
-test('explicit macOS omission publishes only the 14 verified Windows/Linux/source assets',()=>{
- const {release}=simulate(null,true);assert.equal(release.assets.length,14);assert.equal(release.draft,false);
+test('explicit macOS omission publishes only the 15 verified Windows/Linux/source assets',()=>{
+ const {release}=simulate(null,true);assert.equal(release.assets.length,15);assert.equal(release.draft,false);
  assert(release.assets.every(a=>!a.name.includes('-mac-')));
  assert(release.assets.some(a=>a.name.includes('linux-arm64')));
  assert(release.assets.some(a=>a.name.includes('windows-x64')));
