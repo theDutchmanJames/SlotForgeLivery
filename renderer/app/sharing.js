@@ -208,6 +208,7 @@ function validateLivery(l) {
     effect: M.EFFECTS.includes(l.effect) ? l.effect : 'Solid',
     ...M.fillSettings(l),
     panelPaints: M.validatePanelPaints(l.panelPaints),
+    palette: M.validatePalette(l.palette),
     views,
     bounds,
     notes: String(l.notes || '').slice(0, 12000),

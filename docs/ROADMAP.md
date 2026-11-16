@@ -9,11 +9,11 @@ The improvement programme agreed on 2026-11-16. Each phase is committed locally 
 
 ## Phase 2 · Quick editing wins
 - [x] Arrow-key nudge (Shift = larger steps) — already present
-- [ ] Align and distribute selected artwork
-- [ ] Eyedropper: pick a colour from the canvas
-- [ ] Outline (stroke) on text and shapes
-- [ ] Lock layers in the Layers list
-- [ ] Team-colour palette per project and recent colours
+- [x] Align and distribute selected artwork
+- [x] Eyedropper: pick a colour from the canvas
+- [x] Outline (stroke) on text and shapes
+- [x] Lock layers in the Layers list
+- [x] Team-colour palette per project and recent colours
 
 ## Phase 3 · Interface and ease of use
 - [ ] Resizable split between properties and Layers

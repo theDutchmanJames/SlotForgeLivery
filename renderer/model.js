@@ -67,6 +67,19 @@
       effect: r?.effect || p.effect || 'Solid'
     };
   }
+  // Outlines sit behind the fill (paint-order stroke), so `outlineWidth` is the
+  // visible width outside the shape edge, in artwork units.
+  const OUTLINE_KINDS = ['rect', 'ellipse', 'polygon', 'text'];
+  // Team colours: a short list of distinct hex colours saved with a design.
+  const PALETTE_SIZE = 12;
+  function validatePalette(list) {
+    if (!Array.isArray(list)) return [];
+    return [...new Set(list.filter(c => /^#[0-9a-f]{6}$/i.test(c)).map(c => c.toLowerCase()))].slice(0, PALETTE_SIZE);
+  }
+  function outlineValues(item) {
+    const width = OUTLINE_KINDS.includes(item?.kind) ? number(item.outlineWidth, 0, 0, 500) : 0;
+    return width > 0 ? { outlineWidth: width, outlineColour: colour(item.outlineColour, '#ffffff') } : {};
+  }
   // A detached style snapshot: geometry, content, visibility and grouping never enter it.
   function appearanceOf(item, project = null) {
     const result = {};
@@ -77,6 +90,7 @@
     }
     if (item.kind) result.opacity = item.opacity ?? 1;
     if (item.kind === 'line') result.line = clone(lineStyle(item));
+    if (OUTLINE_KINDS.includes(item.kind)) result.outline = outlineValues(item);
     if (item.kind === 'text') {
       result.font = item.font || 'Arial';
       if (item.fontData) result.fontData = clone(item.fontData);
@@ -95,6 +109,11 @@
     }
     if (mode === 'layer' && appearance.opacity !== undefined) item.opacity = appearance.opacity;
     if (item.kind === 'line' && appearance.line) setLineStyle(item, appearance.line);
+    if (mode === 'layer' && OUTLINE_KINDS.includes(item.kind) && appearance.outline) {
+      delete item.outlineWidth;
+      delete item.outlineColour;
+      Object.assign(item, appearance.outline);
+    }
     if (item.kind === 'text' && appearance.font) {
       item.font = appearance.font;
       delete item.fontData;
@@ -230,7 +249,8 @@
       out.groupHidden = item.groupHidden === true;
     }
     Object.assign(out, fitValues(item), pinchValues(item));
-    Object.assign(out, fillSettings(item));
+    Object.assign(out, fillSettings(item), outlineValues(item));
+    if (item.locked === true) out.locked = true;
     if (item.affine !== undefined) {
       if (
         !Array.isArray(item.affine) ||
@@ -444,6 +464,7 @@
       finish: p.finish,
       effect: p.effect,
       ...fillSettings(p),
+      palette: validatePalette(p.palette),
       views: clone(p.views),
       panelPaints: Object.fromEntries(
         Object.entries(p.template.views).map(([k, v]) => [
@@ -475,6 +496,7 @@
     result.effect = livery.effect;
     result.notes = livery.notes || '';
     result.paints = livery.paints || '';
+    if (livery.palette?.length) result.palette = validatePalette(livery.palette);
     delete result.fillType;
     delete result.gradient;
     Object.assign(result, fillSettings(livery));
@@ -625,6 +647,48 @@
   function artworkBounds(items) {
     return boundsOfPoints(items.flatMap(layerCorners));
   }
+  // Moves that align or distribute boxes. `boxes` are unit bounds; `target` is
+  // the box to align to. Returns one {dx, dy} per box, in input order.
+  const ALIGN_MODES = ['left', 'centre', 'right', 'top', 'middle', 'bottom', 'across', 'down'];
+  function alignmentMoves(boxes, mode, target) {
+    if (!ALIGN_MODES.includes(mode)) throw Error('Unknown alignment.');
+    const moves = boxes.map(() => ({ dx: 0, dy: 0 }));
+    if (mode === 'across' || mode === 'down') {
+      if (boxes.length < 3) return moves;
+      const [pos, size, delta] = mode === 'across' ? ['x', 'w', 'dx'] : ['y', 'h', 'dy'];
+      const order = boxes
+        .map((b, i) => i)
+        .sort((a, b) => boxes[a][pos] + boxes[a][size] / 2 - (boxes[b][pos] + boxes[b][size] / 2));
+      const first = boxes[order[0]],
+        last = boxes[order.at(-1)],
+        span = last[pos] + last[size] - first[pos],
+        gap = (span - order.reduce((sum, i) => sum + boxes[i][size], 0)) / (order.length - 1);
+      let at = first[pos];
+      for (const i of order) {
+        moves[i][delta] = at - boxes[i][pos];
+        at += boxes[i][size] + gap;
+      }
+      return moves;
+    }
+    return boxes.map(b => ({
+      dx:
+        mode === 'left'
+          ? target.x - b.x
+          : mode === 'centre'
+            ? target.x + target.w / 2 - (b.x + b.w / 2)
+            : mode === 'right'
+              ? target.x + target.w - (b.x + b.w)
+              : 0,
+      dy:
+        mode === 'top'
+          ? target.y - b.y
+          : mode === 'middle'
+            ? target.y + target.h / 2 - (b.y + b.h / 2)
+            : mode === 'bottom'
+              ? target.y + target.h - (b.y + b.h)
+              : 0
+    }));
+  }
   function bakeGroupPose(l) {
     if (!l.groupPose) return l;
     const m = layerMatrix(l);
@@ -692,6 +756,7 @@
         l.lineStripes = l.lineStripes.map(s => ({ ...s, width: s.width * factor }));
         l.lineGap *= factor;
       }
+      if (l.outlineWidth) l.outlineWidth *= factor;
       if (l.groupPose) {
         l.groupPose.x = a.x + (l.groupPose.x - a.x) * factor;
         l.groupPose.y = a.y + (l.groupPose.y - a.y) * factor;
@@ -868,6 +933,12 @@
     newProject,
     layer,
     validateLayer,
+    OUTLINE_KINDS,
+    PALETTE_SIZE,
+    validatePalette,
+    ALIGN_MODES,
+    alignmentMoves,
+    outlineValues,
     validatePanelPaints,
     validImage,
     liveryFromProject,

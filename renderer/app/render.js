@@ -111,7 +111,12 @@ function renderCanvas() {
   });
   let markup = '';
   const l = selection();
-  if (l && !preparing) {
+  if (l && !preparing && l.locked) {
+    // Locked: show where it is, but offer no handles to move or resize it.
+    markup += `<polygon class="selection-box locked" pointer-events="none" points="${M.layerCorners(l)
+      .map(p => p.x + ',' + p.y)
+      .join(' ')}"/>`;
+  } else if (l && !preparing) {
     const matrix = M.layerMatrix(l),
       corner = M.transformPoint(matrix, { x: l.w, y: l.h }),
       r = screenUnits(4);
@@ -130,7 +135,9 @@ function renderCanvas() {
   if (!preparing && !l && artworkSelection().length) {
     const b = M.artworkBounds(artworkSelection()),
       r = screenUnits(5);
-    markup += `<rect class="selection-box" pointer-events="none" x="${b.x}" y="${b.y}" width="${b.w}" height="${b.h}"/><rect data-group-resize="true" class="handle" x="${b.x + b.w - r}" y="${b.y + b.h - r}" width="${r * 2}" height="${r * 2}" style="cursor:nwse-resize"/>`;
+    markup += `<rect class="selection-box" pointer-events="none" x="${b.x}" y="${b.y}" width="${b.w}" height="${b.h}"/>`;
+    if (!artworkSelection().some(a => a.locked))
+      markup += `<rect data-group-resize="true" class="handle" x="${b.x + b.w - r}" y="${b.y + b.h - r}" width="${r * 2}" height="${r * 2}" style="cursor:nwse-resize"/>`;
   }
   const r = region();
   if (preparing && r) {

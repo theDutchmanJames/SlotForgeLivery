@@ -21,6 +21,8 @@ function addLayer(l) {
 function applyColour(c) {
   c = M.colour(c, colour);
   colour = c;
+  const recent = store.settings?.recentColours || [];
+  store.settings = { ...store.settings, recentColours: [c, ...recent.filter(x => x !== c)].slice(0, 8) };
   mutate(() => {
     const items = artworkSelection(),
       parts = paintRegions();
@@ -33,6 +35,50 @@ function applyColour(c) {
       }
     } else project.base = c;
   });
+}
+// Eyedropper: the system picker samples any pixel on screen. Without it, the
+// next canvas click takes the exact paint colour of the shape or panel hit.
+let colourPick = null;
+function hexFromPicker(value) {
+  const rgb = String(value).match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)/i);
+  return rgb
+    ? '#' +
+        rgb
+          .slice(1, 4)
+          .map(n => Number(n).toString(16).padStart(2, '0'))
+          .join('')
+    : M.colour(String(value).toLowerCase(), null);
+}
+function usePickedColour(target, value) {
+  const c = hexFromPicker(value);
+  if (!c) return toast('That colour could not be read.');
+  if (target === 'outline') {
+    const l = selection();
+    if (!l) return;
+    mutate(() =>
+      Object.assign(l, M.outlineValues({ kind: l.kind, outlineWidth: l.outlineWidth || 2, outlineColour: c }))
+    );
+  } else applyColour(c);
+  toast('Picked ' + c.toUpperCase() + '.');
+}
+async function pickColour(target) {
+  if (window.EyeDropper) {
+    try {
+      const { sRGBHex } = await new window.EyeDropper().open();
+      return usePickedColour(target, sRGBHex);
+    } catch (error) {
+      if (error?.name === 'AbortError') return;
+    }
+  }
+  colourPick = target;
+  toast('Click a shape or panel on the canvas to pick its colour. Esc cancels.');
+}
+function canvasColourAt(ev) {
+  const hit = layers().find(l => l.id === ev.target.closest('[data-layer]')?.dataset.layer);
+  if (hit) return ['image', 'vector'].includes(hit.kind) ? null : hit.fill;
+  const id = ev.target.closest('[data-paint-region]')?.dataset.paintRegion,
+    r = id && activeView()?.regions.find(r => r.id === id);
+  return r ? M.paintOf(project, r).fill : project.base;
 }
 function finishDrawing() {
   const isLine = tool === 'line';

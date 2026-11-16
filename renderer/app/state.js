@@ -37,6 +37,7 @@ const icons = {
   trash: 'M3 6h18 M9 6V3h6v3 M5 6l1 15h12l1-15 M10 10v7 M14 10v7',
   close: 'M6 6l12 12 M18 6L6 18',
   copy: 'M8 8h13v13H8z M16 8V3H3v13h5',
+  eyedropper: 'M15 4l5 5 M17.5 6.5L8 16l-3 1 1-3 9.5-9.5 M3 21l3-3',
   up: 'M5 15l7-7 7 7',
   down: 'M5 9l7 7 7-7',
   check: 'M4 12l5 5L20 6',

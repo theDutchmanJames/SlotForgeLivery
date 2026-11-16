@@ -34,6 +34,11 @@ document.addEventListener('keydown', ev => {
     finishDrawing();
     return;
   }
+  if (k === 'escape' && colourPick) {
+    colourPick = null;
+    toast('Colour picking cancelled.');
+    return;
+  }
   if (k === 'escape') {
     if (drag) endDrag({ type: 'pointercancel', pointerId: drag.pointerId });
     drag = null;
@@ -69,6 +74,7 @@ document.addEventListener('keydown', ev => {
   }
   if (artworkSelection().length && ['arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(k)) {
     ev.preventDefault();
+    if (artworkSelection().some(l => l.locked)) return toast('Unlock the layer to move it.');
     const step = ev.shiftKey ? 10 : 1;
     mutate(() =>
       moveArtwork(

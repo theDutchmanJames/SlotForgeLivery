@@ -47,7 +47,7 @@ function artworkRows() {
   const chosen = new Set(artworkSelection().map(l => l.id)),
     seen = new Set();
   const row = (l, child = false) =>
-    `<div class="layer-row ${child ? 'artwork-child' : ''} ${chosen.has(l.id) ? 'active' : ''}" draggable="true" data-sort-key="${l.id}" data-sort-parent="${child ? l.groupId : ''}"><span class="layer-grip" aria-hidden="true">⠿</span><button data-visible="${l.id}" aria-label="Toggle ${e(l.name)}" style="opacity:${l.visible !== false ? 1 : 0.35}">${icon('eye')}</button><button class="layer-name" data-select-layer="${l.id}">${e(l.name)}</button></div>`;
+    `<div class="layer-row ${child ? 'artwork-child' : ''} ${chosen.has(l.id) ? 'active' : ''}" draggable="true" data-sort-key="${l.id}" data-sort-parent="${child ? l.groupId : ''}"><span class="layer-grip" aria-hidden="true">⠿</span><button data-visible="${l.id}" aria-label="Toggle ${e(l.name)}" style="opacity:${l.visible !== false ? 1 : 0.35}">${icon('eye')}</button><button class="layer-name" data-select-layer="${l.id}">${e(l.name)}</button><button class="layer-lock ${l.locked ? 'on' : ''}" data-lock-layer="${l.id}" aria-pressed="${!!l.locked}" aria-label="${l.locked ? 'Unlock' : 'Lock'} ${e(l.name)}" title="${l.locked ? 'Locked: click to unlock' : 'Lock so it cannot be moved on the canvas'}">${icon('lock')}</button></div>`;
   return [...layers()]
     .reverse()
     .map(l => {
@@ -67,12 +67,51 @@ function artworkRows() {
     })
     .join('');
 }
+// Alignment works on units: a fully selected group moves as one block.
+function alignmentUnits() {
+  const items = artworkSelection(),
+    ids = new Set(items.map(l => l.id)),
+    units = new Map();
+  for (const l of items) {
+    const complete =
+        l.groupId &&
+        layers()
+          .filter(a => a.groupId === l.groupId)
+          .every(a => ids.has(a.id)),
+      key = complete ? 'group:' + l.groupId : l.id;
+    if (!units.has(key)) units.set(key, []);
+    units.get(key).push(l);
+  }
+  return [...units.values()];
+}
+function alignArtwork(mode) {
+  const units = alignmentUnits();
+  if (!units.length) return;
+  if (units.flat().some(l => l.locked)) return toast('Unlock the selected layers to align them.');
+  if ((mode === 'across' || mode === 'down') && units.length < 3)
+    return toast('Select at least three items to space them evenly.');
+  const boxes = units.map(u => M.artworkBounds(u)),
+    target = units.length > 1 ? M.artworkBounds(units.flat()) : activeView().bounds,
+    moves = M.alignmentMoves(boxes, mode, target);
+  mutate(() => units.forEach((u, i) => moveArtwork(M.clone(u), moves[i].dx, moves[i].dy)));
+}
+function alignFields(count) {
+  const modes = [
+    ['left', 'Left'],
+    ['centre', 'Centre'],
+    ['right', 'Right'],
+    ['top', 'Top'],
+    ['middle', 'Middle'],
+    ['bottom', 'Bottom']
+  ];
+  return `<div class="align-controls"><div class="align-grid">${modes.map(([mode, label]) => `<button data-align="${mode}" title="Align ${label.toLowerCase()}">${label}</button>`).join('')}</div>${count >= 3 ? '<div class="row"><button data-align="across">Space across</button><button data-align="down">Space down</button></div>' : ''}<p class="note">${count > 1 ? 'Aligns the selected items with each other.' : 'Aligns to the car body. Select several items to align them with each other.'}</p></div>`;
+}
 function renderMultiArtwork(box) {
   const items = artworkSelection(),
     group = selected?.startsWith('group:'),
     b = M.artworkBounds(items),
     name = group ? items[0].groupName : `${items.length} shapes selected`;
-  box.innerHTML = `<div class="heading"><span class="section-icon">${icon('folder')}</span><div><strong>${e(name)}</strong><small>${items.length} separate editable elements</small></div></div>${group ? fitFields() : ''}<p class="note">Drag the selection to move it together. Expand a group in Layers to edit its individual elements.</p>${group ? `<div class="field"><label for="art-group-name">Group name</label><input id="art-group-name" value="${e(name)}"></div>` : ''}${items.some(l => !['image', 'vector'].includes(l.kind)) ? `${fillFields(currentPaint())}<div class="field"><label>Base colour · selected shapes</label>${colourField(currentPaint().fill)}</div>${finishFields(currentPaint())}` : ''}<details class="inspector-folder" open><summary>Scale selection</summary><div class="row"><div class="field"><label for="group-width">Width</label><input id="group-width" type="number" min="2" value="${Number(b.w.toFixed(2))}"></div><div class="field"><label for="group-height">Height</label><input id="group-height" type="number" min="2" value="${Number(b.h.toFixed(2))}"></div></div><div class="row"><input id="group-scale" type="number" min="1" max="10000" value="100" aria-label="Scale percent"><span>%</span><button data-action="scale-artwork">Apply</button></div><p class="note">Proportions stay linked. Drag the selection’s corner to resize all elements together.</p></details><div class="row"><button data-action="${group ? 'ungroup-artwork' : 'group-artwork'}">${group ? 'Ungroup' : 'Group selection'}</button><button data-action="duplicate">${icon('copy')}Duplicate</button></div><button class="wide primary" style="margin-top:10px" data-action="save-asset">${icon('folder')}Add to Library</button><p class="note" style="margin-top:8px">The library copy keeps each shape, colour, rotation and position separately.</p><div class="separator"></div><h3>Layers · ${M.LABELS[currentView]} view</h3><div class="layer-list"><div class="layer-row locked">${icon('lock')}Body details</div>${artworkRows()}${paintLayerRows()}<div class="layer-row"><button data-action="base" class="layer-name">Base paint</button></div></div><div class="layer-actions"><button data-action="delete">${icon('trash')}Delete selection</button><button data-action="save-asset">Add to Library</button></div><p class="note">Shift-click layers or shapes to select several.</p>`;
+  box.innerHTML = `<div class="heading"><span class="section-icon">${icon('folder')}</span><div><strong>${e(name)}</strong><small>${items.length} separate editable elements</small></div></div>${group ? fitFields() : ''}<p class="note">Drag the selection to move it together. Expand a group in Layers to edit its individual elements.</p>${group ? `<div class="field"><label for="art-group-name">Group name</label><input id="art-group-name" value="${e(name)}"></div>` : ''}${items.some(l => !['image', 'vector'].includes(l.kind)) ? `${fillFields(currentPaint())}<div class="field"><label>Base colour · selected shapes</label>${colourField(currentPaint().fill)}</div>${finishFields(currentPaint())}` : ''}<details class="inspector-folder" open><summary>Align & distribute</summary>${alignFields(alignmentUnits().length)}</details><details class="inspector-folder" open><summary>Scale selection</summary><div class="row"><div class="field"><label for="group-width">Width</label><input id="group-width" type="number" min="2" value="${Number(b.w.toFixed(2))}"></div><div class="field"><label for="group-height">Height</label><input id="group-height" type="number" min="2" value="${Number(b.h.toFixed(2))}"></div></div><div class="row"><input id="group-scale" type="number" min="1" max="10000" value="100" aria-label="Scale percent"><span>%</span><button data-action="scale-artwork">Apply</button></div><p class="note">Proportions stay linked. Drag the selection’s corner to resize all elements together.</p></details><div class="row"><button data-action="${group ? 'ungroup-artwork' : 'group-artwork'}">${group ? 'Ungroup' : 'Group selection'}</button><button data-action="duplicate">${icon('copy')}Duplicate</button></div><button class="wide primary" style="margin-top:10px" data-action="save-asset">${icon('folder')}Add to Library</button><p class="note" style="margin-top:8px">The library copy keeps each shape, colour, rotation and position separately.</p><div class="separator"></div><h3>Layers · ${M.LABELS[currentView]} view</h3><div class="layer-list"><div class="layer-row locked">${icon('lock')}Body details</div>${artworkRows()}${paintLayerRows()}<div class="layer-row"><button data-action="base" class="layer-name">Base paint</button></div></div><div class="layer-actions"><button data-action="delete">${icon('trash')}Delete selection</button><button data-action="save-asset">Add to Library</button></div><p class="note">Shift-click layers or shapes to select several.</p>`;
   dockInspector();
 }
 function replaceScaledArtwork(copies) {

@@ -439,6 +439,8 @@
     artworkBytes = 0;
   });
   function layerMarkup(l, interactive = false, opts = {}) {
+    // Locked artwork cannot be picked on the canvas; clicks reach the paint below.
+    if (interactive && l.locked) return `<g pointer-events="none">${layerMarkup(l, false, opts)}</g>`;
     if (!opts.preview) return buildLayerMarkup(l, interactive, opts);
     const key = JSON.stringify([l, interactive, opts]);
     let entry = artworkCache.get(key);
@@ -512,7 +514,13 @@
       { x: 0, y: 0, w: l.w, h: l.h },
       opts.effects && !['image', 'vector'].includes(l.kind)
     );
-    return `${l.fontData && !opts.preview ? window.FontLibrary.style(l.fontData) : ''}<defs>${paint.defs}</defs><g ${interactive ? `data-layer="${l.id}"` : ''} transform="matrix(${M.layerMatrix(l).join(' ')})" fill="${paint.fill}" opacity="${l.opacity ?? 1}">${shape}${paint.overlays.map(fill => `<g pointer-events="none" fill="${fill}">${shape}</g>`).join('')}</g>`;
+    // Outline: drawn under the fill at twice the width, so the visible part
+    // sits outside the edge. Finish overlays never repeat the outline.
+    const outline = M.outlineValues(l),
+      stroke = outline.outlineWidth
+        ? ` stroke="${outline.outlineColour}" stroke-width="${outline.outlineWidth * 2}" paint-order="stroke" stroke-linejoin="round"`
+        : '';
+    return `${l.fontData && !opts.preview ? window.FontLibrary.style(l.fontData) : ''}<defs>${paint.defs}</defs><g ${interactive ? `data-layer="${l.id}"` : ''} transform="matrix(${M.layerMatrix(l).join(' ')})" fill="${paint.fill}" opacity="${l.opacity ?? 1}"${stroke}>${shape}${paint.overlays.map(fill => `<g pointer-events="none" fill="${fill}" stroke="none">${shape}</g>`).join('')}</g>`;
   }
   const maskCache = new Map();
   let maskBytes = 0;

@@ -13,6 +13,15 @@ art.addEventListener('pointerdown', ev => {
   if (!project) return;
   const temporaryPan = ev.button === 1 || (ev.button === 0 && ev.ctrlKey);
   if (ev.button !== 0 && !temporaryPan) return;
+  if (colourPick && !temporaryPan) {
+    ev.preventDefault();
+    const target = colourPick,
+      picked = canvasColourAt(ev);
+    colourPick = null;
+    if (picked) usePickedColour(target, picked);
+    else toast('Imported artwork keeps its own colours; pick from a shape or panel.');
+    return;
+  }
   const p = canvasPoint(ev);
   if (temporaryPan || tool === 'hand') {
     ev.preventDefault();
@@ -154,6 +163,11 @@ art.addEventListener('pointerdown', ev => {
     if (ev.altKey || !artworkSelection().some(l => l.id === hit.id)) chooseArtwork(key);
     else if (artworkSelection().length === 1 && selected !== hit.id) chooseArtwork(key);
     const items = artworkSelection();
+    if (items.some(l => l.locked)) {
+      toast('This selection contains a locked layer. Unlock it in Layers to move it.');
+      render();
+      return;
+    }
     drag =
       items.length > 1 || selected?.startsWith('group:')
         ? { kind: 'multi-move', start: p, original: M.clone(items) }

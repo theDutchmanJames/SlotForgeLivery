@@ -10,13 +10,11 @@ let app, page;
 const errors = [];
 const click = action => page.locator(`[data-action="${action}"]:visible`).first().click();
 const upload = (name, source) =>
-  page
-    .locator('#image-file')
-    .setInputFiles({
-      name,
-      mimeType: 'application/octet-stream',
-      buffer: Buffer.from(typeof source === 'string' ? source : JSON.stringify(source))
-    });
+  page.locator('#image-file').setInputFiles({
+    name,
+    mimeType: 'application/octet-stream',
+    buffer: Buffer.from(typeof source === 'string' ? source : JSON.stringify(source))
+  });
 async function launch() {
   const env = {
     ...process.env,

@@ -468,3 +468,53 @@ test('custom font data survives layer validation and appearance copying', () => 
   assert.throws(() => M.validateFontData({ ...data, src: 'https://example.com/font.ttf' }));
   assert.throws(() => M.validateFontData({ ...data, family: "bad';color:red" }));
 });
+test('outlines validate, scale with artwork and travel with copied appearance', () => {
+  const text = M.validateLayer(M.layer('text', { outlineWidth: 3, outlineColour: '#112233', locked: true }));
+  assert.equal(text.outlineWidth, 3);
+  assert.equal(text.outlineColour, '#112233');
+  assert.equal(text.locked, true);
+  const capped = M.validateLayer(M.layer('rect', { outlineWidth: 9999, outlineColour: 'red' }));
+  assert.equal(capped.outlineWidth, 500);
+  assert.equal(capped.outlineColour, '#ffffff', 'invalid colours fall back to white');
+  const image = M.validateLayer(M.layer('rect', { outlineWidth: 0, outlineColour: '#000000' }));
+  assert.equal(image.outlineWidth, undefined, 'zero width stores no outline');
+  assert.equal(M.validateLayer(M.layer('line', { outlineWidth: 4 })).outlineWidth, undefined, 'lines have no outline');
+  const [scaled] = M.scaleArtwork([M.layer('ellipse', { outlineWidth: 2 })], 2.5);
+  assert.equal(scaled.outlineWidth, 5);
+  const target = M.layer('rect', { outlineWidth: 1, outlineColour: '#000000' });
+  M.applyAppearance(target, M.appearanceOf(M.layer('text', { outlineWidth: 6, outlineColour: '#abcdef' })));
+  assert.deepEqual([target.outlineWidth, target.outlineColour], [6, '#abcdef']);
+  M.applyAppearance(target, M.appearanceOf(M.layer('rect')));
+  assert.equal(target.outlineWidth, undefined, 'pasting an outline-free appearance removes the outline');
+});
+test('alignment moves boxes to edges and centres, and distributes evenly', () => {
+  const boxes = [
+      { x: 10, y: 10, w: 20, h: 10 },
+      { x: 50, y: 40, w: 40, h: 20 },
+      { x: 200, y: 5, w: 10, h: 30 }
+    ],
+    target = { x: 0, y: 0, w: 300, h: 100 };
+  assert.deepEqual(
+    M.alignmentMoves(boxes, 'left', target).map(m => m.dx),
+    [-10, -50, -200]
+  );
+  assert.deepEqual(
+    M.alignmentMoves(boxes, 'centre', target).map(m => m.dx),
+    [130, 80, -55]
+  );
+  assert.deepEqual(
+    M.alignmentMoves(boxes, 'bottom', target).map(m => m.dy),
+    [80, 40, 65]
+  );
+  assert(M.alignmentMoves(boxes, 'right', target).every(m => m.dy === 0));
+  const spread = M.alignmentMoves(boxes, 'across', target),
+    placed = boxes.map((b, i) => ({ ...b, x: b.x + spread[i].dx })).sort((a, b) => a.x - b.x);
+  assert.equal(placed[0].x, 10, 'outer boxes stay put');
+  assert.equal(placed[2].x, 200);
+  assert.equal(placed[1].x - (placed[0].x + placed[0].w), placed[2].x - (placed[1].x + placed[1].w), 'equal gaps');
+  assert.deepEqual(M.alignmentMoves(boxes.slice(0, 2), 'down', target), [
+    { dx: 0, dy: 0 },
+    { dx: 0, dy: 0 }
+  ]);
+  assert.throws(() => M.alignmentMoves(boxes, 'diagonal', target), /Unknown/);
+});

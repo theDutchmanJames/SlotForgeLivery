@@ -1222,3 +1222,58 @@ dialog::backdrop {
   overflow: visible;
   will-change: transform;
 }
+
+/* Layer lock toggle: faint until hovered or switched on. */
+.layer-row .layer-lock {
+  opacity: 0.25;
+}
+.layer-row:hover .layer-lock,
+.layer-row .layer-lock:focus-visible {
+  opacity: 0.6;
+}
+.layer-row .layer-lock.on {
+  opacity: 1;
+  color: var(--accent);
+}
+.selection-box.locked {
+  stroke-dasharray: 4 3;
+}
+.align-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 5px;
+  margin-bottom: 5px;
+}
+.align-grid button {
+  padding: 6px 4px;
+  font-size: 11px;
+}
+.row .eyedropper {
+  flex: none;
+  width: 34px;
+  padding: 6px;
+}
+.row .eyedropper .icon {
+  width: 16px;
+  height: 16px;
+}
+.palette-group {
+  margin-top: 8px;
+}
+.palette-label {
+  display: block;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+.swatch.add {
+  display: grid;
+  place-items: center;
+  border: 1px dashed var(--line);
+  background: transparent;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1;
+}

@@ -141,8 +141,23 @@ document.addEventListener('click', async ev => {
       } else addCarDialog(k);
       return;
     }
-    if (b.dataset.swatch) {
-      applyColour(b.dataset.swatch);
+    if (b.dataset.paletteAdd) {
+      const c = b.dataset.paletteAdd;
+      if ((project.palette || []).includes(c)) return toast('That colour is already a team colour.');
+      mutate(() => (project.palette = M.validatePalette([...(project.palette || []), c])));
+      toast('Added ' + c.toUpperCase() + ' to team colours.');
+      return;
+    }
+    if (b.dataset.eyedropper) {
+      await pickColour(b.dataset.eyedropper);
+      return;
+    }
+    if (b.dataset.align) {
+      alignArtwork(b.dataset.align);
+      return;
+    }
+    if (b.dataset.swatch || b.dataset.pickColour) {
+      applyColour(b.dataset.swatch || b.dataset.pickColour);
       return;
     }
     if (b.dataset.paintSelect) {
@@ -188,6 +203,14 @@ document.addEventListener('click', async ev => {
         const members = layers().filter(l => l.groupId === b.dataset.artGroupVisible),
           hide = !members.every(l => l.groupHidden);
         members.forEach(l => (l.groupHidden = hide));
+      });
+      return;
+    }
+    if (b.dataset.lockLayer) {
+      mutate(() => {
+        const l = layers().find(a => a.id === b.dataset.lockLayer);
+        if (l.locked) delete l.locked;
+        else l.locked = true;
       });
       return;
     }
@@ -410,6 +433,17 @@ document.addEventListener('change', async ev => {
       applyColour(el.value);
       return;
     }
+    if ((el.id === 'outline-width' || el.id === 'outline-colour') && selection()) {
+      const width = M.number($('#outline-width')?.value, 0, 0, 500),
+        colour = M.colour($('#outline-colour')?.value, '#ffffff');
+      mutate(() => {
+        const l = selection();
+        delete l.outlineWidth;
+        delete l.outlineColour;
+        Object.assign(l, M.outlineValues({ kind: l.kind, outlineWidth: width, outlineColour: colour }));
+      });
+      return;
+    }
     if (el.id === 'paint-effect') {
       mutate(() => setPaintProperty('effect', el.value));
       return;
@@ -534,3 +568,13 @@ $('#home-link').onclick = ev => {
   ev.preventDefault();
   actions.projects();
 };
+
+// Right-click a team colour to remove it from the design's palette.
+document.addEventListener('contextmenu', ev => {
+  const b = ev.target.closest('[data-team-colour]');
+  if (!b || !project) return;
+  ev.preventDefault();
+  const c = b.dataset.teamColour;
+  mutate(() => (project.palette = (project.palette || []).filter(x => x !== c)));
+  toast('Removed ' + c.toUpperCase() + ' from team colours.');
+});

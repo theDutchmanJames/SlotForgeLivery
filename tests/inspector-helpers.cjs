@@ -12,7 +12,9 @@ exports.openPropertyFolders = async page =>
         line: true,
         text: true,
         curves: true,
-        reuse: true
+        reuse: true,
+        outline: true,
+        align: true
       }
     };
     document.querySelectorAll('[data-inspector-folder]').forEach(el => {

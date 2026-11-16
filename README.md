@@ -94,6 +94,8 @@ The compact toolbox keeps the canvas open for designing. **Choose a shape tool a
 
 Lines remain editable paths. Finish one with **Enter**, **Escape**, right-click or **Finish line**; use **Cancel** to discard the unfinished line.
 
+Give shapes and text an **outline** in any colour and width. It sits outside the edge, so race numbers keep their full shape. Keep your livery's **team colours** with the design, reuse your **recent colours**, or use the **eyedropper** to pick any colour on screen, including from a reference photo.
+
 ### Add decals, lettering and your own fonts
 
 Import your graphics as images and position them on the car. **PNG transparency is preserved**, so a logo or decal can sit on the bodywork without a rectangular background.
@@ -122,7 +124,10 @@ The layer list keeps the design organised:
 - Select several shapes or paintable areas and change their appearance together.
 - Group artwork while keeping its individual elements editable; expand the group to work on a child element.
 - Scale a group or multi-selection using its corner handle, linked width/height fields, or a percentage. Proportions, relative positions, line widths and gaps scale together, including artwork fitted to an angled view.
-- Use **Copy Appearance** and **Paste Appearance** to reuse compatible styling on other layers.
+- Use **Copy Appearance** and **Paste Appearance** to reuse compatible styling on other layers, including outlines.
+- **Align** several items by their edges or centres, or **space them evenly**. A single item can be centred on the car.
+- **Lock** a layer so it can't be moved by accident on the canvas. You can still select it in Layers to change its properties.
+- Nudge selected artwork with the **arrow keys**; hold **Shift** for larger steps.
 - Open or collapse the property folders to reach the controls you need.
 
 Livery is a **2D editor**. Fitting controls help match a drawing's perspective; they do not create a 3D model or automatically wrap a design across different views.
@@ -166,6 +171,8 @@ Use pan, zoom, Snap, Grid and undo/redo while editing. Click empty canvas to cle
 | Zoom | Mouse wheel or zoom buttons; **Fit** restores the overview |
 | Select several paintable areas | Shift-click on the canvas; Shift-click or Ctrl-click in Layers |
 | Select several artwork layers | Shift-click shapes; Shift-click or Ctrl-click their Layers rows |
+| Nudge selected artwork | Arrow keys; Shift + arrow for 10 units |
+| Remove a team colour | Right-click its swatch |
 | Clear selection | Click empty canvas, or Escape when not drawing |
 | Draw a corner / curve | Click / press and drag |
 | Close a freeform shape | Click near its first point, or press Enter |
