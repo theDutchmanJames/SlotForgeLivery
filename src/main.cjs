@@ -1,4 +1,5 @@
-const { app, BrowserWindow, ipcMain, dialog, utilityProcess } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, utilityProcess, net, shell } = require('electron');
+const maintenance = require('./maintenance.cjs');
 const fs = require('node:fs/promises');
 const path = require('node:path');
 const root = path.join(__dirname, '..');
@@ -121,6 +122,30 @@ ipcMain.handle('package:save', async (_, { name, data }) => {
   await assertExportTarget(result.filePath, app.getPath('userData'));
   await fs.writeFile(result.filePath, JSON.stringify(data, null, 2));
   return true;
+});
+// Automatic backups: the user picks a folder; Livery writes dated .sfpaint
+// library packages there and prunes only its own older backups.
+ipcMain.handle('backup:choose-folder', async () => {
+  if (process.env.PAINTSHOP_TEST_BACKUP_DIR) return process.env.PAINTSHOP_TEST_BACKUP_DIR;
+  const result = await dialog.showOpenDialog(mainWindow, {
+    title: 'Choose a folder for automatic backups',
+    properties: ['openDirectory', 'createDirectory']
+  });
+  return result.canceled ? null : result.filePaths[0];
+});
+ipcMain.handle('backup:write', (_, payload) =>
+  maintenance.writeBackup(payload, file => assertExportTarget(file, app.getPath('userData')))
+);
+ipcMain.handle('update:check', () => {
+  // Test profiles never contact GitHub unless a test supplies a fake release.
+  if (process.env.PAINTSHOP_TEST_DATA && !process.env.PAINTSHOP_TEST_UPDATE)
+    throw new Error('Update checks are off for test profiles.');
+  return maintenance.checkForUpdate(app.getVersion(), (url, options) => net.fetch(url, options));
+});
+ipcMain.handle('update:open', (_, url) => {
+  const target = String(url || '');
+  if (!target.startsWith(maintenance.RELEASES_PAGE)) throw new Error('Only the Livery releases page can be opened.');
+  return shell.openExternal(target);
 });
 // A SlotForge Decals pack (.sfdecal) of livery artwork at its real size.
 ipcMain.handle('decals:save', async (_, { name, data }) => {

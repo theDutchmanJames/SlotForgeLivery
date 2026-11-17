@@ -28,7 +28,7 @@ function studioPreferencesHTML() {
 function renderStudioPreferences() {
   const content = $('#settings-page .settings-content');
   if (!content || $('#studio-preferences')) return;
-  content.insertAdjacentHTML('beforeend', studioPreferencesHTML());
+  content.insertAdjacentHTML('beforeend', studioPreferencesHTML() + maintenanceSettingsHTML());
 }
 // Snap and Grid follow their start-up preference once per launch.
 function applyStartupPreferences() {

@@ -7,6 +7,24 @@
   const EFFECTS = ['Solid', 'Metallic', 'Pearl'];
   const uid = () => globalThis.crypto.randomUUID();
   const clone = value => JSON.parse(JSON.stringify(value));
+  // An independent copy for undo snapshots. Unlike clone(), strings are not
+  // re-created: large embedded images, fonts and outlines stay shared between
+  // the project and every snapshot (strings are immutable, so this is safe).
+  // Undefined object values are dropped and non-finite numbers become null,
+  // exactly as with clone().
+  function snapshotCopy(value) {
+    if (Array.isArray(value))
+      return value.map(v => (v === undefined || typeof v === 'function' ? null : snapshotCopy(v)));
+    if (value && typeof value === 'object') {
+      const out = {};
+      for (const key of Object.keys(value)) {
+        const v = value[key];
+        if (v !== undefined && typeof v !== 'function') out[key] = snapshotCopy(v);
+      }
+      return out;
+    }
+    return typeof value === 'number' && !Number.isFinite(value) ? null : value;
+  }
   const escape = value =>
     String(value ?? '').replace(
       /[&<>"']/g,
@@ -1049,6 +1067,7 @@
     EFFECTS,
     uid,
     clone,
+    snapshotCopy,
     escape,
     colour,
     number,

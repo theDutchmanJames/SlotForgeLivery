@@ -49,6 +49,8 @@ node tests/vector-import.cjs
 npm run test:integration
 ```
 
+`npm run test:integration` retries a failed suite once: a suite that passes on the retry is reported as **FLAKY** (recorded in `test-output/integration-results.json`), and only a suite that fails twice fails the run. Set `LIVERY_NO_RETRY=1` to disable the retry, or pass suite names to run only those (for example `npm run test:integration -- systems workshop`). `tests/systems.cjs` works through a whole session at human pace, so autosaves land between steps. Test profiles never contact GitHub for update checks.
+
 Desktop tests use Playwright and Electron in isolated `test-output/` profiles. They never use the normal library. Run GUI tests sequentially, because focus and pointer-capture tests require control of their window. On Linux, use `xvfb-run -a` for a virtual display. For the font suites on a non-Windows host, set `TEST_FONT` to a local redistributable TTF/OTF file. Optional `ELECTRON_BINARY` and `PLAYWRIGHT_MODULE` variables override the installed tools.
 
 `scripts/package-smoke.cjs` starts the unpacked native build and imports an EPS through the bundled converters. This catches missing packaged binaries/WASM files as well as startup errors. GitHub runs it on each native platform before publishing. `scripts/installer-smoke.cjs` then checks the installer and portable app: on Windows it silently installs the setup into a temporary folder, starts it, uninstalls it and starts the portable exe; on macOS and Linux it confirms that the DMG, ZIP, .deb and AppImage contain the app. See `TESTING.md` for the earlier detailed review record.

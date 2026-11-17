@@ -177,5 +177,8 @@ async function init() {
   }
 }
 init()
-  .then(() => window.desktop?.ready?.())
+  .then(() => {
+    window.desktop?.ready?.();
+    startMaintenance();
+  })
   .catch(reportError);

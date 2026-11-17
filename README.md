@@ -229,6 +229,10 @@ The data folder retains its original **SlotForge Paintshop** name for compatibil
 
 Use export/import to move your library, rather than editing its storage files by hand.
 
+**Automatic backups:** in **Settings → Automatic backups**, choose a folder (for example a cloud-synced or external drive), how often (every day or every week) and how many to keep. Each backup is a normal library package you can import. Livery only ever removes its own older backup files in that folder.
+
+**Updates:** Livery checks GitHub once a day for a newer release and shows a small **Update** button in the header when there is one. The check sends nothing about you or your designs; switch it off in **Settings → Updates**.
+
 ## How to install
 
 Open the **[latest GitHub release](https://github.com/theDutchmanJames/SlotForgeLivery/releases/latest)** and expand **Assets** to see the downloads. Choose the packaged app for your computer. **You do not need Node.js, Git, a terminal or programming experience.** GitHub's **Source code** ZIP and tar.gz files are for building the app yourself.

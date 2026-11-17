@@ -33,7 +33,7 @@ function region() {
   return activeView()?.regions.find(r => r.id === selectedRegion);
 }
 function snapshot() {
-  return M.clone(project);
+  return M.snapshotCopy(project);
 }
 function record() {
   if (project) {

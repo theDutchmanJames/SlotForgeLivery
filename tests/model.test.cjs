@@ -581,3 +581,19 @@ test('real size gives millimetres per unit and paint references are cleaned', ()
   const l = M.validateLayer(M.layer('rect', { paintRef: 'Humbrol 19 Bright Red' }));
   assert.equal(l.paintRef, 'Humbrol 19 Bright Red');
 });
+test('undo snapshots match a JSON copy but share large strings', () => {
+  const image = 'data:image/png;base64,' + 'A'.repeat(2 * 1024 * 1024),
+    project = {
+      name: 'Memory',
+      views: { left: [M.layer('image', { src: image }), M.layer('rect', { gradient: undefined, w: Infinity })] },
+      template: { views: { left: { regions: [{ markup: '<path d="M0 0"/>'.repeat(1000) }] } } }
+    };
+  assert.deepEqual(M.snapshotCopy(project), M.clone(project), 'same result as the JSON copy');
+  const copy = M.snapshotCopy(project);
+  copy.views.left[0].x = 1;
+  assert.notEqual(project.views.left[0].x, 1, 'snapshots are independent');
+  const before = process.memoryUsage().heapUsed,
+    kept = Array.from({ length: 20 }, () => M.snapshotCopy(project)),
+    grown = process.memoryUsage().heapUsed - before;
+  assert(kept.length === 20 && grown < 8 * 1024 * 1024, `20 snapshots used ${(grown / 1048576).toFixed(1)} MB`);
+});
