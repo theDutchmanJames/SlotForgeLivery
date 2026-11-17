@@ -71,7 +71,7 @@ function cardPreview(item, bucket) {
       e(item.id) +
       '"><small>Loading preview…</small></div>'
     );
-  return '<div class="library-preview">' + packagePreview(item, bucket, item.id) + '</div>';
+  return '<div class="library-preview">' + packagePreview(item, bucket, item.id, true) + '</div>';
 }
 async function loadCardPreviews() {
   const targets = [...document.querySelectorAll('[data-preview-id]')];

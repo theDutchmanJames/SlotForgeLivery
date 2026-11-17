@@ -126,6 +126,7 @@ function renderCanvas() {
     interactive: true,
     prepare: preparing,
     preview: true,
+    live: true,
     effects: store.settings?.paintPreview !== false
   });
   let markup = '';
@@ -234,15 +235,33 @@ function renderCanvas() {
   }
   renderRulers();
 }
+let thumbnailTimer = 0;
 function renderViews() {
+  const strip = $('#view-strip');
   if (!project) {
-    $('#view-strip').innerHTML = '';
+    clearTimeout(thumbnailTimer);
+    strip.innerHTML = '';
     return;
   }
-  $('#view-strip').innerHTML = M.VIEWS.map(
-    k =>
-      `<div class="view-slot"><button class="view-tile ${k === currentView && project.template.views[k] ? 'active' : ''}" data-view="${k}" title="${project.template.views[k] ? 'Edit' : 'Add'} ${M.LABELS[k]} view"><span class="thumb ${project.template.views[k] ? '' : 'missing'}">${project.template.views[k] ? V.standalone(project, k, 'thumb-' + k, { preview: true, effects: store.settings?.paintPreview !== false }) : icon('plus')}</span><small>${M.LABELS[k]}${project.template.views[k] ? '' : ' +'}</small></button>${project.template.views[k] ? `<button class="remove-view" data-remove-view="${k}" title="Remove ${M.LABELS[k]} view from this project" aria-label="Remove ${M.LABELS[k]} view">${icon('close')}</button>` : ''}</div>`
-  ).join('');
+  if (strip.children.length !== M.VIEWS.length || [...strip.children].some((n, i) => n.dataset.slot !== M.VIEWS[i]))
+    strip.innerHTML = M.VIEWS.map(k => `<div class="view-slot" data-slot="${k}"></div>`).join('');
+  let stale = false;
+  for (const [i, k] of M.VIEWS.entries()) {
+    const has = !!project.template.views[k],
+      slot = strip.children[i],
+      frame = `<button class="view-tile" data-view="${k}" title="${has ? 'Edit' : 'Add'} ${M.LABELS[k]} view"><span class="thumb ${has ? '' : 'missing'}">${has ? '' : icon('plus')}</span><small>${M.LABELS[k]}${has ? '' : ' +'}</small></button>${has ? `<button class="remove-view" data-remove-view="${k}" title="Remove ${M.LABELS[k]} view from this project" aria-label="Remove ${M.LABELS[k]} view">${icon('close')}</button>` : ''}`;
+    if (slot._frame !== frame || slot._project !== project.id) {
+      slot.innerHTML = frame;
+      slot._frame = frame;
+      slot._project = project.id;
+      if (has) paintThumbnail(slot, k);
+    } else if (has) stale = true;
+    slot.firstElementChild.classList.toggle('active', k === currentView && has);
+  }
+  // Existing pictures are redrawn once editing pauses, so a change only pays
+  // for the main canvas; each picture is replaced only if it really changed.
+  clearTimeout(thumbnailTimer);
+  if (stale) thumbnailTimer = setTimeout(refreshThumbnails, 180);
   $('#canvas-hint').textContent =
     tool === 'line'
       ? 'Click for corners · Drag for curves · Enter / Esc / right-click to finish'
@@ -254,6 +273,25 @@ function renderViews() {
             ? 'Click for corners · Drag for curves · Click near the first point to close · Enter to finish'
             : 'Middle-drag or Ctrl + drag to pan · Shift-click to select several · Delete removes selected artwork';
   renderCompare();
+}
+function paintThumbnail(slot, key) {
+  const markup = V.standalone(project, key, 'thumb-' + key, {
+      preview: true,
+      live: true,
+      effects: store.settings?.paintPreview !== false
+    }),
+    thumb = slot.querySelector('.thumb');
+  if (thumb && thumb._markup !== markup) {
+    thumb.innerHTML = markup;
+    thumb._markup = markup;
+  }
+}
+function refreshThumbnails() {
+  thumbnailTimer = 0;
+  if (!project) return;
+  for (const slot of $('#view-strip').children)
+    if (slot._project === project.id && project.template.views[slot.dataset.slot])
+      paintThumbnail(slot, slot.dataset.slot);
 }
 function resetViewSelection(keepMode = false) {
   const hadView = !!activeView();

@@ -11,6 +11,8 @@
     "test": "node --test tests/model.test.cjs tests/storage.test.cjs tests/sqlite-library.test.cjs tests/library-client.test.cjs tests/maintenance.test.cjs",
     "test:integration": "node scripts/test-integration.cjs",
     "benchmark:library": "node scripts/benchmark-library.cjs",
+    "perf:audit": "node scripts/perf-audit.cjs",
+    "perf:db": "node scripts/perf-db.cjs",
     "pack": "node scripts/pack.cjs",
     "build:icons": "node scripts/build-icon.cjs",
     "setup:converter": "node scripts/setup-converter.cjs",

@@ -168,7 +168,11 @@
         ...result,
         transferredNodes: patch.nodes.length,
         transferredBlobs: patch.blobs.length,
-        bytes: new TextEncoder().encode(JSON.stringify(patch)).length
+        // Approximate size without re-encoding megabytes of image data.
+        bytes:
+          JSON.stringify({ ...patch, nodes: [], blobs: [] }).length +
+          patch.nodes.reduce((n, x) => n + x.key.length + x.data.length + x.owner.length + 32, 0) +
+          patch.blobs.reduce((n, [hash, data]) => n + hash.length + data.length + 8, 0)
       };
       return result;
     }

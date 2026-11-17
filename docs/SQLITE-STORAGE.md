@@ -48,6 +48,8 @@ The former 180 MiB **whole-library save** limit no longer applies to SQLite. Ind
 - `npm test`: model, legacy recovery and SQLite tests, including exact migration, duplicate identities, Unicode, group reconstruction, corruption, restore, competing publication, stale revisions, injected write failure and a terminated writer.
 - `npm run test:integration`: editor interactions, exports, fonts, package compatibility, recovery and a 1,200-item/80-inactive-project desktop scenario.
 - `npm run benchmark:library`: disposable 100/1,000/5,000-item libraries; measures metadata opening, migration and small edits. It is a backend diagnostic, not a whole-UI timing guarantee.
+- `npm run perf:db`: times the worker on a heavy synthetic library (8 projects × 3 views, a 2 MB image each): opening, loading a project, a one-layer commit and a full snapshot.
+- `npm run perf:audit [label]`: the whole app. Builds the same kind of library through the real UI, restarts Livery on it and times startup marks, `render()` per part, edit + autosave, project switching and the Projects page; writes `test-output/perf-<label>.json`. It opens windows on screen.
 - `node scripts/package-smoke.cjs`: migrates legacy data inside the packaged app, saves/reopens through its ASAR worker, checks themes and bundled EPS conversion. Set `LIVERY_PACKAGE_DIR` to test a separate local build.
 
 The native release workflow runs the SQLite unit tests and packaged migration test for every supplied platform. Windows testing does not establish macOS/Linux acceptance. An explicit resume option can omit macOS downloads while still requiring successful source, Windows and both Linux jobs from the same tested runtime commit. Version 1.2.0 uses that option; Mac downloads are deferred.

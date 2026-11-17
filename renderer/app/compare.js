@@ -30,7 +30,7 @@ function renderCompare() {
     .map(k => `<option value="${k}" ${k === key ? 'selected' : ''}>${M.LABELS[k]} view</option>`)
     .join(
       ''
-    )}</select><button data-view="${key}" title="Edit the ${M.LABELS[key]} view">Edit</button></div><div class="compare-art">${V.standalone(project, key, 'compare-' + key, { preview: true, effects: store.settings?.paintPreview !== false })}</div>`;
+    )}</select><button data-view="${key}" title="Edit the ${M.LABELS[key]} view">Edit</button></div><div class="compare-art">${V.standalone(project, key, 'compare-' + key, { preview: true, live: true, effects: store.settings?.paintPreview !== false })}</div>`;
 }
 document.addEventListener('change', ev => {
   if (ev.target.id === 'compare') {

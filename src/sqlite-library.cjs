@@ -9,6 +9,9 @@ const APP_ID = 0x53464c56,
   VERSION = 1;
 const digest = text => crypto.createHash('sha256').update(text).digest('hex');
 const encoded = value => JSON.stringify(value);
+// Prepared statements are reused per connection instead of being compiled
+// again for every row of a commit or read.
+const statements = new WeakMap();
 const itemDigest = x => digest(encoded([x.key, x.bucket, x.identity, x.position, x.root, x.summary]));
 class SQLiteLibrary {
   constructor(legacy, options = {}) {
@@ -18,6 +21,34 @@ class SQLiteLibrary {
     this.db = null;
     this.blocked = false;
     this.codec = new C.Codec();
+    // Media rows are content-addressed and never rewritten in place, so a hash
+    // verified once stays valid; recent bodies are kept to skip re-reading
+    // megabytes of image data on every open.
+    this.media = new Map();
+    this.mediaBytes = 0;
+  }
+  sql(text) {
+    let cache = statements.get(this.db);
+    if (!cache) statements.set(this.db, (cache = new Map()));
+    let statement = cache.get(text);
+    if (!statement) cache.set(text, (statement = this.db.prepare(text)));
+    return statement;
+  }
+  // fresh: always read and verify from disk (backups and exports), so damage
+  // that happens while Livery is open is still reported there.
+  readBlob(hash, message, fresh = false) {
+    if (!fresh && this.media.has(hash)) return this.media.get(hash);
+    const row = this.sql('SELECT data FROM blobs WHERE hash=?').get(hash);
+    if (!row || digest(row.data) !== hash) throw Error(message);
+    const value = JSON.parse(Buffer.from(row.data).toString('utf8'));
+    if (this.media.has(hash)) return value;
+    if (this.mediaBytes + value.length > 64 * 1024 * 1024) {
+      this.media.clear();
+      this.mediaBytes = 0;
+    }
+    this.media.set(hash, value);
+    this.mediaBytes += value.length;
+    return value;
   }
   open(file = this.file, create = false) {
     if (!create && !fs.existsSync(file)) throw Error('The library database is missing.');
@@ -52,12 +83,12 @@ class SQLiteLibrary {
     }
   }
   revision() {
-    return Number(this.db.prepare("SELECT value FROM state WHERE key='revision'").get().value);
+    return Number(this.sql("SELECT value FROM state WHERE key='revision'").get().value);
   }
   missingMedia(hashes) {
     if (!Array.isArray(hashes) || hashes.some(h => typeof h !== 'string' || !/^[a-f0-9]{64}$/.test(h)))
       throw Error('Invalid media references.');
-    const query = this.db.prepare('SELECT 1 FROM blobs WHERE hash=?');
+    const query = this.sql('SELECT 1 FROM blobs WHERE hash=?');
     return hashes.filter(h => !query.get(h));
   }
   async load() {
@@ -84,7 +115,7 @@ class SQLiteLibrary {
           false
         );
       } else this.db = this.open();
-      if (this.db.prepare('PRAGMA quick_check').get().quick_check !== 'ok')
+      if (this.sql('PRAGMA quick_check').get().quick_check !== 'ok')
         throw Error('Library database integrity check failed.');
       this.blocked = false;
       return { ...this.catalog(), warning };
@@ -99,18 +130,18 @@ class SQLiteLibrary {
     const metaResult = this.get('$meta'),
       data = { ...metaResult.value };
     for (const b of C.buckets) if (Array.isArray(data[b])) data[b] = [];
-    for (const row of this.db.prepare("SELECT * FROM items WHERE bucket<>'$meta' ORDER BY position,key").iterate()) {
+    for (const row of this.sql("SELECT * FROM items WHERE bucket<>'$meta' ORDER BY position,key").iterate()) {
       if (itemDigest(row) !== row.checksum) throw Error('Library metadata is damaged.');
       if (!C.buckets.includes(row.bucket) || !Array.isArray(data[row.bucket])) throw Error('Invalid library category.');
       data[row.bucket].push(JSON.parse(row.summary));
     }
     return { data, revision: this.revision(), sqlite: true, metaNodes: metaResult.nodes };
   }
-  readRows(key, previous = false) {
-    const item = this.db.prepare('SELECT * FROM items WHERE key=?').get(key);
+  readRows(key, fresh = false) {
+    const item = this.sql('SELECT * FROM items WHERE key=?').get(key);
     if (!item) throw Error('This library item no longer exists.');
     if (itemDigest(item) !== item.checksum) throw Error('Library metadata is damaged.');
-    const rows = this.db.prepare('SELECT * FROM nodes WHERE owner=?').all(key),
+    const rows = this.sql('SELECT * FROM nodes WHERE owner=?').all(key),
       nodes = new Map(),
       blobs = new Map();
     for (const row of rows) {
@@ -119,19 +150,15 @@ class SQLiteLibrary {
     }
     for (const row of rows)
       for (const hash of C.refs(JSON.parse(row.data)).blobs)
-        if (!blobs.has(hash)) {
-          const value = this.db.prepare('SELECT data FROM blobs WHERE hash=?').get(hash);
-          if (!value || digest(value.data) !== hash) throw Error('Library media is missing or damaged.');
-          blobs.set(hash, JSON.parse(Buffer.from(value.data).toString('utf8')));
-        }
+        if (!blobs.has(hash)) blobs.set(hash, this.readBlob(hash, 'Library media is missing or damaged.', fresh));
     return { item, nodes, blobs };
   }
-  get(key) {
-    const { item, nodes, blobs } = this.readRows(key);
+  get(key, fresh = false) {
+    const { item, nodes, blobs } = this.readRows(key, fresh);
     return { value: C.unpack(item.root, nodes, blobs), nodes: [...nodes], revision: this.revision() };
   }
   preview(key) {
-    const saved = this.db.prepare('SELECT data FROM thumbnails WHERE item=?').get(key);
+    const saved = this.sql('SELECT data FROM thumbnails WHERE item=?').get(key);
     return saved
       ? { thumbnail: saved.data, revision: this.revision() }
       : { value: this.get(key).value, revision: this.revision() };
@@ -147,11 +174,11 @@ class SQLiteLibrary {
   }
   snapshot(previous = false) {
     if (!previous) {
-      const data = this.get('$meta').value;
+      const data = this.get('$meta', true).value;
       for (const row of this.db
         .prepare("SELECT key,bucket FROM items WHERE bucket<>'$meta' ORDER BY position,key")
         .iterate())
-        data[row.bucket].push(this.get(row.key).value);
+        data[row.bucket].push(this.get(row.key, true).value);
       return C.validate(data);
     }
     const items = new Map(
@@ -170,7 +197,7 @@ class SQLiteLibrary {
       ['previous_items', items],
       ['previous_nodes', nodes]
     ])
-      for (const row of this.db.prepare(`SELECT * FROM ${table}`).iterate()) {
+      for (const row of this.sql(`SELECT * FROM ${table}`).iterate()) {
         if (row.value === null) map.delete(row.key);
         else map.set(row.key, JSON.parse(row.value));
       }
@@ -183,11 +210,7 @@ class SQLiteLibrary {
       blobs = new Map();
     for (const row of nodes.values())
       for (const hash of C.refs(JSON.parse(row.data)).blobs)
-        if (!blobs.has(hash)) {
-          const b = this.db.prepare('SELECT data FROM blobs WHERE hash=?').get(hash);
-          if (!b || digest(b.data) !== hash) throw Error('Previous media is damaged.');
-          blobs.set(hash, JSON.parse(Buffer.from(b.data).toString('utf8')));
-        }
+        if (!blobs.has(hash)) blobs.set(hash, this.readBlob(hash, 'Previous media is damaged.', true));
     if (!items.has('$meta')) throw Error('No previous saved library is available.');
     const data = C.unpack(items.get('$meta').root, bodies, blobs);
     for (const row of [...items.values()]
@@ -251,8 +274,8 @@ class SQLiteLibrary {
     try {
       if (this.revision() !== patch.revision)
         throw Error('The library changed in another session. Reopen it before saving.');
-      const itemGet = db.prepare('SELECT * FROM items WHERE key=?'),
-        nodeGet = db.prepare('SELECT * FROM nodes WHERE key=?');
+      const itemGet = this.sql('SELECT * FROM items WHERE key=?'),
+        nodeGet = this.sql('SELECT * FROM nodes WHERE key=?');
       const items = patch.items.filter(x => {
         const old = itemGet.get(x.key);
         return !old || old.summary !== encoded(x.summary) || old.root !== x.root || old.position !== x.position;
@@ -261,7 +284,7 @@ class SQLiteLibrary {
       const deleteItems = patch.deleteItems.filter(k => itemGet.get(k)),
         deleteNodes = new Set(patch.deleteNodes.filter(k => nodeGet.get(k)));
       for (const key of deleteItems)
-        for (const n of db.prepare('SELECT key FROM nodes WHERE owner=?').all(key)) deleteNodes.add(n.key);
+        for (const n of this.sql('SELECT key FROM nodes WHERE owner=?').all(key)) deleteNodes.add(n.key);
       // A client without a node baseline (an item rewritten over a summary
       // placeholder) sends every record; anything else stored for it is stale.
       const replaceOwners = patch.replaceOwners || [];
@@ -269,7 +292,7 @@ class SQLiteLibrary {
         throw Error('Invalid library transaction.');
       for (const owner of replaceOwners) {
         const keep = new Set(patch.nodes.filter(n => n.owner === owner).map(n => n.key));
-        for (const n of db.prepare('SELECT key FROM nodes WHERE owner=?').all(owner))
+        for (const n of this.sql('SELECT key FROM nodes WHERE owner=?').all(owner))
           if (!keep.has(n.key)) deleteNodes.add(n.key);
       }
       if (!items.length && !nodes.length && !deleteItems.length && !deleteNodes.size) {
@@ -278,7 +301,7 @@ class SQLiteLibrary {
       }
       db.exec('DELETE FROM previous_blobs;DELETE FROM previous_items;DELETE FROM previous_nodes;');
       const remember = (table, key, old) =>
-        db.prepare(`INSERT OR IGNORE INTO ${table}(key,value) VALUES(?,?)`).run(key, old ? encoded(old) : null);
+        this.sql(`INSERT OR IGNORE INTO ${table}(key,value) VALUES(?,?)`).run(key, old ? encoded(old) : null);
       for (const x of items) remember('previous_items', x.key, itemGet.get(x.key));
       for (const key of deleteItems) remember('previous_items', key, itemGet.get(key));
       for (const key of new Set([...nodes.map(n => n.key), ...deleteNodes])) {
@@ -286,12 +309,12 @@ class SQLiteLibrary {
         remember('previous_nodes', key, old);
         if (old)
           for (const hash of C.refs(JSON.parse(old.data)).blobs)
-            db.prepare('INSERT OR IGNORE INTO previous_blobs VALUES(?)').run(hash);
+            this.sql('INSERT OR IGNORE INTO previous_blobs VALUES(?)').run(hash);
       }
       for (const [hash, value] of patch.blobs) {
         if (typeof value !== 'string' || value.length > 32 * 1024 * 1024 || digest(encoded(value)) !== hash)
           throw Error('Invalid library media.');
-        db.prepare('INSERT OR IGNORE INTO blobs VALUES(?,?)').run(hash, Buffer.from(encoded(value)));
+        this.sql('INSERT OR IGNORE INTO blobs VALUES(?,?)').run(hash, Buffer.from(encoded(value)));
       }
       for (const x of items) {
         if (
@@ -302,22 +325,22 @@ class SQLiteLibrary {
         )
           throw Error('Invalid library item identity.');
         const summary = encoded(x.summary);
-        db.prepare(
+        this.sql(
           'INSERT INTO items VALUES(?,?,?,?,?,?,?) ON CONFLICT(key) DO UPDATE SET position=excluded.position,root=excluded.root,summary=excluded.summary,checksum=excluded.checksum'
         ).run(x.key, x.bucket, x.identity, x.position, x.root, summary, itemDigest({ ...x, summary }));
       }
-      for (const key of deleteNodes) db.prepare('DELETE FROM nodes WHERE key=?').run(key);
-      for (const key of deleteItems) db.prepare('DELETE FROM items WHERE key=?').run(key);
+      for (const key of deleteNodes) this.sql('DELETE FROM nodes WHERE key=?').run(key);
+      for (const key of deleteItems) this.sql('DELETE FROM items WHERE key=?').run(key);
       for (const x of nodes) {
         if (typeof x.data !== 'string' || x.data.length > 32 * 1024 * 1024 || JSON.parse(x.key)[0] !== x.owner)
           throw Error('Invalid library object.');
         C.refs(JSON.parse(x.data));
-        db.prepare(
+        this.sql(
           'INSERT INTO nodes VALUES(?,?,?,?) ON CONFLICT(key) DO UPDATE SET data=excluded.data,checksum=excluded.checksum'
         ).run(x.key, x.owner, x.data, digest(x.data));
-        db.prepare('DELETE FROM blob_refs WHERE node=?').run(x.key);
+        this.sql('DELETE FROM blob_refs WHERE node=?').run(x.key);
         for (const hash of new Set(C.refs(JSON.parse(x.data)).blobs))
-          db.prepare('INSERT INTO blob_refs VALUES(?,?)').run(x.key, hash);
+          this.sql('INSERT INTO blob_refs VALUES(?,?)').run(x.key, hash);
       }
       // Validate affected graphs inside the same transaction; no dangling or
       // cross-project references can be committed, even after a failed import.
@@ -327,11 +350,11 @@ class SQLiteLibrary {
         ...patch.deleteNodes.map(k => JSON.parse(k)[0]),
         ...replaceOwners
       ]);
-      for (const owner of owners) db.prepare('DELETE FROM thumbnails WHERE item=?').run(owner);
+      for (const owner of owners) this.sql('DELETE FROM thumbnails WHERE item=?').run(owner);
       for (const owner of owners)
         if (itemGet.get(owner)) {
           const row = itemGet.get(owner),
-            all = db.prepare('SELECT key,data FROM nodes WHERE owner=?').all(owner),
+            all = this.sql('SELECT key,data FROM nodes WHERE owner=?').all(owner),
             map = new Map(all.map(n => [n.key, n.data])),
             seen = new Set();
           const check = (key, trail = new Set()) => {
@@ -353,7 +376,7 @@ class SQLiteLibrary {
       )
         throw Error('Invalid library metadata.');
       this.options.beforeCommit?.();
-      db.prepare("UPDATE state SET value=? WHERE key='revision'").run(String(patch.revision + 1));
+      this.sql("UPDATE state SET value=? WHERE key='revision'").run(String(patch.revision + 1));
       db.exec(
         'DELETE FROM blobs WHERE hash NOT IN (SELECT hash FROM blob_refs) AND hash NOT IN (SELECT hash FROM previous_blobs);COMMIT;'
       );

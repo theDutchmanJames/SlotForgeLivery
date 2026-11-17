@@ -506,7 +506,7 @@
     if (l.kind === 'vector')
       return `<g ${interactive ? `data-layer="${l.id}"` : ''} transform="matrix(${matrix.join(' ')})" opacity="${l.opacity ?? 1}" fill="black"><svg width="${l.w}" height="${l.h}" overflow="hidden">${window.DecalArtwork.markup(l.svg, l.crop)}</svg></g>`;
     if (l.kind === 'image')
-      shape = `<image width="${l.w}" height="${l.h}" href="${e(l.src)}" preserveAspectRatio="xMidYMid meet"/>`;
+      shape = `<image width="${l.w}" height="${l.h}" href="${e(opts.live ? liveHref(l.src) : l.src)}" preserveAspectRatio="xMidYMid meet"/>`;
     if (l.kind === 'line') {
       const style = M.lineStyle(l),
         samples = l.points ? M.lineSamples(l) : null,
@@ -637,7 +637,7 @@
     );
     const photo =
       opts.prepare && v.photo && v.showPhoto
-        ? `<image href="${M.escape(v.photo.src)}" x="${v.photo.x}" y="${v.photo.y}" width="${v.photo.w}" height="${v.photo.h}" opacity="${v.photoOpacity ?? 0.65}"/>`
+        ? `<image href="${M.escape(opts.live ? liveHref(v.photo.src) : v.photo.src)}" x="${v.photo.x}" y="${v.photo.y}" width="${v.photo.w}" height="${v.photo.h}" opacity="${v.photoOpacity ?? 0.65}"/>`
         : '';
     const base = bodies
       .map(r => {
@@ -707,6 +707,7 @@
         !!opts.prepare,
         !!opts.interactive,
         !!opts.effects,
+        !!opts.live,
         opts.preview && slot === 'main' ? window.MaskPreview?.revision() : 0
       ]);
     let cached = viewCache.get(slot);
@@ -819,6 +820,37 @@
     };
   }
   let renderId = 0;
+  // On-screen views (opts.live) point large embedded images at shared blob:
+  // URLs, so a re-render parses a short URL instead of megabytes of base64.
+  // Exports and rasterised previews keep the data: URL (an SVG drawn as an
+  // image cannot load blob: URLs).
+  const liveMedia = new Map();
+  function liveHref(src) {
+    if (typeof src !== 'string' || src.length < 32 * 1024 || !src.startsWith('data:') || !window.URL?.createObjectURL)
+      return src;
+    let url = liveMedia.get(src);
+    if (!url) {
+      const comma = src.indexOf(','),
+        meta = src.slice(5, comma),
+        base64 = /;base64$/.test(meta);
+      let bytes;
+      try {
+        const text = base64 ? atob(src.slice(comma + 1)) : decodeURIComponent(src.slice(comma + 1));
+        bytes = new Uint8Array(text.length);
+        for (let i = 0; i < text.length; i++) bytes[i] = text.charCodeAt(i);
+      } catch {
+        return src;
+      }
+      url = URL.createObjectURL(new Blob([bytes], { type: meta.replace(/;base64$/, '') }));
+      liveMedia.set(src, url);
+      if (liveMedia.size > 48) {
+        const [oldest, oldUrl] = liveMedia.entries().next().value;
+        liveMedia.delete(oldest);
+        URL.revokeObjectURL(oldUrl);
+      }
+    }
+    return url;
+  }
   window.Vector = {
     importSVG,
     sanitize,

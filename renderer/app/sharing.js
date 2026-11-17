@@ -58,7 +58,9 @@ function openPackageExport() {
   $('#package-export').onclick = exportChosenPackage;
   renderPackageItems();
 }
-function packagePreview(a, key, index) {
+// live: the preview stays on screen (shares on-screen image URLs); leave it
+// off for markup that will be rasterised.
+function packagePreview(a, key, index, live = false) {
   return key === 'templates'
     ? previewTemplate(a, 'package-' + index)
     : key === 'assets'
@@ -66,7 +68,7 @@ function packagePreview(a, key, index) {
       : key === 'fonts'
         ? fontPreview(a)
         : key === 'projects'
-          ? V.standalone(a, Object.keys(a.template.views)[0], 'package-' + index, { preview: true })
+          ? V.standalone(a, Object.keys(a.template.views)[0], 'package-' + index, { preview: true, live })
           : `<span class="livery-colour" style="background:${M.colour(a.base, '#ffffff')}"></span>`;
 }
 function updatePackageCount() {

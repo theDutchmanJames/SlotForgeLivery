@@ -94,12 +94,18 @@ function safeWindow(options = {}) {
   return win;
 }
 const libraryStorage = new SQLiteService(dataPath());
+// The library opens in its worker while the window is still being created;
+// the first load request picks up that result. Later loads (after a
+// recovery reload) read the database again.
+let earlyLoad = null;
 ipcMain.handle('library:load', async () => {
   // Verified first-run migration may legitimately take longer than normal UI
   // startup. The worker remains off the main thread and originals stay intact.
   clearTimeout(startupTimer);
   try {
-    return await libraryStorage.load();
+    const pending = earlyLoad || libraryStorage.load();
+    earlyLoad = null;
+    return await pending;
   } finally {
     if (!rendererReady)
       startupTimer = setTimeout(() => recoverWindow('Renderer did not finish opening the library.'), 20000);
@@ -224,6 +230,8 @@ ipcMain.handle('pdf:save', async (_, { name, html }) => {
   }
 });
 app.whenReady().then(() => {
+  earlyLoad = libraryStorage.load();
+  earlyLoad.catch(() => {});
   mainWindow = safeWindow({
     width: 1560,
     height: 1000,

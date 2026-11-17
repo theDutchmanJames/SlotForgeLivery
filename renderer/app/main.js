@@ -117,6 +117,8 @@ window.desktop?.onClosing(async () => {
   }
 });
 async function init() {
+  // Startup marks: read with performance.getEntriesByType('mark') (perf audit).
+  performance.mark('livery:init');
   fillIcons();
   document.body.inert = true;
   const welcomeTitle = $('#welcome h1'),
@@ -142,8 +144,10 @@ async function init() {
       store = libraryClient.accept(result);
       store.fonts ||= [];
       if (!Array.isArray(store.fonts)) throw new Error('Invalid saved font library.');
+      performance.mark('livery:library-loaded');
       project = store.current ? await libraryClient.hydrate(store, 'projects', store.current) : null;
       project ||= null;
+      performance.mark('livery:project-loaded');
       await FontLibrary.loadAll(project);
       currentView = (project ? Object.keys(project.template.views)[0] : null) || 'left';
       preparing = needsPreparation(activeView());
@@ -153,6 +157,7 @@ async function init() {
     applyStartupPreferences();
     applyTheme();
     render();
+    performance.mark('livery:rendered');
   } catch (error) {
     // Keep malformed local data on disk, but never try rendering it again in recovery.
     loadBlocked = true;
