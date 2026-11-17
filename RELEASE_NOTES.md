@@ -1,35 +1,67 @@
-**SlotForge Livery 1.3.0 — Bring your decals into your design**
+**SlotForge Livery 1.4.0 — From design to workbench**
 
-**From White Kits to your Design Concept**
+**Faster editing, real-world sizes and everything you need at the paint bench**
 
 ## What's new and where to find it
 
-- **Richer vector decal imports:** SVG, EPS and PDF artwork retains supported gradients, masks, clipping, symbols and embedded images. Open **Import & Export → Import decal artwork or Decals sheet**, **User Library → Shapes & Images → Import artwork**, or the artwork tool (**I**).
-- **SlotForge Decals sheets and packs:** import `.sfsheet` and `.sfdecal` files, browse separate decals, search and select the ones you want. Groups, embedded custom fonts and relative sizes are preserved as vector artwork.
-- **Library-first importing:** **Import to library** leaves your car unchanged. Click **Place** on an individual library item when needed. Placing a batch directly requires an explicit choice, and the button shows the decal count.
-- **Separate decals from PDF/SVG sheets:** enable **Select separate decals**, zoom in and draw a box around each graphic. Optional **Remove white page background** removes a plain white page. Crops share source artwork in SQLite to avoid duplicating the sheet's media.
-- **Scale groups and multi-selections:** select a group or several layers, then use **Scale selection** in the right-hand inspector: linked width/height, percentage, or the canvas corner handle. Relative positions, proportions, stripe widths and gaps scale together, including perspective-fitted groups. Livery's individual elements remain editable.
+**Editing**
+- **Align and distribute** several selected layers from the right-hand inspector.
+- **Eyedropper:** pick a colour straight from the canvas.
+- **Outlines** on text and shapes, and a **hard drop shadow**.
+- **Lock layers** in the Layers list so they cannot be moved by accident.
+- **Team colours** per project, plus your recently used colours.
 
-## Choosing the best import
+**Design tools**
+- **Rulers and draggable guides**, saved per view. With Snap on, artwork snaps to guides, the car centre line and panel edges.
+- **Text:** spread letters to fill the box width, or bend text along an arc.
+- **Preset shapes:** number board, roundel, chequered band, shield and star.
+- **Mirror a whole side** onto the other side, fitted to that view.
+- **Side-by-side pane** showing another view of the car live while you work.
 
-Use the original **Decals `.sfsheet` or `.sfdecal`** when possible: it retains the individual decal boundaries. PDF files may have lost those groups, so rectangular crop selection provides manual control; overlapping boxes can include neighbouring artwork.
+**Slotcar workshop**
+- **Real-world scale:** set a view's real width in mm for mm readouts and mm rulers.
+- **Print at true size:** one masking template per colour plus the full design, with a 50 mm check bar.
+- **Paint catalogue:** Tamiya (TS, X/XF) and Humbrol built in; add Revell, Zero Paints and others under **My paints**.
+- **Workshop PDF:** paint products and a painting order (lightest first), with a picture per step.
+- **Send decals to SlotForge Decals** as a `.sfdecal` pack at real size.
+- **Photo tracing aids:** photo opacity and a centre guide for symmetry.
 
-Imported decals keep their original colours and internal vector detail. Their internal text and paths are not converted into Livery text or point-editing tools. Edit those details in Decals and import the updated artwork. Livery uses concept-artboard sizing rather than physical decal printing dimensions.
+**Interface**
+- Resizable split between the properties and the Layers list.
+- Compact list view in the library, with usage counts for cars.
+- **Settings → Studio:** scale for new cars, undo steps, finish preview, Snap/Grid on start and tips.
+- Recent projects and **Try a sample car** on the welcome screen.
+- Step-by-step tips on the canvas; Help is split into tabs.
+- Notifications clear when you change screen.
 
-## Updating
+**Safety and maintenance**
+- **Automatic backups** to a folder you choose, daily or weekly, keeping 5–50. Each backup is a normal library package.
+- **Update check:** once a day Livery checks GitHub for a newer release and shows an **Update** button in the header. It sends nothing about you or your designs; switch it off in **Settings → Updates**.
+- **Lighter undo:** undo steps share images and fonts instead of copying them, so a design with a large photo uses far less memory.
 
-Your existing library stays in the same location. Older JSON libraries still convert automatically to SQLite, with their original JSON and backup files preserved. Export a library backup for a portable copy.
+**Speed**
+- Edits redraw about ten times faster on detailed cars with several views and photo decals.
+- Autosave after an edit, switching projects and opening the library are all quicker.
 
-**Projects and packages containing the new vector decal layers require Livery 1.3.0 or later.** Earlier versions do not understand those layers. Existing shapes, car templates and `.sfpaint` packages continue to work.
+**Fixes**
+- Fixed the "Unreferenced library record" save failure after preparing a car template.
 
 ## Downloads
 
-Choose the application for your operating system from the attached downloads. Windows uses a portable `.exe`; Linux offers `.AppImage` and `.deb`; macOS, when supplied, offers separate Intel (`x64`) and Apple silicon (`arm64`) packages. See the README for installation instructions.
+Every system now has both an **installer** and a **portable app**:
 
-EPS/PDF conversion is bundled and works offline. No account is required. Windows applications are unsigned; macOS packages are not notarised.
+- **Windows:** `…-windows-x64-setup.exe` (installer) or `…-windows-x64-portable.exe`.
+- **macOS**, when supplied: `.dmg` (installer) or `.zip` (portable), for Intel (`x64`) and Apple silicon (`arm64`).
+- **Linux:** `.deb` (installer) or `.AppImage` (portable), for x64 and arm64.
+
+Both open the same library on a computer, so you can switch between them. EPS/PDF conversion is bundled and works offline. No account is required. Windows applications are unsigned; macOS packages are not notarised.
+
+## Updating
+
+Your existing library stays in the same location and opens as before. Projects that use the new features (guides, outlines, real-world scale and so on) need Livery 1.4.0 or later to show them correctly.
 
 ## Verification and source
 
-Release assets are published only after their native build and packaged checks pass. Tests cover separate library placement after restart, SVG rendering, EPS/PDF conversion, font preservation, group scaling, undo, SQLite persistence and package sharing.
+Release assets are published only after their native build and packaged checks pass, including the new installer and portable-app tests.
 
 Livery is licensed under **GNU AGPL version 3 or later**. Corresponding source archives, build instructions and checksums accompany the downloads.

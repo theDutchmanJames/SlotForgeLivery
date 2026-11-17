@@ -45,7 +45,7 @@ const { execFileSync } = require('node:child_process');
   }
   await fs.writeFile(
     path.join(out, 'README-FIRST.txt'),
-    'SlotForge Livery 1.3.0\r\n\r\nDouble-click SlotForge Livery.exe. Keep this folder together.\r\nEPS and PDF conversion is included and works offline.\r\nYour library is stored in the Windows app-data folder, not in this folder.\r\nUse Import & Export to back up or share your library.\r\n\r\nThis unsigned build may trigger a Windows publisher warning.\r\n'
+    'SlotForge Livery 1.4.0\r\n\r\nDouble-click SlotForge Livery.exe. Keep this folder together.\r\nEPS and PDF conversion is included and works offline.\r\nYour library is stored in the Windows app-data folder, not in this folder.\r\nUse Import & Export to back up or share your library.\r\n\r\nThis unsigned build may trigger a Windows publisher warning.\r\n'
   );
   console.log('Desktop test build: ' + path.join(out, 'SlotForge Livery.exe'));
 })().catch(e => {

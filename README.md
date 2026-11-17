@@ -237,7 +237,7 @@ Use export/import to move your library, rather than editing its storage files by
 
 Open the **[latest GitHub release](https://github.com/theDutchmanJames/SlotForgeLivery/releases/latest)** and expand **Assets** to see the downloads. Choose the packaged app for your computer. **You do not need Node.js, Git, a terminal or programming experience.** GitHub's **Source code** ZIP and tar.gz files are for building the app yourself.
 
-**Version 1.2.0 provides Windows and Linux downloads.** macOS builds were deferred for this release; the Mac instructions below apply to releases that include Mac downloads.
+**Check the release's Assets for your system.** If a release has no Mac downloads, its notes say so; the Mac instructions below apply to releases that include them.
 
 Every system has two choices: an **installer**, which adds Livery to your applications menu like any other program, or a **portable app**, which runs from any folder (or a USB stick) without installing anything. Both open the same library on that computer, so you can switch between them.
 
