@@ -31,7 +31,7 @@
 
 /* Titles: Barlow Condensed, bold, italic, capitals. */
 :is(h1, h2, h3):not(svg *),
-.library-card > strong {
+.library-card strong {
   font-family: var(--font-title);
   font-weight: 700;
   font-style: italic;
@@ -46,7 +46,7 @@ h3:not(svg *) {
   font-size: 17px;
   line-height: 1.15;
 }
-.library-card > strong {
+.library-card strong {
   font-size: 18px;
   line-height: 1.1;
 }
@@ -667,4 +667,387 @@ dialog.flag-dialog .dialog-body > p:last-child {
 /* Studio surfaces: the toolbox matches the inspector and Layers (Graphite side list). */
 .toolbox {
   background: var(--subpanel);
+}
+
+/* ---- Phase 5 · Library and projects ---- */
+
+/* Paint: each kind of library item has a colour, used only on its icons. */
+.kind-templates {
+  --c: #4c9aff;
+}
+.kind-liveries {
+  --c: #ec5f9a;
+}
+.kind-assets {
+  --c: #2fb86a;
+}
+.kind-fonts {
+  --c: #9b4dff;
+}
+:root[data-tone='light'] .kind-templates {
+  --c: #0f6fd6;
+}
+:root[data-tone='light'] .kind-liveries {
+  --c: #c43d7a;
+}
+:root[data-tone='light'] .kind-assets {
+  --c: #1e8a4c;
+}
+:root[data-tone='light'] .kind-fonts {
+  --c: #7a2fd6;
+}
+
+/* Paddock Rail: the library's kinds in a side list on the left. */
+.lib-shell {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  flex: 1;
+  min-height: 0;
+  margin: 0 -24px;
+}
+.lib-rail {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 18px 12px;
+  border-right: 1px solid var(--line);
+  background: color-mix(in srgb, var(--bg) 55%, var(--panel));
+  overflow-y: auto;
+}
+.lib-label {
+  margin: 0 10px 6px;
+  color: color-mix(in srgb, var(--muted) 80%, var(--bg));
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.lib-rail > .lib-tab {
+  justify-content: flex-start;
+  gap: 11px;
+  width: 100%;
+  min-height: 36px;
+  padding: 7px 10px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: color-mix(in srgb, var(--ink) 82%, var(--muted));
+  font-size: 13.5px;
+  text-align: left;
+}
+.lib-rail > .lib-tab:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--ink) 6%, transparent);
+}
+.lib-rail > .lib-tab.active {
+  background: color-mix(in srgb, var(--ink) 10%, var(--panel));
+  color: var(--ink);
+  font-weight: 600;
+}
+.lib-rail > .lib-tab .icon {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  color: var(--muted);
+}
+.lib-rail > .lib-tab.active .icon {
+  color: var(--c, var(--accent));
+}
+.lib-text {
+  flex: 1;
+  min-width: 0;
+}
+.lib-tab > small {
+  color: var(--muted);
+  font: 500 11.5px var(--font-mono);
+}
+.lib-page {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  padding: 0 24px;
+}
+@media (max-width: 900px) {
+  .lib-shell {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+  .lib-rail {
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: 10px 12px;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .lib-label {
+    display: none;
+  }
+  .lib-rail > .lib-tab {
+    width: auto;
+  }
+}
+
+/* Page Note: what the page is, a line more, and where you use it. */
+.sn {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
+  column-gap: 14px;
+  row-gap: 3px;
+  align-items: start;
+  max-width: 860px;
+  margin: 0 0 16px;
+  padding: 14px 18px 14px 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--ink) 3%, var(--panel));
+}
+.sn-tile {
+  grid-row: 1 / span 3;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--c, var(--accent)) 16%, var(--panel));
+  color: var(--c, var(--accent-text, var(--accent)));
+}
+.sn-tile .icon {
+  width: 20px;
+  height: 20px;
+}
+.sn p {
+  grid-column: 2;
+  margin: 0;
+}
+.sn-lead {
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.45;
+}
+.sn-more {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.55;
+}
+.sn .sn-use {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 6px;
+  color: color-mix(in srgb, var(--ink) 82%, var(--muted));
+  font-size: 12.5px;
+}
+.sn-use .icon {
+  width: 14px;
+  height: 14px;
+  flex: none;
+  transform: rotate(180deg);
+  color: var(--accent-text, var(--accent));
+}
+
+/* Control Strip: the main button on the left; search, sort and Cards / List on the right. */
+.library-toolbar {
+  padding-top: 18px;
+}
+.catalogue-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.catalogue-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-left: auto;
+}
+.catalogue-field {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.catalogue-field > .icon {
+  position: absolute;
+  left: 10px;
+  width: 16px;
+  height: 16px;
+  color: var(--muted);
+  pointer-events: none;
+}
+.library-controls .catalogue-field > input {
+  width: 240px;
+  min-width: 0;
+  padding-left: 32px;
+}
+.library-controls select {
+  flex: none;
+  width: 160px;
+}
+.library-toolbar .note {
+  margin: 10px 0;
+}
+
+/* Showroom Card: the real preview edge to edge, the name in Barlow, a button foot with the bin last. */
+.library-card {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+.library-card.showroom {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 0;
+  overflow: hidden;
+}
+.library-card.showroom:hover {
+  border-color: color-mix(in srgb, var(--ink) 22%, var(--line));
+}
+.library-card.showroom > .library-preview {
+  height: auto;
+  aspect-ratio: 16 / 9;
+  margin: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+}
+.lc-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  padding: 12px 14px;
+}
+.library-card .lc-body small {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+.lc-num {
+  font-family: var(--font-mono);
+}
+.library-card .lc-foot {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 6px;
+  margin: 0;
+  padding: 8px 10px;
+  border-top: 1px solid var(--line);
+  background: color-mix(in srgb, var(--bg) 50%, var(--panel));
+}
+.library-dialog .library-card .lc-foot > button,
+.library-card .lc-foot > button {
+  flex: 0 1 auto;
+  min-width: 0;
+  min-height: 28px;
+  margin: 0;
+  padding: 0 10px;
+  font-size: 12px;
+}
+.library-card .lc-foot > .icon-button {
+  flex: none;
+  width: 28px;
+  padding: 0;
+}
+.library-card .lc-foot > .danger {
+  margin-left: auto;
+}
+.library-card .lc-foot .icon {
+  width: 14px;
+  height: 14px;
+}
+/* List view: preview, text and buttons in one slim row. */
+.library-dialog .library-grid.list .library-card.showroom {
+  display: grid;
+  grid-template-columns: 112px minmax(0, 1fr) auto;
+  grid-template-rows: auto;
+  padding: 0;
+  border-left-width: 1px;
+  border-left-color: var(--line);
+}
+.library-dialog .library-grid.list .library-card.showroom > .library-preview {
+  grid-row: auto;
+  height: 63px;
+  aspect-ratio: auto;
+  border-right: 1px solid var(--line);
+  border-bottom: 0;
+}
+.library-dialog .library-grid.list .library-card.showroom .lc-foot {
+  grid-column: 3;
+  grid-row: auto;
+  align-self: stretch;
+  align-items: center;
+  border-top: 0;
+  border-left: 1px solid var(--line);
+}
+/* The pager: page number and two icon buttons. */
+.library-paging {
+  justify-content: flex-end;
+  gap: 4px;
+}
+.library-paging [role='status'] {
+  margin-right: 6px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.library-paging .icon-button {
+  width: 28px;
+  min-width: 28px;
+}
+.library-paging .page-next .icon {
+  transform: rotate(180deg);
+}
+/* Empty list: one calm dashed box with a sentence that says what to do. */
+.empty-library {
+  margin-top: 16px;
+  padding: 28px 24px;
+  border: 1px dashed color-mix(in srgb, var(--ink) 18%, var(--line));
+  border-radius: 12px;
+  text-align: center;
+}
+.empty-library p {
+  margin: 0;
+  color: var(--muted);
+}
+.empty-tile {
+  display: inline-grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 12px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--c, var(--accent)) 16%, var(--panel));
+  color: var(--c, var(--accent-text, var(--accent)));
+}
+.empty-library .empty-tile .icon {
+  width: 24px;
+  height: 24px;
+  margin: 0;
+  color: inherit;
+}
+/* Your projects: a wide window with the same cards. */
+dialog.projects-dialog {
+  width: min(1400px, 94vw);
+}
+.projects-dialog .library-grid {
+  grid-template-columns: repeat(auto-fill, minmax(min(230px, 100%), 1fr));
+  gap: 18px;
+  margin-top: 14px;
+}
+.projects-dialog .catalogue-toolbar .note {
+  margin: 0 0 0 auto;
+}
+.lc-body > strong,
+.lc-body > small {
+  align-self: auto;
+}
+.library-dialog .library-grid.list .library-card .lc-body > strong,
+.library-dialog .library-grid.list .library-card .lc-body > small {
+  align-self: auto;
+}
+.library-dialog .library-card .lc-foot > button:first-child {
+  flex: 0 1 auto;
+  min-height: 28px;
 }

@@ -5,25 +5,80 @@
 function applyTheme() {
   themeSettings.apply();
 }
+// The kinds of library item: rail label, icon, search word and what the page is (Page Note).
+const LIBRARY_KINDS = [
+  [
+    'templates',
+    'My Cars',
+    'car',
+    'cars',
+    'A car is a prepared template: the drawing of each view with its paintable panels.',
+    'Every project keeps its own copy, so editing a car here never changes a livery you already made.',
+    'New project starts a livery on this car.'
+  ],
+  [
+    'liveries',
+    'Liveries',
+    'brush',
+    'liveries',
+    'A livery is a saved design: the colours, artwork and finish of one project.',
+    'Apply it to another project on the same car to start from it.',
+    'Save current stores the open project as a livery.'
+  ],
+  [
+    'assets',
+    'Shapes & Images',
+    'image',
+    'shapes & images',
+    'Reusable artwork: shapes, groups, images and imported decals.',
+    'Placing an item adds an independent copy to the view you have open.',
+    'Place puts it on the current view.'
+  ],
+  [
+    'fonts',
+    'Fonts',
+    'text',
+    'fonts',
+    'Fonts imported into Livery, without installing them on your computer.',
+    'TTF, OTF, WOFF or WOFF2, up to 10 MB each. Text keeps its font when an entry is removed.',
+    "Choose one in a text layer's font list."
+  ]
+];
+// Page Note: what a page is, a line more, and where you use it (SlotForge Restyle).
+function pageNote(iconName, lead, more, use) {
+  return `<div class="sn"><span class="sn-tile">${icon(iconName)}</span><p class="sn-lead">${e(lead)}</p><p class="sn-more">${e(more)}</p><p class="sn-use">${icon('back')}<span>${e(use)}</span></p></div>`;
+}
 function openLibrary(tab = libraryTab) {
   libraryPage = 0;
   libraryTab = tab;
+  const kind = LIBRARY_KINDS.find(k => k[0] === tab) || LIBRARY_KINDS[0],
+    add =
+      tab === 'templates'
+        ? ['add-car', 'Add car']
+        : tab === 'assets'
+          ? ['upload-image', 'Import artwork']
+          : tab === 'fonts'
+            ? ['upload-font', 'Import font']
+            : ['save-livery', 'Save current'];
   openDialog(
     'User Library',
     'Browse your cars, liveries, artwork and fonts. Choose an item to use it, or export a selection to share.',
-    `<div class="library-toolbar"><div class="tabs">${[
-      ['templates', 'My Cars'],
-      ['liveries', 'Liveries'],
-      ['assets', 'Shapes & Images'],
-      ['fonts', 'Fonts']
+    `<div class="lib-shell"><div class="lib-rail" role="tablist" aria-orientation="vertical" aria-label="Library sections"><span class="lib-label">Your library</span>${LIBRARY_KINDS.map(
+      ([k, n, ic]) =>
+        `<button role="tab" data-library-tab="${k}" class="lib-tab kind-${k}${k === tab ? ' active' : ''}" aria-selected="${k === tab}">${icon(ic)}<span class="lib-text">${n}</span><small>${store[k].length}</small></button>`
+    ).join(
+      ''
+    )}</div><div class="lib-page kind-${tab}"><div class="library-toolbar">${pageNote(kind[2], kind[4], kind[5], kind[6])}<div class="row library-controls catalogue-toolbar"><button class="primary" data-action="${add[0]}" ${tab === 'liveries' && !project ? 'disabled' : ''}>${icon('plus')}${add[1]}</button><div class="catalogue-controls"><span class="catalogue-field">${icon('search')}<input id="library-search" type="search" placeholder="Search ${kind[3]}…" aria-label="Search library"></span><select id="library-sort" aria-label="Sort library"><option value="az">Name A–Z</option><option value="za">Name Z–A</option><option value="recent">Recently added</option></select><div class="segmented library-view-toggle" role="group" aria-label="Library layout">${[
+      'grid',
+      'list'
     ]
       .map(
-        ([k, n]) =>
-          `<button data-library-tab="${k}" class="${k === tab ? 'active' : ''}">${n} <small>${store[k].length}</small></button>`
+        v =>
+          `<button data-library-view="${v}" aria-pressed="${(store.settings?.libraryView || 'grid') === v}">${v === 'grid' ? 'Cards' : 'List'}</button>`
       )
       .join(
         ''
-      )}</div><div class="row library-controls"><input id="library-search" placeholder="Search ${tab === 'templates' ? 'cars' : tab === 'liveries' ? 'liveries' : tab === 'fonts' ? 'fonts' : 'shapes & images'}…" aria-label="Search library"><select id="library-sort" aria-label="Sort library"><option value="az">Name A–Z</option><option value="za">Name Z–A</option><option value="recent">Recently added</option></select><div class="segmented library-view-toggle" role="group" aria-label="Library layout">${['grid', 'list'].map(v => `<button data-library-view="${v}" aria-pressed="${(store.settings?.libraryView || 'grid') === v}">${v === 'grid' ? 'Cards' : 'List'}</button>`).join('')}</div><button data-action="${tab === 'templates' ? 'add-car' : tab === 'assets' ? 'upload-image' : tab === 'fonts' ? 'upload-font' : 'save-livery'}" ${tab === 'liveries' && !project ? 'disabled' : ''}>${icon('plus')}${tab === 'templates' ? 'Add car' : tab === 'assets' ? 'Import artwork' : tab === 'fonts' ? 'Import font' : 'Save current'}</button></div><p id="library-count" class="note" role="status"></p>${tab === 'fonts' ? '<p class="note">TTF, OTF, WOFF or WOFF2 · Up to 10 MB per font · Existing text keeps its font when a library entry is removed.</p>' : ''}</div><div id="library-items"></div>`,
+      )}</div></div></div><p id="library-count" class="note" role="status"></p></div><div id="library-items"></div></div></div>`,
     `<span class="dialog-foot-note">Share several items in one editable .sfpaint package.</span><button data-action="export-selection">${icon('share')}Export a package</button><button data-action="close-dialog">Done</button>`
   );
   $('#dialog').classList.add('library-dialog');
@@ -47,19 +102,7 @@ function pageSlice(items, page) {
 function paging(items, page, kind) {
   const pages = Math.ceil(items.length / LIBRARY_PAGE_SIZE);
   return pages > 1
-    ? '<div class="library-paging"><button data-page-kind="' +
-        kind +
-        '" data-page-step="-1" ' +
-        (!page ? 'disabled' : '') +
-        '>Previous</button><span>Page ' +
-        (page + 1) +
-        ' of ' +
-        pages +
-        '</span><button data-page-kind="' +
-        kind +
-        '" data-page-step="1" ' +
-        (page >= pages - 1 ? 'disabled' : '') +
-        '>Next</button></div>'
+    ? `<div class="library-paging"><span role="status">Page ${page + 1} of ${pages}</span><button class="icon-button ghost sm" data-page-kind="${kind}" data-page-step="-1" aria-label="Previous page" title="Previous page" ${!page ? 'disabled' : ''}>${icon('back')}</button><button class="icon-button ghost sm page-next" data-page-kind="${kind}" data-page-step="1" aria-label="Next page" title="Next page" ${page >= pages - 1 ? 'disabled' : ''}>${icon('back')}</button></div>`
     : '';
 }
 function cardPreview(item, bucket) {
@@ -190,50 +233,20 @@ function renderLibraryItems() {
                     : a.type === 'group'
                       ? info.layerCount + ' editable elements'
                       : 'Editable artwork';
-          return (
-            '<article class="library-card">' +
-            cardPreview(a, libraryTab) +
-            '<strong>' +
-            e(a.name) +
-            '</strong><small>' +
-            detail +
-            '</small><button class="library-edit" data-library-edit="' +
-            e(a.id) +
-            '">' +
-            icon('pen') +
-            'Edit Details</button><div class="row"><button data-library-use="' +
-            e(a.id) +
-            '" class="primary">' +
-            (libraryTab === 'templates'
+          const use =
+            libraryTab === 'templates'
               ? 'New project'
               : libraryTab === 'liveries'
                 ? 'Apply'
                 : libraryTab === 'fonts'
                   ? 'Use font'
-                  : 'Place') +
-            '</button><button data-library-export="' +
-            e(a.id) +
-            '" title="Export item" aria-label="Export ' +
-            e(a.name) +
-            '">' +
-            icon('share') +
-            '</button><button data-library-delete="' +
-            e(a.id) +
-            '" title="Remove from library" aria-label="Remove ' +
-            e(a.name) +
-            '">' +
-            icon('trash') +
-            '</button></div></article>'
-          );
+                  : 'Place';
+          return `<article class="library-card showroom">${cardPreview(a, libraryTab)}<div class="lc-body"><strong>${e(a.name)}</strong><small>${detail}</small></div><div class="row lc-foot"><button data-library-use="${e(a.id)}" class="primary sm">${use}</button><button class="library-edit sm" data-library-edit="${e(a.id)}" title="Edit details">${icon('pen')}Edit</button><button class="icon-button sm" data-library-export="${e(a.id)}" title="Export item" aria-label="Export ${e(a.name)}">${icon('share')}</button><button class="icon-button sm danger" data-library-delete="${e(a.id)}" title="Remove from library" aria-label="Remove ${e(a.name)}">${icon('trash')}</button></div></article>`;
         })
         .join('') +
       '</div>' +
       paging(items, libraryPage, 'library')
-    : '<div class="empty-library">' +
-      icon('folder') +
-      '<h3>' +
-      (query ? 'No matching items' : 'Ready for your first item') +
-      '</h3><p>Everything you create or upload can be reused here.</p></div>';
+    : `<div class="empty-library"><span class="empty-tile">${icon(query ? 'search' : (LIBRARY_KINDS.find(k => k[0] === libraryTab) || LIBRARY_KINDS[0])[2])}</span><h3>${query ? 'No matching items' : 'Ready for your first item'}</h3><p>${query ? 'Try another word, or clear the search.' : 'Everything you create or upload can be reused here. Use the button above to add the first one.'}</p></div>`;
   loadCardPreviews().catch(reportError);
 }
 function libraryMetadata(item) {
@@ -377,36 +390,25 @@ function openProjects() {
   openDialog(
     'Your projects',
     'Saved locally, with their own car template and editable artwork.',
-    '<button data-action="add-car" class="primary">' +
-      icon('plus') +
-      'New car project</button><div class="library-grid">' +
-      pageSlice(store.projects, projectPage)
-        .map(
-          p =>
-            '<article class="library-card">' +
-            cardPreview(p, 'projects') +
-            '<strong>' +
-            e(p.name) +
-            '</strong><small>' +
-            e(p.template?.name || p.storageSummary?.templateName || '') +
-            '<br>' +
-            new Date(p.updated).toLocaleDateString() +
-            '</small><div class="row"><button data-project-open="' +
-            e(p.id) +
-            '" class="primary">Open</button><button data-project-export="' +
-            e(p.id) +
-            '" aria-label="Export project">' +
-            icon('share') +
-            '</button><button data-project-delete="' +
-            e(p.id) +
-            '" aria-label="Delete project">' +
-            icon('trash') +
-            '</button></div></article>'
-        )
-        .join('') +
-      '</div>' +
-      paging(store.projects, projectPage, 'projects') +
-      (!store.projects.length ? '<p class="empty-library">Your saved designs will appear here.</p>' : '')
+    pageNote(
+      'projects',
+      'A project is one livery on one car: its own copy of the car template and all of its artwork.',
+      'Projects save automatically on this computer while you work.',
+      'Open one to keep painting, or export it to share.'
+    ) +
+      `<div class="row catalogue-toolbar"><button data-action="add-car" class="primary">${icon('plus')}New car project</button><span class="note">${store.projects.length} project${store.projects.length === 1 ? '' : 's'}</span></div>` +
+      (store.projects.length
+        ? '<div class="library-grid">' +
+          pageSlice(store.projects, projectPage)
+            .map(
+              p =>
+                `<article class="library-card showroom">${cardPreview(p, 'projects')}<div class="lc-body"><strong>${e(p.name)}</strong><small>${e(p.template?.name || p.storageSummary?.templateName || '')}<br><span class="lc-num">${new Date(p.updated).toLocaleDateString()}</span></small></div><div class="row lc-foot"><button data-project-open="${e(p.id)}" class="primary sm">Open</button><button class="icon-button sm" data-project-export="${e(p.id)}" title="Export project" aria-label="Export project">${icon('share')}</button><button class="icon-button sm danger" data-project-delete="${e(p.id)}" title="Delete project" aria-label="Delete project">${icon('trash')}</button></div></article>`
+            )
+            .join('') +
+          '</div>' +
+          paging(store.projects, projectPage, 'projects')
+        : `<div class="empty-library"><span class="empty-tile">${icon('projects')}</span><h3>No projects yet</h3><p>Your saved designs will appear here. Start one with New car project.</p></div>`)
   );
+  $('#dialog').classList.add('projects-dialog');
   loadCardPreviews().catch(reportError);
 }

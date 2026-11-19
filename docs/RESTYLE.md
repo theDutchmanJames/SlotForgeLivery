@@ -34,11 +34,11 @@ Tests that look for old class names or texts are updated; the new look is not re
 - [x] Toolbox on the same side-list surface as the inspector and Layers; view tiles already quiet since Phase 2
 
 ## Phase 5 · Library and projects
-- [ ] **Paddock Rail** for the Library's kinds (cars, shapes & images, fonts, paints, packages) instead of the tab row
-- [ ] **Control Strip** above every list: Add / Import, search with a magnifier, List/Grid, icon pager
-- [ ] **Showroom Card** for projects, cars and artwork: the real preview edge to edge, Barlow name, facts in Roboto Mono, button foot with the bin last
-- [ ] **Paint** per library kind on icon tiles only; calm dashed empty states with a sentence that says what to do
-- [ ] **Page Note** on library pages and the template-preparation steps
+- [x] **Paddock Rail** for the Library's four kinds (My Cars, Liveries, Shapes & Images, Fonts) instead of the tab row; it becomes a wrapping row below 900 px. `LIBRARY_KINDS` in `library.js` holds each kind's name, icon and Page Note. (Paints live in the Paint catalogue and packages in Import & Export; they are not library kinds)
+- [x] **Control Strip** above the list: the main button (Add car, Save current, Import artwork, Import font) left; search with a magnifier, sort and Cards / List right; the pager is the page number with two icon buttons
+- [x] **Showroom Card** for cars, liveries, artwork, fonts and projects: the real preview edge to edge (16:9), Barlow name, quiet detail line, a button foot (use, Edit, export, bin last). List view is one slim row with the same parts. The export-package cards keep their tick-box layout
+- [x] **Paint** per library kind (cars blue, liveries pink, artwork green, fonts violet; darker in light themes) on the rail icon of the open kind, its Page Note tile and its empty state only; calm dashed empty states with a sentence that says what to do
+- [x] **Page Note** on every library page and on Your projects (`pageNote()` in `library.js`). The template-preparation steps already open with an icon, a title and a line in the inspector, so they keep that
 
 ## Phase 6 · Settings and Help
 - [ ] **Double Rail + Settings Sheet:** Settings as a side list (Theme, Studio, Paint, Backups, Updates) and slim rows: name and one line left, switch / segmented / stepper right; theme tiles stay pictures
