@@ -24,9 +24,9 @@ Tests that look for old class names or texts are updated; the new look is not re
 - [x] Fields: 34 px inputs and selects, one style everywhere
 
 ## Phase 3 · Windows and folders
-- [ ] **Workshop Window:** Add car, Import & Export, Sharing, Decal import, Paint catalogue and the other dialogs: Barlow title with a line under it, intro line, buttons bottom right with the main one last, no coloured head
-- [ ] **Flag Dialog:** Yes/No and message windows with a ? / i / ! badge; a filled red button for what cannot be undone
-- [ ] **Folder:** the inspector's fold-out groups (Fit, Gradient, Outline, Shadow…) and folders in dialogs
+- [x] **Workshop Window:** every window shares one look: panel colour, Barlow title with a line under it, grey intro line, quiet close button, buttons bottom right with the main one last (Livery's own markup already had that order). Choice cards and notes inside windows lost their amber bars
+- [x] **Flag Dialog:** `openDialog(…, kind)` and `confirmAction(…, kind)` take `'confirm'` (?), `'alert'` (i) or `'danger'` (!). Danger: delete project, remove library item, remove or replace a view, close without saving, library recovery. The answer button is the filled accent
+- [x] **Folder:** the inspector's fold-out groups: Barlow title, chevron on the right, accent mark when open; the folder icon is grey and takes the accent only while open
 
 ## Phase 4 · Paint Studio
 - [ ] **Pit Board** across the top of the studio: back to Projects, eyebrow (car · view), the project name as a big Barlow field (rename), "✓ Saved" / "● Saving" from autosave, Undo / Redo as icon buttons

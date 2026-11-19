@@ -317,7 +317,8 @@ function removeProjectView(key) {
     `Remove ${M.LABELS[key]} view?`,
     `${M.LABELS[key]} will be removed from this project.`,
     `<p>This removes the imported drawing, its prepared areas and ${count} artwork ${count === 1 ? 'layer' : 'layers'} in this view.</p><p>Other views, saved library items and other projects stay unchanged. Use Undo to restore the removed view.</p>`,
-    `<button data-action="close-dialog">Cancel</button><button class="primary" id="remove-view-confirm">Remove view</button>`
+    `<button data-action="close-dialog">Cancel</button><button class="primary" id="remove-view-confirm">Remove view</button>`,
+    'danger'
   );
   $('#remove-view-confirm').onclick = () => {
     closeDialog();

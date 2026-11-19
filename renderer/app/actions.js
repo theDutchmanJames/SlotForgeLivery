@@ -125,7 +125,8 @@ const actions = {
       'Replace this view?',
       'Its geometry and artwork will be replaced. Other views are kept.',
       () => addCarDialog(currentView, true),
-      'Choose new image'
+      'Choose new image',
+      'danger'
     ),
   'delete-region': () => {
     if (region())

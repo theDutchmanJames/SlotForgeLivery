@@ -294,7 +294,8 @@ async function readPackage(file) {
       .join(
         ' · '
       )}</p></div><p class="note" style="margin-top:15px">Artwork is checked before import. Scripts and external resources are excluded; vector decals retain supported gradients, clipping and embedded images.</p>`,
-    `<button data-action="close-dialog">Cancel</button><button class="primary" data-action="confirm-import">Import items</button>`
+    `<button data-action="close-dialog">Cancel</button><button class="primary" data-action="confirm-import">Import items</button>`,
+    'confirm'
   );
   pendingPackage = additions;
 }

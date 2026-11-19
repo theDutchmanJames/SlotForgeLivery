@@ -111,7 +111,8 @@ window.desktop?.onClosing(async () => {
       'Your changes could not be saved',
       'Export a library backup before closing.',
       `<button class="primary" data-action="export-all">Export backup</button><p class="note" style="margin-top:15px">The previous saved library remains on disk.</p>`,
-      `<button data-action="close-dialog">Keep editing</button><button id="close-anyway">Close without latest changes</button>`
+      `<button data-action="close-dialog">Keep editing</button><button id="close-anyway">Close without latest changes</button>`,
+      'danger'
     );
     $('#close-anyway').onclick = () => window.desktop.closeReady();
   }
@@ -177,7 +178,9 @@ async function init() {
     openDialog(
       'Library recovery required',
       'The existing saved files have not been overwritten.',
-      `<p>Your library could not be read safely. Saving is paused. Use Import &amp; Export to import a known-good backup; it will be saved before normal editing resumes.</p><p class="note">The existing files will be preserved alongside the restored library.</p>`
+      `<p>Your library could not be read safely. Saving is paused. Use Import &amp; Export to import a known-good backup; it will be saved before normal editing resumes.</p><p class="note">The existing files will be preserved alongside the restored library.</p>`,
+      '',
+      'danger'
     );
   }
 }

@@ -2,11 +2,23 @@
 // Classic script: shares top-level names with the other renderer/app/*.js files.
 // Load order is fixed in index.html.
 'use strict';
-function openDialog(title, subtitle, body, foot = '') {
+// kind: '' for an ordinary window; 'confirm' (a question), 'alert' (a message) or 'danger'
+// (cannot be undone) draws it as a Flag Dialog with a ? / i / ! badge (renderer/restyle.css).
+function openDialog(title, subtitle, body, foot = '', kind = '') {
   libraryDetailsReturn = null;
   const dlg = $('#dialog');
   dlg._cleanupPanelStudio?.();
-  dlg.classList.remove('panel-studio', 'library-dialog', 'package-dialog', 'decal-import-dialog');
+  dlg.classList.remove(
+    'panel-studio',
+    'library-dialog',
+    'package-dialog',
+    'decal-import-dialog',
+    'flag-dialog',
+    'flag-confirm',
+    'flag-alert',
+    'flag-danger'
+  );
+  if (kind) dlg.classList.add('flag-dialog', 'flag-' + kind);
   $('#dialog-content').innerHTML =
     `<div class="dialog-head"><div><h2>${e(title)}</h2><p>${e(subtitle)}</p></div><button data-action="close-dialog" aria-label="Close dialog">${icon('close')}</button></div><div class="dialog-body">${body}</div>${foot ? `<div class="dialog-foot">${foot}</div>` : ''}`;
   if (!dlg.open) dlg.showModal();
@@ -41,12 +53,13 @@ function askName(title, initial, onSave) {
     if (ev.key === 'Enter') $('#name-save').click();
   };
 }
-function confirmAction(title, description, fn, label = 'Continue') {
+function confirmAction(title, description, fn, label = 'Continue', kind = 'confirm') {
   openDialog(
     title,
     description,
     '<p class="note">The current project is saved locally. Export a package if you want an additional backup.</p>',
-    `<button data-action="close-dialog">Cancel</button><button class="primary" id="confirm-button">${e(label)}</button>`
+    `<button data-action="close-dialog">Cancel</button><button class="primary" id="confirm-button">${e(label)}</button>`,
+    kind
   );
   $('#confirm-button').onclick = () => {
     closeDialog();

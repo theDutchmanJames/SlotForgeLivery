@@ -307,7 +307,8 @@ document.addEventListener('click', async ev => {
           scheduleSave();
           openLibrary(tab);
         },
-        'Remove item'
+        'Remove item',
+        'danger'
       );
       return;
     }
@@ -344,7 +345,8 @@ document.addEventListener('click', async ev => {
           render();
           openProjects();
         },
-        'Delete project'
+        'Delete project',
+        'danger'
       );
       return;
     }

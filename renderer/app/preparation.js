@@ -19,7 +19,9 @@ function repairTemplate() {
     return openDialog(
       'No enclosed panels found',
       'This drawing does not contain recoverable compound outlines.',
-      `<p>Use <b>Trace with points</b> to create the body outline, or import an expanded vector illustration. Recovery works with enclosed holes in filled outlines, such as your EPS line drawings.</p>`
+      `<p>Use <b>Trace with points</b> to create the body outline, or import an expanded vector illustration. Recovery works with enclosed holes in filled outlines, such as your EPS line drawings.</p>`,
+      '',
+      'alert'
     );
   openDialog(
     'Recover paintable areas',

@@ -284,3 +284,179 @@ input[type='file']::file-selector-button:hover {
 .context-bar::-webkit-scrollbar-thumb {
   border-width: 1px;
 }
+
+/* ---- Phase 3 · Windows and folders ---- */
+
+/* Workshop Window: every window on the panel colour, a Barlow title with a line under it,
+   a grey intro line, the buttons bottom right with the main one last. No coloured bars. */
+dialog {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--panel);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+  font-size: 13.5px;
+}
+dialog::backdrop {
+  background: rgba(5, 7, 10, 0.62);
+  backdrop-filter: blur(2px);
+}
+.dialog-head {
+  align-items: center;
+  padding: 22px 24px 14px;
+}
+.dialog-head p {
+  color: var(--muted);
+  font-size: 13px;
+}
+.dialog-head > button {
+  flex: none;
+  width: 32px;
+  min-height: 32px;
+  padding: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--muted);
+}
+.dialog-head > button:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--ink) 8%, transparent);
+  color: var(--ink);
+}
+.dialog-body {
+  padding: 18px 24px;
+}
+.dialog-foot {
+  align-items: center;
+  padding: 14px 24px;
+}
+dialog .field > label {
+  font-size: 12.5px;
+  font-weight: 400;
+  color: var(--muted);
+}
+dialog .note {
+  font-size: 12px;
+}
+
+/* Flag Dialog: Yes / No and message windows show what kind they are in a badge before the title:
+   ? a question, i a message, ! something that cannot be undone (accent). */
+dialog.flag-dialog {
+  width: min(560px, 92vw);
+}
+dialog.flag-dialog .dialog-head {
+  padding-bottom: 6px;
+  border-bottom: 0;
+}
+dialog.flag-dialog .dialog-head > div {
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr);
+  column-gap: 14px;
+  align-items: center;
+}
+dialog.flag-dialog .dialog-head > div::before {
+  content: '?';
+  grid-row: 1 / span 2;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--ink) 9%, var(--panel));
+  color: var(--ink);
+  font:
+    700 18px/1 'Segoe UI',
+    system-ui,
+    sans-serif;
+}
+dialog.flag-alert .dialog-head > div::before {
+  content: 'i';
+  font:
+    italic 700 19px/1 Georgia,
+    serif;
+}
+dialog.flag-danger .dialog-head > div::before {
+  content: '!';
+  background: color-mix(in srgb, var(--accent) 18%, var(--panel));
+  color: var(--accent-text, var(--accent));
+}
+dialog.flag-dialog .dialog-head h2,
+dialog.flag-dialog .dialog-head p {
+  grid-column: 2;
+}
+dialog.flag-dialog .dialog-head h2 {
+  margin: 0 0 3px;
+  font-size: 22px;
+}
+dialog.flag-dialog .dialog-body {
+  padding: 10px 24px 18px 74px;
+}
+dialog.flag-dialog .dialog-body > p:last-child {
+  margin-bottom: 0;
+}
+
+/* Folder: a quiet box with a Barlow title, a chevron on the right, and an accent mark when open.
+   The folder icon is grey; it takes the accent only while the folder is open. */
+.inspector-folder {
+  border-radius: 11px;
+  background: var(--panel);
+  overflow: clip;
+}
+.inspector-folder > summary {
+  position: relative;
+  padding: 11px 38px 11px 12px;
+  transition: background 0.12s;
+}
+.inspector-folder > summary:hover {
+  background: color-mix(in srgb, var(--ink) 4%, var(--panel));
+}
+.inspector-folder > summary:after {
+  content: '';
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  margin-top: -6px;
+  margin-left: 0;
+  border-right: 2px solid var(--muted);
+  border-bottom: 2px solid var(--muted);
+  transform: rotate(45deg);
+}
+.inspector-folder[open] > summary:after {
+  content: '';
+  margin-top: -2px;
+  transform: rotate(-135deg);
+}
+.inspector-folder[open] > summary {
+  background: color-mix(in srgb, var(--ink) 4%, var(--panel));
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+.inspector-folder > summary .icon {
+  color: var(--muted);
+}
+.inspector-folder[open] > summary .icon {
+  color: var(--accent-text, var(--accent));
+}
+
+/* Choice cards and notes inside windows: neutral, no coloured bars (Rules of the look 2 and 3). */
+.choice-card {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+.choice-card:hover:not(:disabled) {
+  background: var(--panel);
+  border-color: color-mix(in srgb, var(--ink) 30%, var(--line));
+}
+.choice-card .icon {
+  box-sizing: content-box;
+  width: 22px;
+  height: 22px;
+  padding: 9px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--ink) 8%, var(--panel));
+  color: color-mix(in srgb, var(--ink) 80%, var(--muted));
+}
+.inline-note {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--ink) 4%, var(--panel));
+}
