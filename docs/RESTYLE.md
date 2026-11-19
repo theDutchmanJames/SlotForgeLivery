@@ -47,7 +47,7 @@ Tests that look for old class names or texts are updated; the new look is not re
 ## Phase 7 · Exports and welcome
 - [x] **Replay Monitor** for PNG export and Print at true size: the options in a Folder on the left, a live preview on the right. PNG shows the real image on the checkerboard; true size shows every page of the PDF small (`trueSizePages()` builds the list for both the preview and the PDF), marked "preview, not to scale". The Workshop PDF has no options, so it still saves straight away without a window
 - [x] Welcome screen on the theme's surfaces: Add a car (main), Try a sample car, Import a shared package (outline); recent projects as small Showroom cards with the real preview, rebuilt only when the list changes. No Broadcast Hero: Livery has no header picture of its own, and the car tile already leads the page
-- [ ] Add Livery's changes to the restyle change log so the other apps can follow
+- ~~Add Livery's changes to Timing's restyle change log~~ — skipped at the owner's request (2026-11-19); the Timing folder is left unchanged
 
 ## Not used (race-only styles)
 Pit Wall, Lane Desk, Lane Check, Start Lights, Grid Slot, Timing Tower, Race Sheet, Scrutineering, Cue Card, Live Desk,
