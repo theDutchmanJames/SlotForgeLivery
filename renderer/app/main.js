@@ -174,7 +174,7 @@ async function init() {
   welcomeText.innerHTML = text;
   document.body.inert = false;
   if (loadBlocked) {
-    $('#save-status').textContent = '● Recovery required — saving paused';
+    saveStatus('paused', 'Recovery required — saving paused');
     openDialog(
       'Library recovery required',
       'The existing saved files have not been overwritten.',

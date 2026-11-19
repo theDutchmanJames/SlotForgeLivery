@@ -52,13 +52,19 @@ function changed() {
   }
   scheduleSave();
 }
+// The saved state beside Undo / Redo in the Pit Board: local, saving, saved, failed or paused.
+function saveStatus(state, text) {
+  const el = $('#save-status');
+  el.dataset.state = state;
+  el.textContent = text;
+}
 function scheduleSave() {
   clearTimeout(saveTimer);
   if (loadBlocked) {
-    $('#save-status').textContent = '● Recovery required — saving paused';
+    saveStatus('paused', 'Recovery required — saving paused');
     return;
   }
-  $('#save-status').textContent = '● Saving…';
+  saveStatus('saving', 'Saving…');
   saveTimer = setTimeout(() => flushSave().catch(() => {}), 350);
 }
 async function flushSave() {
@@ -70,9 +76,9 @@ async function flushSave() {
       try {
         if (window.desktop) await libraryClient.save(store, { keepLoaded: $('#dialog').open });
         else localStorage.setItem('slotforge-paintshop-v1', JSON.stringify(store));
-        $('#save-status').textContent = '● Saved on this computer';
+        saveStatus('saved', 'Saved on this computer');
       } catch (error) {
-        $('#save-status').textContent = '● Save failed — export a backup';
+        saveStatus('failed', 'Save failed — export a backup');
         reportError(error);
         throw error;
       }

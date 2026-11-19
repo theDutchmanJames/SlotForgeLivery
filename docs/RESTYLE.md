@@ -29,9 +29,9 @@ Tests that look for old class names or texts are updated; the new look is not re
 - [x] **Folder:** the inspector's fold-out groups: Barlow title, chevron on the right, accent mark when open; the folder icon is grey and takes the accent only while open
 
 ## Phase 4 · Paint Studio
-- [ ] **Pit Board** across the top of the studio: back to Projects, eyebrow (car · view), the project name as a big Barlow field (rename), "✓ Saved" / "● Saving" from autosave, Undo / Redo as icon buttons
-- [ ] Below it the tools in named groups (Arrange: Snap, Grid, Guides · View: zoom, compare, rulers), replacing the context bar's loose checkboxes
-- [ ] Toolbox, inspector and Layers list on the Graphite surfaces; views strip as quiet tiles
+- [x] **Pit Board** across the top of the studio (the old project bar, `index.html`): ‹ Projects, eyebrow (car · scale · view), the project name as a big Barlow title (click to rename), the saved state (`saveStatus(state, text)` in `core.js` sets `data-state`: local, saving, saved, failed, paused), Undo / Redo as icon buttons, then Save livery, Export PNG and Export PDF. On the welcome screen the car tile shows instead of the back button
+- [x] Below it the tools in named groups: Tool (the current tool), Arrange (Snap, Grid, Rulers), View (Side by side, Finish preview), Prepare template on the right. The old context bar moved up into the Pit Board, so the bar runs the full width; all ids and inputs are unchanged
+- [x] Toolbox on the same side-list surface as the inspector and Layers; view tiles already quiet since Phase 2
 
 ## Phase 5 · Library and projects
 - [ ] **Paddock Rail** for the Library's kinds (cars, shapes & images, fonts, paints, packages) instead of the tab row

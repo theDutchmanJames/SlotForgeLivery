@@ -70,9 +70,10 @@ function render() {
 function renderHeader() {
   $('#project-name').textContent = project?.name || 'Your next livery starts here';
   $('#project-meta').textContent = project
-    ? `${project.template.name} · ${project.template.scale || 'Scale not set'} · My car template`
+    ? `${project.template.name} · ${project.template.scale || 'Scale not set'}${activeView() ? ' · ' + M.LABELS[currentView] + ' view' : ''}`
     : 'Your cars. Your colours. Your workshop.';
   document.querySelectorAll('.project-only').forEach(el => (el.hidden = !project));
+  document.querySelectorAll('.welcome-only').forEach(el => (el.hidden = !!project));
   $('#footer-left').textContent = project
     ? 'User-created template · ' + Object.keys(project.template.views).length + ' views'
     : 'No pre-installed cars · Your personal library';

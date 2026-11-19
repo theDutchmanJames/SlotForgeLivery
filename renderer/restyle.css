@@ -183,8 +183,7 @@ input[type='file']::file-selector-button:hover {
   font-weight: 600;
 }
 
-/* Toggle Chips: on/off options as pill switches with a tick (the checkbox stays, hidden). */
-.context-bar > label,
+/* Toggle Chips: on/off options in windows as pill switches with a tick (the checkbox stays, hidden). */
 .checkbox-line {
   position: relative;
   display: inline-flex;
@@ -205,12 +204,10 @@ input[type='file']::file-selector-button:hover {
 .checkbox-line {
   margin: 0 8px 12px 0;
 }
-.context-bar > label:hover,
 .checkbox-line:hover {
   border-color: color-mix(in srgb, var(--ink) 25%, var(--line));
   color: var(--ink);
 }
-.context-bar > label > input[type='checkbox'],
 .checkbox-line > input[type='checkbox'] {
   position: absolute;
   left: 9px;
@@ -219,7 +216,6 @@ input[type='file']::file-selector-button:hover {
   margin: 0;
   opacity: 0;
 }
-.context-bar > label::before,
 .checkbox-line::before {
   content: '';
   width: 14px;
@@ -230,59 +226,30 @@ input[type='file']::file-selector-button:hover {
   background: transparent no-repeat center / 10px 10px;
   box-sizing: border-box;
 }
-.context-bar > label:has(input:checked),
 .checkbox-line:has(input:checked) {
   border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
   background: color-mix(in srgb, var(--accent) 12%, var(--panel));
   color: var(--ink);
 }
-.context-bar > label:has(input:checked)::before,
 .checkbox-line:has(input:checked)::before {
   border-color: var(--accent-fill, var(--accent));
   background-color: var(--accent-fill, var(--accent));
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 6.2 5 8.5 9.5 3.5' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
 }
-.context-bar > label:has(input:focus-visible),
 .checkbox-line:has(input:focus-visible) {
   outline: 3px solid #4c9aff;
   outline-offset: 2px;
 }
-.context-bar > label:has(input:disabled),
 .checkbox-line:has(input:disabled) {
   opacity: 0.65;
   cursor: not-allowed;
 }
-.context-bar > label {
-  flex: none;
-  white-space: nowrap;
-}
-@media (max-width: 1200px) {
-  .context-bar {
-    overflow-x: auto;
-    scrollbar-width: thin;
-  }
-  .context-bar > label {
-    gap: 6px;
-    padding: 0 9px 0 7px;
-    font-size: 12px;
-  }
-  .context-bar > label > input[type='checkbox'] {
-    left: 7px;
-  }
-}
-
 /* Occasional tools in the toolbox (Library, Add car) as outline buttons. */
 .toolbox > button {
   border-color: var(--line);
 }
 .toolbox > button:hover:not(:disabled) {
   border-color: color-mix(in srgb, var(--ink) 25%, var(--line));
-}
-.context-bar::-webkit-scrollbar {
-  height: 6px;
-}
-.context-bar::-webkit-scrollbar-thumb {
-  border-width: 1px;
 }
 
 /* ---- Phase 3 · Windows and folders ---- */
@@ -459,4 +426,245 @@ dialog.flag-dialog .dialog-body > p:last-child {
   border: 1px solid var(--line);
   border-radius: 10px;
   background: color-mix(in srgb, var(--ink) 4%, var(--panel));
+}
+
+/* ---- Phase 4 · Paint Studio ---- */
+
+/* Pit Board: the two-layer bar across the top of the studio.
+   Top: back to Projects, the car and view as an eyebrow, the project name as a big Barlow title
+   (click to rename), the saved state, Undo / Redo, then Save livery and the exports.
+   Below: the tools in named groups. */
+.project-bar.pitboard {
+  display: block;
+  min-height: 0;
+  padding: 0;
+  gap: 0;
+  border-bottom: 1px solid var(--line);
+  background: var(--panel);
+}
+.pb-top {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 64px;
+  padding: 10px 22px;
+}
+.pb-back {
+  flex: none;
+  gap: 4px;
+  min-height: 32px;
+  padding: 0 10px 0 4px;
+  background: transparent;
+  color: color-mix(in srgb, var(--ink) 82%, var(--muted));
+  font-size: 13px;
+}
+.pb-back:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--ink) 7%, transparent);
+  color: var(--ink);
+}
+.pb-back .icon {
+  width: 18px;
+  height: 18px;
+}
+.pb-vline {
+  flex: none;
+  width: 1px;
+  align-self: stretch;
+  margin: 6px 0;
+  background: var(--line);
+}
+.pb-who {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+.pb-eye {
+  overflow: hidden;
+  color: var(--muted);
+  font:
+    700 10.5px/1.4 'Segoe UI',
+    system-ui,
+    sans-serif;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.name-button.pb-name {
+  display: block;
+  max-width: min(560px, 100%);
+  min-height: 0;
+  padding: 0 0 1px;
+  border: 0;
+  border-bottom: 1px dashed transparent;
+  border-radius: 0;
+  background: none;
+  color: var(--ink);
+  font: italic 700 26px/1.1 var(--font-title);
+  letter-spacing: 0.02em;
+  text-align: left;
+  text-transform: uppercase;
+}
+.name-button.pb-name:hover:not(:disabled) {
+  background: none;
+  border-bottom-color: color-mix(in srgb, var(--ink) 30%, var(--line));
+}
+.pb-end {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+.save-status.pb-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-right: 4px;
+  color: var(--muted);
+  font-size: 12.5px;
+  white-space: nowrap;
+}
+.pb-state::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--green);
+}
+.pb-state[data-state='saving']::before {
+  background: #f2b705;
+}
+.pb-state[data-state='saved'] {
+  color: var(--green);
+}
+.pb-state[data-state='saved']::before {
+  content: '✓';
+  width: auto;
+  height: auto;
+  border-radius: 0;
+  background: none;
+  font-weight: 700;
+}
+.pb-state:is([data-state='failed'], [data-state='paused']) {
+  color: var(--accent-text, var(--accent));
+}
+.pb-state:is([data-state='failed'], [data-state='paused'])::before {
+  background: var(--accent);
+}
+
+/* The tools layer: small tool buttons in named groups, split by thin lines. */
+.context-bar.pb-tools {
+  height: auto;
+  min-height: 44px;
+  gap: 4px 6px;
+  padding: 6px 22px;
+  border-top: 1px solid var(--line);
+  background: color-mix(in srgb, var(--bg) 50%, var(--panel));
+  font-size: 12.5px;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+.pb-grp {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 2px;
+  padding-right: 8px;
+  border-right: 1px solid var(--line);
+}
+.pb-gl {
+  margin: 0 6px 0 2px;
+  color: var(--muted);
+  font:
+    600 10px 'Segoe UI',
+    system-ui,
+    sans-serif;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.pb-grp > #tool-label {
+  min-width: 64px;
+  padding: 0 8px 0 2px;
+  font-size: 12.5px;
+  font-weight: 600;
+}
+.pb-tool,
+.context-bar .pb-tool {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 30px;
+  min-height: 30px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: color-mix(in srgb, var(--ink) 82%, var(--muted));
+  font-size: 12.5px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.pb-tool:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--ink) 8%, transparent);
+  color: var(--ink);
+}
+.pb-tool:is([aria-pressed='true'], .active, :has(input:checked)) {
+  background: color-mix(in srgb, var(--accent) 14%, var(--panel));
+  color: var(--ink);
+}
+/* A toggle shows a small tick box; the real checkbox sits on top of it, invisible. */
+.pb-toggle::before {
+  content: '';
+  width: 13px;
+  height: 13px;
+  flex: none;
+  box-sizing: border-box;
+  border: 1.5px solid color-mix(in srgb, var(--ink) 35%, var(--line));
+  border-radius: 4px;
+  background: transparent no-repeat center / 9px 9px;
+}
+.pb-toggle:has(input:checked)::before {
+  border-color: var(--accent-fill, var(--accent));
+  background-color: var(--accent-fill, var(--accent));
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 6.2 5 8.5 9.5 3.5' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+.pb-toggle > input[type='checkbox'] {
+  position: absolute;
+  left: 10px;
+  width: 13px;
+  height: 13px;
+  margin: 0;
+  opacity: 0;
+}
+.pb-toggle:has(input:focus-visible) {
+  outline: 3px solid #4c9aff;
+  outline-offset: 1px;
+}
+.pb-tools .context-right {
+  flex: none;
+}
+.pb-tools .icon {
+  width: 16px;
+  height: 16px;
+}
+@media (max-width: 1250px) {
+  .pb-top {
+    gap: 10px;
+    padding: 8px 16px;
+  }
+  .name-button.pb-name {
+    font-size: 22px;
+  }
+  .context-bar.pb-tools {
+    padding: 5px 16px;
+  }
+}
+
+/* Studio surfaces: the toolbox matches the inspector and Layers (Graphite side list). */
+.toolbox {
+  background: var(--subpanel);
 }
