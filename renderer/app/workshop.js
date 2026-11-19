@@ -235,9 +235,29 @@ function trueSizeDialog() {
   openDialog(
     'Print at true size',
     'Masking templates and the design at the real size of your car, for cutting tape or checking decals.',
-    `<div class="field"><label for="true-view">View</label><select id="true-view">${views.map(k => `<option value="${k}" ${k === currentView ? 'selected' : ''}>${M.LABELS[k]} view · ${formatMm(project.template.views[k].realWidthMm)} mm wide</option>`).join('')}</select></div><label class="checkbox-line"><input id="true-masks" type="checkbox" checked>One masking template per colour</label><label class="checkbox-line"><input id="true-design" type="checkbox" checked>The full design</label><p class="note">Print at 100% (no "fit to page"). Measure the 50 mm bar to check the scale.</p>`,
+    `<div class="rvpage"><div class="rvsettings"><details class="inspector-folder rvfold" open><summary>Pages</summary><div class="rvfields"><div class="field"><label for="true-view">View</label><select id="true-view">${views.map(k => `<option value="${k}" ${k === currentView ? 'selected' : ''}>${M.LABELS[k]} view · ${formatMm(project.template.views[k].realWidthMm)} mm wide</option>`).join('')}</select></div><label class="checkbox-line"><input id="true-masks" type="checkbox" checked>One masking template per colour</label><label class="checkbox-line"><input id="true-design" type="checkbox" checked>The full design</label></div></details><p class="note">Print at 100% (no "fit to page"). Measure the 50 mm bar to check the scale.</p></div><section class="rvpreview"><header class="rvprevhead"><div><strong>Preview</strong><span>The pages of the PDF</span></div></header><div class="ts-pages" id="true-preview"></div><p class="note rvprevnote" id="true-info" role="status"></p></section></div>`,
     `<button data-action="close-dialog">Cancel</button><button class="primary" id="true-export">Save PDF</button>`
   );
+  $('#dialog').classList.add('monitor-dialog');
+  // The preview draws the same pages the PDF will hold, small.
+  const refresh = () => {
+    const key = $('#true-view').value,
+      pages = trueSizePages(project, key, { masks: $('#true-masks').checked, design: $('#true-design').checked }),
+      b = project.template.views[key].bounds;
+    $('#true-preview').innerHTML = pages.length
+      ? pages
+          .map(
+            (pg, i) =>
+              `<figure class="ts-page"><svg viewBox="${b.x} ${b.y} ${b.w} ${b.h}" aria-hidden="true">${V.renderView(pg.project, key, { id: 'true-preview-' + i })}</svg><figcaption>${e(pg.title)}</figcaption></figure>`
+          )
+          .join('')
+      : '<p class="note">Choose masks, the design, or both.</p>';
+    $('#true-info').textContent = pages.length
+      ? `${pages.length} ${pages.length === 1 ? 'page' : 'pages'} · ${trueSizePaper(project, key)} · preview, not to scale`
+      : '';
+  };
+  for (const id of ['true-view', 'true-masks', 'true-design']) $('#' + id).onchange = refresh;
+  refresh();
   $('#true-export').onclick = async () => {
     const key = $('#true-view').value,
       masks = $('#true-masks').checked,
@@ -250,30 +270,44 @@ function trueSizeDialog() {
     } else download(new Blob([html], { type: 'text/html' }), project.name + '-true-size.html');
   };
 }
+// The pages of a true-size PDF: the full design and one mask per colour. The PDF and the
+// preview in the Print at true size window both draw this list.
+function trueSizePages(p, key, { masks = true, design = true } = {}) {
+  const pages = [];
+  if (design) pages.push({ title: p.name + ' · full design', project: p, id: 'true-design' });
+  if (masks)
+    paintingSteps(p)
+      .filter(s => usesColourInView(p, key, s.colour))
+      .forEach((s, i) =>
+        pages.push({
+          title: `Mask ${i + 1}: ${s.ref || s.colour.toUpperCase()} (black = sprayed in this step)`,
+          project: isolateColour(p, s.colour, '#ffffff', '#111111'),
+          id: 'true-mask-' + i
+        })
+      );
+  return pages;
+}
+function trueSizePaper(p, key) {
+  const view = p.template.views[key],
+    mm = M.mmPerUnit(view),
+    width = view.bounds.w * mm,
+    height = view.bounds.h * mm;
+  return width <= 270 && height <= 180
+    ? 'A4 landscape'
+    : width <= 400 && height <= 270
+      ? 'A3 landscape'
+      : 'A2 landscape';
+}
 function trueSizeHTML(p, key, { masks = true, design = true } = {}) {
   const view = p.template.views[key],
     mm = M.mmPerUnit(view),
     b = view.bounds,
     width = b.w * mm,
     height = b.h * mm,
-    page =
-      width <= 270 && height <= 180 ? 'A4 landscape' : width <= 400 && height <= 270 ? 'A3 landscape' : 'A2 landscape',
+    page = trueSizePaper(p, key),
     sheet = (title, project, id) =>
       `<section class="sheet"><div class="brand">SLOTFORGE LIVERY · TRUE SIZE · ${M.LABELS[key].toUpperCase()} VIEW</div><h2>${e(title)}</h2><svg xmlns="http://www.w3.org/2000/svg" viewBox="${b.x} ${b.y} ${b.w} ${b.h}" width="${width}mm" height="${height}mm">${V.renderView(project, key, { id })}</svg><div class="bar"><span></span>50 mm · ${e(p.template.name)} · ${formatMm(width)} × ${formatMm(height)} mm</div></section>`;
-  const pages = [];
-  if (design) pages.push(sheet(p.name + ' · full design', p, 'true-design'));
-  if (masks)
-    paintingSteps(p)
-      .filter(s => usesColourInView(p, key, s.colour))
-      .forEach((s, i) =>
-        pages.push(
-          sheet(
-            `Mask ${i + 1}: ${s.ref || s.colour.toUpperCase()} (black = sprayed in this step)`,
-            isolateColour(p, s.colour, '#ffffff', '#111111'),
-            'true-mask-' + i
-          )
-        )
-      );
+  const pages = trueSizePages(p, key, { masks, design }).map(pg => sheet(pg.title, pg.project, pg.id));
   return `<!doctype html><html><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src data:;"><title>${e(p.name)} true size</title><style>@page{size:${page};margin:10mm}body{font:11px Arial,sans-serif;color:#1f2a35;margin:0}.sheet{break-after:page}.sheet:last-child{break-after:auto}.brand{font-size:10px;letter-spacing:2px;color:#d84149}h2{font-size:14px;margin:4px 0 8px}svg{display:block}.bar{display:flex;align-items:center;gap:8px;margin-top:6mm;color:#596573}.bar span{display:inline-block;width:50mm;height:3mm;background:#1f2a35}</style></head><body>${pages.join('')}</body></html>`;
 }
 

@@ -51,12 +51,17 @@ function renderWelcomeRecent() {
   box.hidden = !recent.length;
   $('#welcome').classList.toggle('returning', store.templates.length + store.projects.length > 0);
   if (!recent.length) return;
+  // Showroom cards with the real preview; rebuilt only when the list changes (render() runs often).
+  const signature = recent.map(p => p.id + p.updated + p.name).join('|');
+  if (box._signature === signature) return;
+  box._signature = signature;
   box.innerHTML = `<span class="eyebrow">Continue where you left off</span><div class="welcome-recent-list">${recent
     .map(
       p =>
-        `<button data-project-open="${e(p.id)}"><strong>${e(p.name)}</strong><small>${e(p.template?.name || p.storageSummary?.templateName || '')}${p.updated ? ' · ' + new Date(p.updated).toLocaleDateString() : ''}</small></button>`
+        `<button class="welcome-card" data-project-open="${e(p.id)}">${cardPreview(p, 'projects')}<span class="wc-body"><strong>${e(p.name)}</strong><small>${e(p.template?.name || p.storageSummary?.templateName || '')}${p.updated ? ' · ' + new Date(p.updated).toLocaleDateString() : ''}</small></span></button>`
     )
     .join('')}</div>`;
+  loadCardPreviews().catch(reportError);
 }
 function render() {
   renderTools();

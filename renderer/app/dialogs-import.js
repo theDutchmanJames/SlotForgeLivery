@@ -18,7 +18,8 @@ function openDialog(title, subtitle, body, foot = '', kind = '') {
     'flag-alert',
     'flag-danger',
     'projects-dialog',
-    'help-dialog'
+    'help-dialog',
+    'monitor-dialog'
   );
   if (kind) dlg.classList.add('flag-dialog', 'flag-' + kind);
   $('#dialog-content').innerHTML =

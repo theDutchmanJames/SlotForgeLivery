@@ -45,8 +45,8 @@ Tests that look for old class names or texts are updated; the new look is not re
 - [x] **Help Reader:** the quick tour as a calm reading column (Barlow title, 14.5 px text) with its sections in a side list
 
 ## Phase 7 · Exports and welcome
-- [ ] **Replay Monitor** for Print at true size, Workshop PDF and PNG export: options in folders on the left, a live preview of the real output on the right, marked as a preview
-- [ ] Welcome screen: recent projects as Showroom Cards, Try a sample car and Add car as the main actions; optionally a **Broadcast Hero** header picture
+- [x] **Replay Monitor** for PNG export and Print at true size: the options in a Folder on the left, a live preview on the right. PNG shows the real image on the checkerboard; true size shows every page of the PDF small (`trueSizePages()` builds the list for both the preview and the PDF), marked "preview, not to scale". The Workshop PDF has no options, so it still saves straight away without a window
+- [x] Welcome screen on the theme's surfaces: Add a car (main), Try a sample car, Import a shared package (outline); recent projects as small Showroom cards with the real preview, rebuilt only when the list changes. No Broadcast Hero: Livery has no header picture of its own, and the car tile already leads the page
 - [ ] Add Livery's changes to the restyle change log so the other apps can follow
 
 ## Not used (race-only styles)
