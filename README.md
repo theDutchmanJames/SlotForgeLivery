@@ -231,7 +231,7 @@ Use export/import to move your library, rather than editing its storage files by
 
 **Automatic backups:** in **Settings → Automatic backups**, choose a folder (for example a cloud-synced or external drive), how often (every day or every week) and how many to keep. Each backup is a normal library package you can import. Livery only ever removes its own older backup files in that folder.
 
-**Updates:** Livery checks GitHub once a day for a newer release and shows a small **Update** button in the header when there is one. The check sends nothing about you or your designs; switch it off in **Settings → Updates**.
+**Updates:** when Livery starts, it asks GitHub once whether a newer version has been released. If there is one, a window shows what is new, with **Skip this version** and **Download**. Download saves the file for your copy (installer, portable app, disk image, AppImage or .deb) in your Downloads folder and checks it; you install it yourself, and Livery never runs it. The check sends nothing about you or your designs. **Settings → Updates** shows your version, has **Check now**, and switches the check at start off.
 
 ## How to install
 

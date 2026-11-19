@@ -80,7 +80,14 @@ function settingsStatus(id) {
     const b = backupSettings();
     return b.every === 'off' ? 'Off' : `${b.every === 'daily' ? 'Every day' : 'Every week'} · keep ${b.keep}`;
   }
-  return store.settings?.updateCheck !== false ? 'Daily check on' : 'Daily check off';
+  // Updates (update-ui.js): the newest-version pill, such as 'You have the latest version'.
+  return document.querySelector('#update-settings .ss-pill')?.textContent || '';
+}
+// Sections that are not there (Updates outside the desktop app) have no entry in the side list.
+function settingsRailEntries() {
+  document
+    .querySelectorAll('#settings-page [data-settings-section]')
+    .forEach(t => (t.hidden = !document.getElementById(t.dataset.settingsSection)));
 }
 function refreshSettingsRail() {
   document.querySelectorAll('#settings-page [data-settings-section]').forEach(b => {
@@ -171,6 +178,8 @@ function settingsSheet() {
   }
   content.querySelector('.settings-heading')?.remove();
   content.replaceChildren(rail, canvas);
+  placeUpdateCard();
+  settingsRailEntries();
   refreshSettingsRail();
   const tabs = [...rail.querySelectorAll('[data-settings-section]')];
   const mark = id => tabs.forEach(t => t.classList.toggle('active', t.dataset.settingsSection === id));

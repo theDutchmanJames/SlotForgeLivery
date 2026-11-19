@@ -1709,3 +1709,159 @@ dialog.monitor-dialog {
   grid-template-columns: repeat(auto-fit, minmax(170px, 220px));
   justify-content: center;
 }
+
+/* The update window and Settings → Updates (update-ui.js, update-window.css, shared with SlotForge
+   Circuit). update-window.css sits on Circuit's names for a few SlotForge Restyle basics; these
+   are Livery's versions of them, as in Circuit's style.css. */
+:root {
+  --ui-focus: #4c9aff;
+  --ui-success: #3fb950;
+  --ui-good: #3fb950;
+  --ui-warning: #e3a43a;
+  --font-numbers: var(--font-mono);
+}
+:root[data-tone='light'] {
+  --ui-success: #1a7f37;
+  --ui-good: #1a7f37;
+  --ui-warning: #9a6700;
+}
+dialog.update-dialog {
+  background: var(--panel);
+}
+.dialog-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+}
+.dialog-heading > button.quiet {
+  flex: none;
+  width: 32px;
+  padding: 0;
+  color: var(--muted);
+}
+.dialog-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+  margin: 14px 0 0;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+.ss-t {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.ss-t > b {
+  font-size: 13.5px;
+  font-weight: 600;
+}
+.ss-t > .ss-desc {
+  color: var(--muted);
+  font-size: 12.5px;
+  line-height: 1.4;
+}
+.ss-ctl {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+}
+.ss-val {
+  color: var(--ink);
+  font: 500 13px var(--font-numbers, monospace);
+}
+.update-body > .ss-note {
+  margin: 10px 2px 0;
+  color: var(--muted);
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+.ss-note.warn {
+  color: var(--ui-warning);
+}
+/* Switch: a 34 × 20 pill, the accent when on (as the other Settings switches). */
+input.ss-switch {
+  position: relative;
+  flex: none;
+  width: 34px;
+  min-width: 34px;
+  height: 20px;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  appearance: none;
+  background: var(--line);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+input.ss-switch::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.15s;
+}
+input.ss-switch:checked {
+  background: var(--accent-fill, var(--accent));
+}
+input.ss-switch:checked::after {
+  transform: translateX(14px);
+}
+input.ss-switch:focus-visible {
+  outline: 3px solid var(--ui-focus);
+  outline-offset: 2px;
+}
+/* Status pill: green when fine, amber when it needs you. */
+.ss-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 24px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 12.5px;
+  white-space: nowrap;
+}
+.ss-pill::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.ss-pill.good {
+  border-color: color-mix(in srgb, var(--ui-good) 45%, var(--line));
+  color: var(--ink);
+}
+.ss-pill.good::before {
+  background: var(--ui-good);
+}
+.ss-pill.needs {
+  border-color: color-mix(in srgb, var(--ui-warning) 45%, var(--line));
+  color: var(--ui-warning);
+}
+@media (max-width: 640px) {
+  .ss-sheet > .ss-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .ss-ctl {
+    justify-content: flex-start;
+  }
+}

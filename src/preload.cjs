@@ -13,8 +13,9 @@ contextBridge.exposeInMainWorld('desktop', {
   exportDecals: payload => ipcRenderer.invoke('decals:save', payload),
   chooseBackupFolder: () => ipcRenderer.invoke('backup:choose-folder'),
   writeBackup: payload => ipcRenderer.invoke('backup:write', payload),
-  checkForUpdate: () => ipcRenderer.invoke('update:check'),
-  openReleasePage: url => ipcRenderer.invoke('update:open', url),
+  // Update check (Settings → Updates and the update window); resolves to { ok, value } or { error }.
+  updateCheck: (action, payload) => ipcRenderer.invoke('update:action', String(action), payload),
+  onUpdateChange: callback => ipcRenderer.on('update:changed', () => callback()),
   exportPNG: payload => ipcRenderer.invoke('png:save', payload),
   exportPDF: payload => ipcRenderer.invoke('pdf:save', payload),
   convertVector: payload => ipcRenderer.invoke('vector:convert', payload),

@@ -1,5 +1,8 @@
 const { app, BrowserWindow, ipcMain, dialog, utilityProcess, net, shell } = require('electron');
 const maintenance = require('./maintenance.cjs');
+const { UpdateCheck } = require('./update-check.cjs');
+const { LIVERY } = require('./update-names.cjs');
+const { pathToFileURL } = require('node:url');
 const fs = require('node:fs/promises');
 const path = require('node:path');
 const root = path.join(__dirname, '..');
@@ -142,16 +145,69 @@ ipcMain.handle('backup:choose-folder', async () => {
 ipcMain.handle('backup:write', (_, payload) =>
   maintenance.writeBackup(payload, file => assertExportTarget(file, app.getPath('userData')))
 );
-ipcMain.handle('update:check', () => {
-  // Test profiles never contact GitHub unless a test supplies a fake release.
-  if (process.env.PAINTSHOP_TEST_DATA && !process.env.PAINTSHOP_TEST_UPDATE)
-    throw new Error('Update checks are off for test profiles.');
-  return maintenance.checkForUpdate(app.getVersion(), (url, options) => net.fetch(url, options));
+// The update check (shared with SlotForge Circuit, see docs/update-check.md): once when Livery
+// starts, and when Check now is clicked in Settings. A newer version opens a window with What's
+// new, Skip and Download; Download saves this copy's file in Downloads and never runs it.
+// Livery's names and release file names are in update-names.cjs.
+let updateCheck = null,
+  updateTimer = null;
+function startUpdateCheck() {
+  // Development copies, test profiles and SLOTFORGE_NO_UPDATE_CHECK only check when asked.
+  const automated = !!process.env.PAINTSHOP_TEST_DATA;
+  updateCheck = new UpdateCheck({
+    profile: app.getPath('userData'),
+    current: app.getVersion(),
+    homepage: require('../package.json').homepage,
+    ...LIVERY,
+    fetch: (url, init) => net.fetch(url, init),
+    automatic: app.isPackaged && !automated && !process.env.SLOTFORGE_NO_UPDATE_CHECK,
+    edition: {
+      platform: process.platform,
+      arch: process.arch,
+      portable: !!process.env.PORTABLE_EXECUTABLE_FILE,
+      appImage: !!process.env.APPIMAGE
+    },
+    downloads: app.getPath('downloads'),
+    onChange: () => {
+      if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('update:changed');
+    }
+  });
+  // The integration tests replace GitHub with a fake answer through this.
+  if (automated) globalThis.liveryUpdateCheck = updateCheck;
+  updateTimer = setTimeout(() => void updateCheck.startupCheck(), 5 * 1000);
+  updateTimer.unref();
+}
+ipcMain.handle('update:action', async (event, action, payload) => {
+  // Only Livery's own page may ask.
+  const page = pathToFileURL(path.join(root, 'renderer', 'index.html')).href;
+  if (!updateCheck || String(event.senderFrame?.url || '').split(/[?#]/)[0] !== page) return { error: 'Unknown page.' };
+  try {
+    if (action === 'status') return { ok: true, value: updateCheck.status() };
+    if (action === 'check') return { ok: true, value: await updateCheck.check() };
+    if (action === 'enable') return { ok: true, value: updateCheck.setEnabled(payload?.enabled) };
+    if (action === 'skip') return { ok: true, value: updateCheck.skip(payload?.version) };
+    if (action === 'download') {
+      // Not awaited: progress and the result reach the window through update:changed.
+      updateCheck.startDownload().catch(() => {});
+      return { ok: true, value: updateCheck.status() };
+    }
+    if (action === 'cancel') return { ok: true, value: updateCheck.cancelDownload() };
+    if (action === 'show') {
+      shell.showItemInFolder(updateCheck.downloadedFile());
+      return { ok: true, value: { shown: true } };
+    }
+    if (action === 'open') {
+      await shell.openExternal(updateCheck.releaseUrl());
+      return { ok: true, value: { opened: true } };
+    }
+    throw Error('Unknown update action.');
+  } catch (e) {
+    return { error: e.message, code: e.code };
+  }
 });
-ipcMain.handle('update:open', (_, url) => {
-  const target = String(url || '');
-  if (!target.startsWith(maintenance.RELEASES_PAGE)) throw new Error('Only the Livery releases page can be opened.');
-  return shell.openExternal(target);
+app.on('will-quit', () => {
+  clearTimeout(updateTimer);
+  updateCheck?.stop(); // abandons a check or download in progress
 });
 // A SlotForge Decals pack (.sfdecal) of livery artwork at its real size.
 ipcMain.handle('decals:save', async (_, { name, data }) => {
@@ -231,6 +287,7 @@ ipcMain.handle('pdf:save', async (_, { name, html }) => {
 });
 app.whenReady().then(() => {
   earlyLoad = libraryStorage.load();
+  startUpdateCheck();
   earlyLoad.catch(() => {});
   mainWindow = safeWindow({
     width: 1560,

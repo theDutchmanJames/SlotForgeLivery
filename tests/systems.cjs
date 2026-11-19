@@ -1,6 +1,6 @@
 // Phase 6 systems: a full editing session at human pace (autosaves land
-// between steps, as they do for real users), automatic backups and the
-// update notice.
+// between steps, as they do for real users) and automatic backups. (The update
+// check has its own suite, update-window.cjs.)
 const fs = require('node:fs/promises'),
   path = require('node:path'),
   assert = require('node:assert/strict');
@@ -17,11 +17,7 @@ async function launch() {
   const env = {
     ...process.env,
     PAINTSHOP_TEST_DATA: data,
-    PAINTSHOP_TEST_BACKUP_DIR: backups,
-    PAINTSHOP_TEST_UPDATE: JSON.stringify({
-      tag_name: 'v9.9.9',
-      html_url: 'https://github.com/theDutchmanJames/SlotForgeLivery/releases/tag/v9.9.9'
-    })
+    PAINTSHOP_TEST_BACKUP_DIR: backups
   };
   delete env.ELECTRON_RUN_AS_NODE;
   app = await electron.launch({
@@ -74,14 +70,6 @@ async function run() {
   await page.evaluate(() => actions.redo());
   await humanPause('redo');
 
-  // The update notice appears shortly after start-up and opens only the releases page.
-  await page.waitForSelector('#update-badge:not([hidden])', { timeout: 15000 });
-  assert.equal(await page.locator('#update-badge').innerText(), 'Update 9.9.9');
-  assert.match(
-    await page.locator('#update-badge').getAttribute('data-url'),
-    /SlotForgeLivery\/releases\/tag\/v9\.9\.9$/
-  );
-
   // Backups: choose a folder (weekly is suggested), back up now.
   await click('settings');
   await page.locator('#backup-choose').click();
@@ -102,24 +90,16 @@ async function run() {
   // A backup is due once the interval has passed.
   assert.equal(await page.evaluate(() => backupDue()), false, 'not due right after a backup');
   assert.equal(await page.evaluate(() => backupDue(Date.now() + 8 * 24 * 3600e3)), true, 'due a week later');
-  await page.locator('#update-now').click();
-  await page.waitForFunction(() => /9\.9\.9 is available/.test($('#update-status').textContent));
-  await page.locator('#update-check').uncheck();
   await page.locator('#settings-back').click();
 
-  // Settings survive a restart; with checks off, no notice appears.
+  // Settings survive a restart.
   await page.evaluate(() => flushSave());
   await app.close();
   await launch();
-  const settings = await page.evaluate(() => ({ backup: store.settings.backup, check: store.settings.updateCheck }));
-  assert.deepEqual(settings, { backup: { every: 'weekly', keep: 5, folder: backups }, check: false });
-  await page.waitForTimeout(5500);
-  assert(await page.locator('#update-badge').isHidden(), 'no update check when switched off');
+  assert.deepEqual(await page.evaluate(() => store.settings.backup), { every: 'weekly', keep: 5, folder: backups });
   assert.deepEqual(errors, []);
   await fs.rm(backups, { recursive: true, force: true });
-  console.log(
-    'PASS: editing session at human pace, update notice, backups (manual, due, pruning settings) and restart.'
-  );
+  console.log('PASS: editing session at human pace, backups (manual, due, pruning settings) and restart.');
 }
 run()
   .catch(error => {

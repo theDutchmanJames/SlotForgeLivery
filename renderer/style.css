@@ -1694,19 +1694,10 @@ dialog::backdrop {
   margin-bottom: 8px;
 }
 
-/* Header notice when a newer Livery release is available. */
-.update-badge {
-  padding: 6px 10px;
-  border-color: var(--accent);
-  color: var(--accent);
-  font-size: 11px;
-  font-weight: 600;
-}
 #backup-folder {
   flex: 1;
   min-width: 0;
 }
-#backup-status,
-#update-status {
+#backup-status {
   margin-left: 10px;
 }

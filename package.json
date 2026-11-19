@@ -8,7 +8,7 @@
   "scripts": {
     "start": "electron .",
     "check": "node scripts/check.cjs",
-    "test": "node --test tests/model.test.cjs tests/storage.test.cjs tests/sqlite-library.test.cjs tests/library-client.test.cjs tests/maintenance.test.cjs",
+    "test": "node --test tests/model.test.cjs tests/storage.test.cjs tests/sqlite-library.test.cjs tests/library-client.test.cjs tests/maintenance.test.cjs tests/update-check.test.cjs tests/update-livery.test.cjs",
     "test:integration": "node scripts/test-integration.cjs",
     "benchmark:library": "node scripts/benchmark-library.cjs",
     "perf:audit": "node scripts/perf-audit.cjs",
