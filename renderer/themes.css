@@ -174,25 +174,17 @@ button.primary,
 .brand-icon {
   color: var(--on-accent);
 }
-button.primary:hover {
-  background: color-mix(in srgb, var(--accent) 85%, var(--ink));
-  border-color: var(--accent);
-}
-button.active,
-button[aria-pressed='true'] {
-  background: color-mix(in srgb, var(--accent) 10%, var(--panel));
-}
 .app-header nav button.active {
   color: var(--ink);
   border-bottom-color: var(--accent);
 }
 .view-tile.active .thumb,
-.layer-row.active {
-  background: color-mix(in srgb, var(--accent) 10%, var(--panel));
+.layer-row.active,
+.panel-area-row.selected {
+  background: color-mix(in srgb, var(--ink) 10%, var(--panel));
 }
 .panel-area-row.selected {
-  background: color-mix(in srgb, var(--accent) 10%, var(--panel));
-  border-color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 60%, var(--line));
 }
 /* Match Telemetry: square app icon beside a wordmark aligned to the tagline. */
 .brand {

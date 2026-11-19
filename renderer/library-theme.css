@@ -18,10 +18,6 @@
   --green: #24754b;
   --help: #4d7331;
 }
-button:hover {
-  background: var(--hover);
-  border-color: var(--muted);
-}
 .inspector,
 .layers-dock,
 .panel-workbench {
@@ -54,9 +50,6 @@ button:hover {
 }
 .artwork-child {
   border-left-color: var(--line);
-}
-button.danger {
-  color: var(--accent);
 }
 .header-tools {
   display: flex;

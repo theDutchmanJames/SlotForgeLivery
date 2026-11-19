@@ -17,11 +17,11 @@ Tests that look for old class names or texts are updated; the new look is not re
 - [x] All Phase 1 rules live in `renderer/restyle.css`, loaded last. Still to do in later phases: the red top lines on Settings cards and the coloured top line on library cards (Phases 5–6), red menu icons (Phase 2)
 
 ## Phase 2 · Controls
-- [ ] **Pit Buttons:** one flat family (primary, secondary, outline, danger, icon, small), 32 px; give every button its kind
-- [ ] Selected tool and pressed toggles: quiet grey, not a red underline; header menu icons in grey (accent only on the open page)
-- [ ] **Gear Selector:** `.segmented` groups and the List/Grid switch
-- [ ] **Toggle Chips:** multi-choice options (views to export, paint brands, decal-sheet options)
-- [ ] Fields: 34 px inputs and selects, one style everywhere
+- [x] **Pit Buttons:** one flat family, 32 px: secondary (default), `.primary`, `.ghost`, `.quiet`, `.danger`, `.icon-button`, `.sm`. The secondary tint mixes into `transparent`, not `--panel`, so buttons stay visible on the page background in light themes
+- [x] Pressed toggles and selected list rows: quiet grey, no red underline. The selected drawing tool keeps a soft accent tint (as Timing's Pit Board toggles); header menu icons grey, accent only on the open page
+- [x] **Gear Selector:** `.segmented` groups, Cards/List, the Light/Dark switch, library tabs and Help tabs
+- [x] **Toggle Chips:** the canvas options (Snap, Grid, Rulers, Side by side, Finish preview) and every `.checkbox-line` option in dialogs. Livery has no many-choice checkbox sets; the paint brand stays a list
+- [x] Fields: 34 px inputs and selects, one style everywhere
 
 ## Phase 3 · Windows and folders
 - [ ] **Workshop Window:** Add car, Import & Export, Sharing, Decal import, Paint catalogue and the other dialogs: Barlow title with a line under it, intro line, buttons bottom right with the main one last, no coloured head

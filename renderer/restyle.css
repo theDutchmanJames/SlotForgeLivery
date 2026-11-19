@@ -108,3 +108,179 @@ input[type='file']::file-selector-button:hover {
 *::-webkit-scrollbar-thumb:hover {
   background-color: color-mix(in srgb, var(--ink) 34%, transparent);
 }
+
+/* ---- Phase 2 · Controls ---- */
+
+/* Header menu: plain icons; the open page's icon in the accent. */
+.app-header nav button .icon {
+  color: var(--muted);
+}
+.app-header nav button.active .icon {
+  color: var(--accent-text, var(--accent));
+}
+.app-header nav button:hover:not(.active) {
+  background: color-mix(in srgb, var(--ink) 6%, transparent);
+}
+
+/* The selected drawing tool: a soft accent tint, no border line. */
+#tools button {
+  background: transparent;
+}
+#tools button.active,
+#tools button[aria-pressed='true'] {
+  background: color-mix(in srgb, var(--accent) 14%, var(--panel));
+  border-color: transparent;
+}
+#tools button.active .icon,
+#tools button[aria-pressed='true'] .icon {
+  color: var(--accent-text, var(--accent));
+}
+
+/* Gear Selector: a small choice as a sunken strip; the chosen part lifts in quiet grey. */
+.segmented,
+.theme-switch,
+.tabs,
+.help-tabs {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--bg) 60%, var(--panel));
+}
+.segmented {
+  display: flex;
+}
+.segmented > button,
+.theme-switch > button,
+.tabs > button,
+.help-tabs > button {
+  min-height: 26px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  box-shadow: none;
+  color: var(--muted);
+  font-weight: 400;
+}
+.segmented > button:hover:not(:disabled),
+.theme-switch > button:hover:not(:disabled),
+.tabs > button:hover:not(:disabled),
+.help-tabs > button:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--ink) 6%, transparent);
+  color: var(--ink);
+}
+.segmented > button:is(.active, [aria-pressed='true']),
+.theme-switch > button[aria-pressed='true'],
+.tabs > button:is(.active, [aria-selected='true']),
+.help-tabs > button[aria-selected='true'] {
+  border: 0;
+  box-shadow: none;
+  background: color-mix(in srgb, var(--ink) 12%, var(--panel));
+  color: var(--ink);
+  font-weight: 600;
+}
+
+/* Toggle Chips: on/off options as pill switches with a tick (the checkbox stays, hidden). */
+.context-bar > label,
+.checkbox-line {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 28px;
+  padding: 0 12px 0 9px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--bg);
+  color: color-mix(in srgb, var(--ink) 80%, var(--muted));
+  font-size: 12.5px;
+  cursor: pointer;
+  transition:
+    background 0.12s,
+    border-color 0.12s;
+}
+.checkbox-line {
+  margin: 0 8px 12px 0;
+}
+.context-bar > label:hover,
+.checkbox-line:hover {
+  border-color: color-mix(in srgb, var(--ink) 25%, var(--line));
+  color: var(--ink);
+}
+.context-bar > label > input[type='checkbox'],
+.checkbox-line > input[type='checkbox'] {
+  position: absolute;
+  left: 9px;
+  width: 14px;
+  height: 14px;
+  margin: 0;
+  opacity: 0;
+}
+.context-bar > label::before,
+.checkbox-line::before {
+  content: '';
+  width: 14px;
+  height: 14px;
+  flex: none;
+  border-radius: 4px;
+  border: 1.5px solid color-mix(in srgb, var(--ink) 35%, var(--line));
+  background: transparent no-repeat center / 10px 10px;
+  box-sizing: border-box;
+}
+.context-bar > label:has(input:checked),
+.checkbox-line:has(input:checked) {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
+  background: color-mix(in srgb, var(--accent) 12%, var(--panel));
+  color: var(--ink);
+}
+.context-bar > label:has(input:checked)::before,
+.checkbox-line:has(input:checked)::before {
+  border-color: var(--accent-fill, var(--accent));
+  background-color: var(--accent-fill, var(--accent));
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 6.2 5 8.5 9.5 3.5' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+.context-bar > label:has(input:focus-visible),
+.checkbox-line:has(input:focus-visible) {
+  outline: 3px solid #4c9aff;
+  outline-offset: 2px;
+}
+.context-bar > label:has(input:disabled),
+.checkbox-line:has(input:disabled) {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+.context-bar > label {
+  flex: none;
+  white-space: nowrap;
+}
+@media (max-width: 1200px) {
+  .context-bar {
+    overflow-x: auto;
+    scrollbar-width: thin;
+  }
+  .context-bar > label {
+    gap: 6px;
+    padding: 0 9px 0 7px;
+    font-size: 12px;
+  }
+  .context-bar > label > input[type='checkbox'] {
+    left: 7px;
+  }
+}
+
+/* Occasional tools in the toolbox (Library, Add car) as outline buttons. */
+.toolbox > button {
+  border-color: var(--line);
+}
+.toolbox > button:hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--ink) 25%, var(--line));
+}
+.context-bar::-webkit-scrollbar {
+  height: 6px;
+}
+.context-bar::-webkit-scrollbar-thumb {
+  border-width: 1px;
+}
