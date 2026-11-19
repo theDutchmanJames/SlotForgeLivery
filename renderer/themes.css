@@ -7,6 +7,8 @@
   --line: #343b47;
   --accent: #e5484d;
   --on-accent: #fff;
+  --accent-fill: #d6383e;
+  --accent-text: #f06b6f;
 }
 [data-theme='midnight'] {
   --bg: #0e1624;
@@ -68,7 +70,7 @@
   --ink: #1d2229;
   --muted: #656c76;
   --line: #d9d6cf;
-  --accent: #d62828;
+  --accent: #c92424;
   --on-accent: #fff;
 }
 :root:not([data-theme='dark']):not([data-theme='light']) {

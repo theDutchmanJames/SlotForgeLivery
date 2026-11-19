@@ -1,8 +1,8 @@
 /* Timing's warm light palette and shared SlotForge header/button treatment. */
 :root {
-  --hover: #343c48;
-  --subpanel: #1c2129;
-  --label: #c8cdd4;
+  --hover: color-mix(in srgb, var(--ink) 13%, var(--panel));
+  --subpanel: color-mix(in srgb, var(--bg) 55%, var(--panel));
+  --label: color-mix(in srgb, var(--ink) 82%, var(--muted));
   --help: #9bbd7d;
 }
 :root[data-theme='light'] {
@@ -13,12 +13,9 @@
   --ink: #1d2229;
   --muted: #656c76;
   --line: #d9d6cf;
-  --accent: #d62828;
+  --accent: #c92424;
   --amber: #886018;
   --green: #24754b;
-  --hover: #dedbd4;
-  --subpanel: #f8f7f4;
-  --label: #434b55;
   --help: #4d7331;
 }
 button:hover {

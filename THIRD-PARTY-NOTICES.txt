@@ -37,6 +37,14 @@ Adapted in renderer/decals/ for Livery's vector decal import. Local changes incl
 isolated namespaces, embedded-font handling, bounded caches and SVG validation.
 The adapted source is included with Livery; see docs/DECALS-IMPORT.md.
 
+Interface fonts (renderer/fonts/), SIL Open Font License 1.1; the licence is in each folder:
+- Barlow Condensed Bold and Bold Italic, Copyright 2017 The Barlow Project Authors
+  (https://github.com/jpt/barlow)
+- Roboto Mono, Copyright 2015 The Roboto Mono Project Authors
+  (https://github.com/googlefonts/robotomono)
+Unmodified files from https://github.com/google/fonts (ofl/barlowcondensed, ofl/robotomono).
+They style Livery's own interface only and are not embedded in exported designs.
+
 Download the exact application and converter sources alongside the installers:
 https://github.com/theDutchmanJames/SlotForgeLivery/releases
 See docs/BUILDING.md in the source archive for reproducible build commands.

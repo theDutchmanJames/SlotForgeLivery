@@ -74,7 +74,7 @@ async function launch() {
     'thumbnail browsing does not hydrate library objects'
   );
   await page.locator('[data-page-kind="library"][data-page-step="1"]').click();
-  assert.equal(await page.locator('.library-card strong').first().innerText(), 'Decal 0032');
+  assert.equal(await page.locator('.library-card strong').first().textContent(), 'Decal 0032');
   await page.locator('#library-search').fill('1199');
   assert.equal(await page.locator('.library-card').count(), 1);
   await page.locator('[data-library-use="asset-1199"]').click();

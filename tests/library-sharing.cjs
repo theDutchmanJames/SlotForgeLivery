@@ -58,7 +58,7 @@ async function run() {
   assert.equal(await page.locator('.library-card').count(), 1);
   await page.locator('#library-search').fill('');
   await page.locator('#library-sort').selectOption('za');
-  assert.equal(await page.locator('.library-card strong').first().innerText(), 'Stripe 25');
+  assert.equal(await page.locator('.library-card strong').first().textContent(), 'Stripe 25');
   await page.screenshot({ path: path.join(out, '14-library-light.png') });
   await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].setSize(1050, 720));
   assert(

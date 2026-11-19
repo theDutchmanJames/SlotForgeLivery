@@ -49,25 +49,25 @@ button {
     border-color 0.12s;
 }
 button:hover {
-  background: #343c48;
-  border-color: #596575;
+  background: color-mix(in srgb, var(--ink) 13%, var(--panel));
+  border-color: color-mix(in srgb, var(--ink) 25%, var(--line));
 }
 button:disabled {
   opacity: 0.4;
   cursor: default;
 }
 button.primary {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: white;
+  background: var(--accent-fill, var(--accent));
+  border-color: var(--accent-fill, var(--accent));
+  color: var(--on-accent);
   font-weight: 600;
 }
 button.primary:hover {
-  background: #f3565b;
+  background: var(--accent);
 }
 button.active,
 button[aria-pressed='true'] {
-  background: #e5484d16;
+  background: color-mix(in srgb, var(--accent) 9%, transparent);
   border-color: var(--accent);
   box-shadow: inset 0 -2px 0 var(--accent);
 }
@@ -75,12 +75,12 @@ button.quiet {
   background: transparent;
 }
 button.danger {
-  color: #ff999d;
+  color: var(--accent-text, var(--accent));
 }
 button:focus-visible,
 a:focus-visible {
-  outline: 2px solid #8cb9ef;
-  outline-offset: 3px;
+  outline: 3px solid #4c9aff;
+  outline-offset: 2px;
 }
 input,
 select,
@@ -426,9 +426,9 @@ nav button.active {
   top: 12px;
   left: 50%;
   transform: translateX(-50%);
-  background: #222831ed;
-  border: 1px solid #e8b65b;
-  color: #f5d08d;
+  background: color-mix(in srgb, var(--panel) 93%, transparent);
+  border: 1px solid var(--amber);
+  color: color-mix(in srgb, var(--amber) 70%, var(--ink));
   border-radius: 5px;
   font-size: 11px;
   padding: 6px 11px;
@@ -441,11 +441,11 @@ nav button.active {
   right: 12px;
   display: flex;
   align-items: center;
-  background: #222831e8;
-  border: 1px solid #465363;
+  background: color-mix(in srgb, var(--panel) 91%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ink) 22%, var(--line));
   border-radius: 6px;
   overflow: hidden;
-  color: #eee;
+  color: var(--ink);
 }
 .zoom-controls button {
   border: 0;
@@ -494,7 +494,7 @@ nav button.active {
 }
 .view-tile.active .thumb {
   border: 2px solid var(--accent);
-  background: #e5484d0d;
+  background: color-mix(in srgb, var(--accent) 5%, transparent);
 }
 .view-tile.active small {
   color: var(--accent);
@@ -507,7 +507,7 @@ nav button.active {
   background: transparent;
 }
 .view-tile:hover .thumb {
-  border-color: #6d7786;
+  border-color: color-mix(in srgb, var(--ink) 30%, var(--line));
 }
 .canvas-hint {
   text-align: center;
@@ -521,7 +521,7 @@ nav button.active {
   border-left: 1px solid var(--line);
   padding: 19px 18px 15px;
   overflow-y: auto;
-  background: #1c2129;
+  background: var(--subpanel);
 }
 .inspector .heading {
   display: flex;
@@ -541,7 +541,7 @@ nav button.active {
   font-size: 11px;
   font-weight: 600;
   margin-bottom: 6px;
-  color: #c8cdd4;
+  color: var(--label);
 }
 .row {
   display: flex;
@@ -575,7 +575,7 @@ nav button.active {
   height: 28px;
   width: 28px;
   border-radius: 5px;
-  border: 2px solid #ffffff20;
+  border: 2px solid color-mix(in srgb, var(--ink) 13%, transparent);
   padding: 0;
 }
 .segmented {
@@ -610,7 +610,7 @@ nav button.active {
 }
 .layer-row.active {
   border-color: var(--accent);
-  background: #e5484d17;
+  background: color-mix(in srgb, var(--accent) 9%, transparent);
 }
 .layer-row button {
   border: 0;
@@ -753,7 +753,7 @@ footer {
   flex: none;
 }
 dialog {
-  border: 1px solid #495362;
+  border: 1px solid color-mix(in srgb, var(--ink) 22%, var(--line));
   border-radius: 12px;
   background: var(--bg);
   color: var(--ink);
@@ -763,7 +763,7 @@ dialog {
   box-shadow: 0 28px 100px #0008;
 }
 dialog::backdrop {
-  background: #080b11b3;
+  background: rgba(5, 7, 10, 0.62);
   backdrop-filter: blur(3px);
 }
 .dialog-head {
@@ -938,7 +938,7 @@ dialog::backdrop {
   left: 50%;
   transform: translateX(-50%);
   background: var(--panel);
-  border: 1px solid #677486;
+  border: 1px solid color-mix(in srgb, var(--ink) 30%, var(--line));
   box-shadow: 0 8px 24px #0004;
   padding: 12px 20px;
   border-radius: 8px;
@@ -1105,7 +1105,7 @@ dialog::backdrop {
   padding: 14px 18px;
   max-height: 43%;
   overflow: auto;
-  background: #1c2129;
+  background: var(--subpanel);
 }
 .layers-dock h3 {
   margin-bottom: 9px;
@@ -1155,7 +1155,7 @@ dialog::backdrop {
   width: 15px;
   height: 15px;
   border-radius: 3px;
-  border: 1px solid #ffffff45;
+  border: 1px solid color-mix(in srgb, var(--ink) 27%, transparent);
   flex: none;
 }
 .paint-group > button:first-child {
@@ -1213,7 +1213,7 @@ dialog::backdrop {
 
 .artwork-child {
   margin-left: 18px;
-  border-left: 2px solid var(--border, #343e49);
+  border-left: 2px solid var(--line);
 }
 
 /* Keep offscreen vector content available while the parent clips the moving surface. */
