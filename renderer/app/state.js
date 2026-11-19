@@ -103,6 +103,7 @@ function showSettings(open = true) {
   if (open) {
     themeSettings.render();
     renderStudioPreferences();
+    settingsSheet();
     $('#settings-back').onclick = () => showSettings(false);
   } else render();
 }

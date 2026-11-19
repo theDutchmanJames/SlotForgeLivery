@@ -41,8 +41,8 @@ Tests that look for old class names or texts are updated; the new look is not re
 - [x] **Page Note** on every library page and on Your projects (`pageNote()` in `library.js`). The template-preparation steps already open with an icon, a title and a line in the inspector, so they keep that
 
 ## Phase 6 · Settings and Help
-- [ ] **Double Rail + Settings Sheet:** Settings as a side list (Theme, Studio, Paint, Backups, Updates) and slim rows: name and one line left, switch / segmented / stepper right; theme tiles stay pictures
-- [ ] **Help Reader:** Help as a calm one-column document with its sections in a side list
+- [x] **Double Rail + Settings Sheet:** Settings has a side list (App theme, Studio, Automatic backups, Updates, each with a one-line status) and slim rows: name and one line left, switch / segmented choice / list right; theme tiles stay pictures. `settingsSheet()` in `preferences.js` rearranges the page after it is drawn (controls are moved, never rebuilt). The side list works as a table of contents (click scrolls, it follows the scroll), as Timing's System Sheet, so every control stays on one page. Lists of up to five options are segmented choices (`data-seg-for`); the list stays hidden behind it. Livery has no number fields or sliders in Settings, so no stepper was needed
+- [x] **Help Reader:** the quick tour as a calm reading column (Barlow title, 14.5 px text) with its sections in a side list
 
 ## Phase 7 · Exports and welcome
 - [ ] **Replay Monitor** for Print at true size, Workshop PDF and PNG export: options in folders on the left, a live preview of the real output on the right, marked as a preview

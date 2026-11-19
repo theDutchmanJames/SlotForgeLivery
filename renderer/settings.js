@@ -46,9 +46,9 @@ window.LiverySettings = function ({ read, save }) {
   }
   function render() {
     page.innerHTML = `<div class="settings-content"><div class="settings-heading"><div><h1>Settings</h1><p>Make SlotForge Livery feel like your workshop.</p></div><button id="settings-back">Back to Paint Studio</button></div>
-      <section class="settings-card"><h2>App theme</h2><p>The same colour choices as SlotForge Timing and Paddock. Saved on this computer; your livery colours stay as you designed them.</p>
+      <section class="settings-card" id="theme-settings"><h2>App theme</h2><p>The same colour choices as SlotForge Timing and Paddock. Saved on this computer; your livery colours stay as you designed them.</p>
       <div class="theme-grid" role="group" aria-label="App theme">${Theme.THEMES.map(([key, name]) => `<button type="button" class="theme-tile" data-theme="${key}" data-theme-pick="${key}" aria-pressed="false"><span class="theme-swatches" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span>${name}</span></button>`).join('')}</div>
-      <button id="edit-theme-colors">Edit custom colours</button><span class="theme-saved" role="status">Theme choices save automatically.</span></section>
+      <div class="row theme-actions"><span class="theme-saved" role="status">Theme choices save automatically.</span><button id="edit-theme-colors">Edit custom colours</button></div></section>
       <section id="custom-theme-editor" class="settings-card" hidden><h2>Your own colours</h2><p>Preview changes while choosing. Save applies your Custom theme; Cancel restores your saved theme.</p>
       <div class="theme-start"><label for="theme-copy">Start from</label><select id="theme-copy">${Theme.THEMES.filter(
         ([k]) => k !== 'custom'

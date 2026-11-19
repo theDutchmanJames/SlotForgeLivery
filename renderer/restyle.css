@@ -1051,3 +1051,441 @@ dialog.projects-dialog {
   flex: 0 1 auto;
   min-height: 28px;
 }
+
+/* ---- Phase 6 · Settings and Help ---- */
+
+/* Double Rail: Settings as a side list (the table of contents) and a plain canvas that scrolls. */
+#settings-page:has(> .ss-done) {
+  display: flex;
+  padding: 0;
+  overflow: hidden;
+}
+.settings-content.ss-done {
+  display: grid;
+  grid-template-columns: 250px minmax(0, 1fr);
+  flex: 1;
+  width: 100%;
+  max-width: none;
+  min-height: 0;
+  margin: 0;
+}
+.ss-rail {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-height: 0;
+  padding: 22px 12px 24px;
+  border-right: 1px solid var(--line);
+  background: color-mix(in srgb, var(--bg) 55%, var(--panel));
+  overflow-y: auto;
+}
+.ss-railtitle {
+  margin: 0 10px 14px;
+  font: italic 700 22px/1.1 var(--font-title);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.ss-rail > .ss-tab {
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 11px;
+  width: 100%;
+  min-height: 44px;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: color-mix(in srgb, var(--ink) 82%, var(--muted));
+  font-size: 13.5px;
+  text-align: left;
+  white-space: normal;
+}
+.ss-rail > .ss-tab:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--ink) 6%, transparent);
+}
+.ss-rail > .ss-tab.active {
+  background: color-mix(in srgb, var(--ink) 10%, var(--panel));
+  color: var(--ink);
+}
+.ss-rail > .ss-tab.active .ss-tabtext > span {
+  font-weight: 600;
+}
+.ss-tab .icon {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  margin-top: 1px;
+  color: var(--muted);
+}
+.ss-tab.active .icon {
+  color: var(--accent-text, var(--accent));
+}
+.ss-tabtext {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+.ss-status {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 11.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ss-tools {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+.ss-tools > .ss-tool {
+  justify-content: flex-start;
+  gap: 9px;
+  width: 100%;
+  min-height: 34px;
+  padding: 0 10px;
+  border: 1px dashed color-mix(in srgb, var(--ink) 18%, transparent);
+  border-radius: 8px;
+  background: transparent;
+  color: color-mix(in srgb, var(--ink) 82%, var(--muted));
+  font-size: 13px;
+}
+.ss-tools > .ss-tool:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--ink) 6%, transparent);
+  color: var(--ink);
+}
+.ss-tool .icon {
+  width: 16px;
+  height: 16px;
+  color: var(--muted);
+}
+.ss-canvas {
+  min-width: 0;
+  min-height: 0;
+  padding: 26px 36px 64px;
+  overflow-y: auto;
+}
+.ss-canvas > .settings-card {
+  max-width: 880px;
+  margin: 0 0 34px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  scroll-margin-top: 24px;
+}
+.ss-canvas > .settings-card > h2 {
+  margin: 0 0 6px;
+  font-size: 26px;
+}
+.ss-canvas .ss-intro {
+  max-width: 680px;
+  margin: 0 0 14px;
+  color: var(--muted);
+  font-size: 13.5px;
+}
+@media (max-width: 900px) {
+  .settings-content.ss-done {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+  .ss-rail {
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: 10px 12px;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .ss-rail > .lib-label,
+  .ss-railtitle,
+  .ss-status {
+    display: none;
+  }
+  .ss-rail > .ss-tab {
+    width: auto;
+    min-height: 36px;
+    align-items: center;
+  }
+  .ss-tools {
+    flex-direction: row;
+    margin: 0 0 0 auto;
+    padding: 0;
+    border: 0;
+  }
+  .ss-canvas {
+    padding: 20px;
+  }
+}
+
+/* Settings Sheet: slim two-half rows (name and one line left, the control right) in one panel. */
+.ss-sheet {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel);
+  overflow: hidden;
+}
+.ss-sheet > .ss-row,
+.ss-sheet > .ss-note,
+.ss-sheet > .ss-stack {
+  margin: 0;
+  border-top: 1px solid var(--line);
+}
+.ss-sheet > :first-child {
+  border-top: 0;
+}
+.ss-sheet > .ss-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 4px 20px;
+  min-height: 52px;
+  padding: 10px 16px;
+}
+.ss-sheet > .ss-stack {
+  padding: 16px;
+}
+.ss-sheet > .ss-note {
+  padding: 10px 16px;
+  background: color-mix(in srgb, var(--bg) 22%, var(--panel));
+  color: var(--muted);
+  font-size: 12.5px;
+}
+/* A field: the name on the left, the list, choice or text on the right, its note under the name. */
+.ss-sheet > .field.ss-row > label {
+  grid-column: 1;
+  grid-row: 1;
+  margin: 0;
+  color: var(--ink);
+  font-size: 13.5px;
+  font-weight: 600;
+}
+.ss-sheet > .field.ss-row > :is(select, .ss-seg, .row) {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+}
+.ss-sheet > .field.ss-row > select {
+  width: 220px;
+}
+.ss-sheet > .field.ss-row > .note {
+  grid-column: 1;
+  grid-row: 2;
+  margin: 0;
+  font-size: 12.5px;
+}
+.ss-sheet > .field.ss-row > .row {
+  display: flex;
+  gap: 8px;
+  width: min(440px, 52vw);
+}
+.ss-sheet #backup-folder {
+  font: 500 12.5px var(--font-mono);
+}
+/* A switch row: the name and its line on the left, a 34 × 20 switch on the right. */
+.ss-sheet > .pref-row.ss-row {
+  border-top: 1px solid var(--line);
+  cursor: pointer;
+}
+.ss-sheet > .pref-row.ss-row:first-child {
+  border-top: 0;
+}
+.ss-sheet > .pref-row > span {
+  grid-column: 1;
+  grid-row: 1;
+  gap: 2px;
+}
+.ss-sheet > .pref-row strong {
+  font-size: 13.5px;
+  font-weight: 600;
+}
+.ss-sheet > .pref-row small {
+  font-size: 12.5px;
+}
+.ss-sheet > .pref-row > input[type='checkbox'] {
+  grid-column: 2;
+  grid-row: 1;
+  width: 34px;
+  height: 20px;
+  margin: 0;
+  appearance: none;
+  border-radius: 10px;
+  background: var(--line) radial-gradient(circle, #fff 0 6.5px, transparent 7px) no-repeat 0 0 / 20px 20px;
+  cursor: pointer;
+  transition:
+    background-color 0.15s,
+    background-position 0.15s;
+}
+.ss-sheet > .pref-row > input[type='checkbox']:checked {
+  background-color: var(--accent-fill, var(--accent));
+  background-position: 14px 0;
+}
+.ss-sheet > .pref-row > input[type='checkbox']:focus-visible {
+  outline: 3px solid #4c9aff;
+  outline-offset: 2px;
+}
+/* A row of a button and its status: the status on the left, the button on the right. */
+.ss-sheet > .row.ss-row > button {
+  grid-column: 2;
+  grid-row: 1;
+}
+.ss-sheet > .row.ss-row > :not(button) {
+  grid-column: 1;
+  grid-row: 1;
+  margin: 0;
+  font-size: 12.5px;
+}
+.ss-sheet > .ss-button-row > .ss-t {
+  font-size: 13.5px;
+  font-weight: 600;
+}
+.ss-sheet .theme-saved {
+  margin: 0;
+}
+/* The segmented choice of the control kit. */
+.ss-seg {
+  display: inline-flex;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--bg);
+}
+.ss-seg > button {
+  min-height: 26px;
+  padding: 0 11px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 12.5px;
+}
+.ss-seg > button:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--ink) 6%, transparent);
+  color: var(--ink);
+}
+.ss-seg > button[aria-pressed='true'] {
+  background: color-mix(in srgb, var(--ink) 13%, var(--panel));
+  color: var(--ink);
+  font-weight: 600;
+}
+.ss-hidden {
+  display: none !important;
+}
+.ss-canvas .theme-grid {
+  margin: 0;
+}
+.ss-canvas .theme-tile {
+  min-height: 80px;
+}
+.ss-sheet > .pref-row > input[type='checkbox'] {
+  flex: none;
+  min-width: 34px;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+}
+
+/* Help Reader: the tour as a calm document, its sections in a side list. */
+dialog.help-dialog {
+  width: min(1080px, 94vw);
+}
+.help-dialog .dialog-body {
+  display: grid;
+  grid-template-columns: 230px minmax(0, 1fr);
+  align-items: start;
+  max-height: 72vh;
+  padding: 0;
+}
+.help-dialog .help-tabs {
+  position: sticky;
+  top: 0;
+  grid-column: 1;
+  grid-row: 1 / span 20;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  gap: 2px;
+  height: 72vh;
+  margin: 0;
+  padding: 16px 10px;
+  border: 0;
+  border-right: 1px solid var(--line);
+  border-radius: 0;
+  background: color-mix(in srgb, var(--bg) 55%, var(--panel));
+  overflow-y: auto;
+}
+.help-dialog .help-tabs > button {
+  justify-content: flex-start;
+  width: 100%;
+  min-height: 34px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  color: color-mix(in srgb, var(--ink) 82%, var(--muted));
+  font-size: 13.5px;
+  text-align: left;
+  white-space: normal;
+}
+.help-dialog .help-tabs > button[aria-selected='true'] {
+  background: color-mix(in srgb, var(--ink) 10%, var(--panel));
+  color: var(--ink);
+  font-weight: 600;
+}
+.help-dialog .dialog-body > :not(.help-tabs) {
+  grid-column: 2;
+  max-width: 700px;
+  margin-left: 40px;
+  margin-right: 40px;
+}
+.help-dialog .help-panel {
+  min-height: 0;
+  padding: 26px 0 8px;
+  font-size: 14.5px;
+  line-height: 1.7;
+}
+.help-dialog .help-panel > h3 {
+  margin: 0 0 16px;
+  font-size: 30px;
+  line-height: 1.05;
+}
+.help-dialog .help-panel :is(p, li) {
+  margin: 0 0 10px;
+}
+.help-dialog .help-panel :is(ul, ol) {
+  padding-left: 20px;
+}
+.help-dialog .dialog-body > .inline-note {
+  margin-top: 8px;
+}
+.help-dialog .dialog-body > .note:last-child {
+  margin-bottom: 24px;
+}
+@media (max-width: 900px) {
+  .help-dialog .dialog-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .help-dialog .help-tabs {
+    position: static;
+    grid-row: auto;
+    flex-direction: row;
+    flex-wrap: wrap;
+    height: auto;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .help-dialog .help-tabs > button {
+    width: auto;
+  }
+  .help-dialog .dialog-body > :not(.help-tabs) {
+    grid-column: 1;
+    margin-left: 20px;
+    margin-right: 20px;
+  }
+}
+.ss-canvas .ss-sheet p {
+  max-width: none;
+}
+.ss-sheet > .row.ss-row > .note {
+  padding: 0;
+}

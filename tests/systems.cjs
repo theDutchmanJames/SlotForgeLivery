@@ -87,7 +87,7 @@ async function run() {
   await page.locator('#backup-choose').click();
   assert.equal(await page.locator('#backup-folder').inputValue(), backups);
   assert.equal(await page.locator('#backup-every').inputValue(), 'weekly');
-  await page.locator('#backup-keep').selectOption('5');
+  await page.locator('[data-seg-for="backup-keep"][data-value="5"]').click();
   await page.locator('#backup-now').click();
   await page.waitForFunction(() => /Last backup: (?!never)/.test($('#backup-status').textContent));
   let files = (await fs.readdir(backups)).filter(n => n.endsWith('.sfpaint'));

@@ -38,8 +38,8 @@ async function run() {
 
   // Studio preferences: default scale and undo depth.
   await click('settings');
-  await page.locator('#pref-scale').selectOption('1:24');
-  await page.locator('#pref-undo').selectOption('30');
+  await page.locator('[data-seg-for="pref-scale"][data-value="1:24"]').click();
+  await page.locator('[data-seg-for="pref-undo"][data-value="30"]').click();
   assert.deepEqual(await page.evaluate(() => [store.settings.defaultScale, store.settings.undoSteps]), ['1:24', 30]);
   await page.locator('#settings-back').click();
 

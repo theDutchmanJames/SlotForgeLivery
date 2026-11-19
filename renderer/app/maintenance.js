@@ -129,6 +129,7 @@ document.addEventListener('click', async ev => {
       setBackup({ every: 'weekly' });
       $('#backup-every').value = 'weekly';
     }
+    refreshSettingsRail();
     toast('Backups will be saved in ' + folder + '.');
   } else if (b.id === 'backup-now') {
     b.disabled = true;

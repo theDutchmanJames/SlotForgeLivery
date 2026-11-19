@@ -73,7 +73,7 @@ async function run() {
   await click('close-dialog');
   assert(await page.locator('.help-button').isVisible());
   await page.locator('.help-button').click();
-  assert.equal(await page.locator('#dialog').getAttribute('class'), '');
+  assert.equal(await page.locator('#dialog').getAttribute('class'), 'help-dialog');
   await click('close-dialog');
   await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].setSize(1560, 1000));
   await page.locator('[data-theme-choice="dark"]').click();
