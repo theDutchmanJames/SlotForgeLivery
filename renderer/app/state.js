@@ -56,7 +56,8 @@ const icons = {
   note: 'M5 4h14v16H5z M8 9h8 M8 13h8 M8 17h5',
   paste: 'M8 4h8v3H8z M6 6H5v15h14V6h-1',
   chev: 'M9 6l6 6-6 6',
-  clock: 'M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18 M12 7v5l3 3'
+  clock: 'M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18 M12 7v5l3 3',
+  print: 'M7 9V3h10v6 M5 9h14v8H5z M7 14h10v7H7z'
 };
 function icon(n) {
   if (n === 'livery')
@@ -105,6 +106,7 @@ function showSettings(open = true) {
   settingsOpen = open;
   hideGarage();
   if (setup) leaveSetup();
+  leavePack();
   $('.workspace').hidden = open;
   $('#settings-page').hidden = !open;
   document.body.classList.toggle('settings-open', open);

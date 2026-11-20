@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Print centre remake</title>
+<style>
+@font-face{font-family:'SF Cond';src:url('../../../renderer/fonts/barlowcondensed/BarlowCondensed-BoldItalic.ttf') format('truetype');font-weight:700;font-style:italic}
+@font-face{font-family:'SF Mono';src:url('../../../renderer/fonts/robotomono/RobotoMono[wght].ttf') format('truetype');font-weight:100 700}
+:root{--bg:#171b21;--panel:#222831;--panel2:#1c2129;--raise:#2a313b;--ink:#e8e6e1;--ink2:#c4c8ce;--muted:#98a0ab;--faint:#6b7380;--line:#343b47;--line2:#2b313b;
+  --accent:#e5484d;--accent-text:#f06b6f;--ok:#3ecf8e;--warn:#f2b705;--blue:#4c9aff;
+  --ui:'Segoe UI',system-ui,sans-serif;--cond:'SF Cond','Bahnschrift',sans-serif;--mono:'SF Mono',Consolas,monospace}
+[data-theme=light]{--bg:#eef0f3;--panel:#fff;--panel2:#f6f7f9;--raise:#eef0f3;--ink:#1c2129;--ink2:#3a414c;--muted:#5f6875;--faint:#8a929d;--line:#d5d9df;--line2:#e3e6ea;--accent-text:#c9363b}
+*{box-sizing:border-box}html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:13px/1.45 var(--ui);display:flex;flex-direction:column}
+button{font:inherit;color:inherit;cursor:pointer}
+svg.i{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.muted{color:var(--muted)}.faint{color:var(--faint)}.mono{font-family:var(--mono)}.grow{flex:1}
+.eyebrow{font:600 10px/1 var(--ui);letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
+.switch{flex:none;display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;padding:9px 18px;background:#0d1014;color:#e8e6e1;border-bottom:1px solid #2b313b}
+.switch b{font:600 10.5px var(--ui);letter-spacing:.14em;text-transform:uppercase;color:#98a0ab}
+.switch p{margin:0 0 0 auto;font-size:12px;color:#8a929d;max-width:620px}
+.seg{display:inline-flex;gap:2px;padding:3px;border:1px solid #343b47;border-radius:9px;background:#171b21}
+.seg button{height:26px;padding:0 11px;border:0;border-radius:6px;background:none;color:#c4c8ce;font-size:12.5px}
+.seg button[aria-pressed=true]{background:#e5484d;color:#fff}
+.stage{flex:1;min-height:780px;display:flex}
+.opt{flex:1;display:none;min-width:0;flex-direction:column}.opt.on{display:flex}
+.state{display:none;flex:1;min-height:0}.state.on{display:flex}
+.btn{height:32px;display:inline-flex;align-items:center;gap:7px;padding:0 12px;border:1px solid var(--line);border-radius:8px;background:var(--panel);font-size:12.5px;white-space:nowrap}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+.btn.lg{height:38px;padding:0 16px}
+.ib{width:30px;height:30px;display:inline-grid;place-items:center;border:1px solid transparent;border-radius:7px;background:none;color:var(--ink2)}
+.pill{font:600 10.5px var(--ui);padding:2px 8px;border-radius:999px;background:var(--raise);color:var(--muted);white-space:nowrap}
+.pill.good{background:color-mix(in srgb,var(--ok) 16%,var(--panel));color:var(--ok)}
+.pill.warn{background:color-mix(in srgb,var(--warn) 16%,var(--panel));color:color-mix(in srgb,var(--warn) 85%,var(--ink))}
+.callout{position:absolute;font:600 10.5px var(--ui);letter-spacing:.06em;text-transform:uppercase;color:#fff;background:#4c9aff;border-radius:999px;padding:3px 9px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.25);z-index:5}
+.topbar{height:52px;flex:none;display:flex;align-items:center;gap:10px;padding:0 12px;border-bottom:1px solid var(--line2);background:var(--panel2)}
+.logo{width:28px;height:28px;border-radius:7px;background:var(--accent);display:grid;place-items:center;color:#fff;font:italic 700 15px var(--cond)}
+.crumbs{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--muted)}
+.crumbs strong{font:italic 700 19px/1 var(--cond);text-transform:uppercase;color:var(--ink)}
+.field{display:flex;flex-direction:column;gap:5px}.field label{font-size:11.5px;color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{height:28px;padding:0 11px;border:1px solid var(--line);border-radius:999px;background:none;font-size:12px;color:var(--ink2);display:inline-flex;align-items:center;gap:6px}
+.chip.on{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 14%,var(--panel));color:var(--ink)}
+.tog{display:flex;align-items:center;gap:10px;font-size:12.5px}
+.tog i{width:32px;height:18px;border-radius:999px;background:var(--line);position:relative;flex:none}
+.tog i::after{content:'';position:absolute;left:2px;top:2px;width:14px;height:14px;border-radius:50%;background:#fff}
+.tog.on i{background:var(--accent)}.tog.on i::after{left:16px}
+.tog small{display:block;color:var(--muted);font-size:11px}
+.sec{padding:14px 16px;border-bottom:1px solid var(--line2);display:flex;flex-direction:column;gap:10px}
+.sec h4{margin:0;display:flex;justify-content:space-between;font:600 10.5px var(--ui);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+
+/* paper */
+.paper{background:#fff;color:#1f2a35;box-shadow:0 10px 30px rgba(0,0,0,.35);position:relative;overflow:hidden;font-family:Arial,sans-serif}
+.paper.a4{aspect-ratio:210/297}
+.paper.land{aspect-ratio:297/210}
+.paper .pg{position:absolute;inset:6%;display:flex;flex-direction:column;gap:3%}
+.paper h5{margin:0;font-size:9px;letter-spacing:.14em;color:#e5484d}
+.paper h3{margin:0;font:700 17px Arial}
+.paper .tbl{display:flex;flex-direction:column;gap:3px}
+.paper .tbl i{height:6px;background:#e7ebef;border-radius:2px}
+.paper .tbl i:nth-child(odd){background:#f1f3f5}
+.paper .sw{display:flex;gap:4px}.paper .sw b{width:16px;height:16px;border-radius:3px;border:1px solid #0002}
+.ruler{position:absolute;left:6%;bottom:4%;width:40%;height:10px;border:1.5px solid #1f2a35;border-top:0;background:repeating-linear-gradient(90deg,#1f2a35 0 1px,transparent 1px 10%)}
+.ruler + small{position:absolute;left:48%;bottom:3.4%;font:8px Arial;color:#1f2a35}
+.crop{position:absolute;width:10px;height:10px;border:0 solid #1f2a35}
+.crop.tl{left:3%;top:3%;border-left-width:1px;border-top-width:1px}.crop.tr{right:3%;top:3%;border-right-width:1px;border-top-width:1px}
+.crop.bl{left:3%;bottom:3%;border-left-width:1px;border-bottom-width:1px}.crop.br{right:3%;bottom:3%;border-right-width:1px;border-bottom-width:1px}
+
+/* ===== A · Print desk ===== */
+.desk{flex:1;display:grid;grid-template-columns:250px 1fr 320px;min-height:0}
+.outs{border-right:1px solid var(--line2);background:var(--panel2);padding:14px 10px;display:flex;flex-direction:column;gap:4px}
+.out{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:10px;border:1px solid transparent;text-align:left;background:none}
+.out .ic{width:34px;height:34px;border-radius:8px;background:var(--raise);display:grid;place-items:center;flex:none}
+.out b{display:block;font-size:13px}.out small{display:block;color:var(--muted);font-size:11.5px}
+.out.on{background:color-mix(in srgb,var(--accent) 12%,var(--panel));border-color:color-mix(in srgb,var(--accent) 35%,var(--line))}
+.out .warnmark{margin-left:auto}
+.view{display:flex;flex-direction:column;min-height:0;background:#0f1216}
+[data-theme=light] .view{background:#d9dde3}
+.view .bar{display:flex;align-items:center;gap:10px;padding:10px 16px;color:#c4c8ce;font-size:12px}
+[data-theme=light] .view .bar{color:#3a414c}
+.view .sheet{flex:1;display:grid;place-items:center;padding:10px 30px;min-height:0;position:relative}
+.view .sheet .paper{height:100%;max-height:640px}
+.strip{display:flex;gap:10px;justify-content:center;padding:12px;border-top:1px solid #2b313b}
+.strip .paper{width:52px}
+.strip .paper.on{outline:2px solid var(--accent);outline-offset:2px}
+.opts{border-left:1px solid var(--line2);background:var(--panel);display:flex;flex-direction:column;min-height:0;overflow:auto}
+.opts .go{margin-top:auto;padding:14px 16px;display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--line2)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sel{height:32px;border:1px solid var(--line);border-radius:8px;background:var(--panel2);display:flex;align-items:center;justify-content:space-between;padding:0 10px;font-size:12.5px}
+
+/* ===== B · Print pack ===== */
+.pack{flex:1;display:grid;grid-template-columns:1fr 330px;min-height:0}
+.pack-main{position:relative;padding:18px 22px;overflow:auto;display:flex;flex-direction:column;gap:18px}
+.group h3{margin:0 0 10px;display:flex;align-items:center;gap:10px}
+.group h3 b{font:italic 700 17px var(--cond);text-transform:uppercase}
+.group h3 small{color:var(--muted);font-size:12px}
+.pages{display:flex;gap:14px;flex-wrap:wrap}
+.pcard{width:132px;display:flex;flex-direction:column;gap:6px;position:relative}
+.pcard .paper{width:100%}
+.pcard .cap{font-size:11.5px;line-height:1.3}
+.pcard .cap small{display:block;color:var(--muted)}
+.pcard .tick{position:absolute;right:-6px;top:-6px;width:24px;height:24px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;border:2px solid var(--bg)}
+.pcard.off .paper{opacity:.35}
+.pcard.off .tick{background:var(--panel);color:var(--muted);border-color:var(--line)}
+.pcard.off .cap{color:var(--muted)}
+.queue{border-left:1px solid var(--line2);background:var(--panel);display:flex;flex-direction:column;min-height:0}
+.qrow{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line2);font-size:12.5px}
+.qrow .grip{color:var(--faint)}
+.qrow .mini{width:26px}
+.qrow small{display:block;color:var(--muted);font-size:11px}
+.stack{position:relative;height:180px;display:grid;place-items:center}
+.stack .paper{position:absolute;width:110px}
+.packbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;padding:10px 14px;border:1px solid var(--line);border-radius:12px;background:var(--panel)}
+.pb{display:flex;align-items:center;gap:8px}.pb small{color:var(--muted);font-size:11.5px}
+.gopts{margin-left:auto;display:flex;align-items:center;gap:16px}
+.group h3{flex-wrap:wrap}
+.decals-note{display:flex;align-items:center;gap:14px;padding:14px;border:1px dashed var(--line);border-radius:12px;background:var(--panel2)}
+.decals-note b{display:block;font-size:13px}.decals-note small{display:block;color:var(--muted);font-size:12px;margin-top:3px;max-width:640px}
+.dn-ic{width:40px;height:40px;border-radius:10px;background:var(--raise);display:grid;place-items:center;flex:none}
+</style>
+</head>
+<body>
+<div class="switch">
+  <b>Print centre remake</b>
+  <span class="seg" id="opt"><button data-v="A" aria-pressed="true">A · Print desk</button><button data-v="B">B · Print pack</button></span>
+  <span class="seg" id="sub"></span>
+  <span class="seg" id="theme"><button data-v="dark" aria-pressed="true">Dark</button><button data-v="light">Light</button></span>
+  <p id="say"></p>
+</div>
+<svg width="0" height="0" style="position:absolute"><defs>
+  <path id="sil" d="M62 268 L70 226 Q78 204 122 196 L292 176 Q336 146 392 112 Q424 94 476 92 L632 94 Q684 96 724 126 L796 178 Q894 188 926 212 Q944 232 938 268 L868 270 A72 72 0 0 0 724 270 L334 270 A72 72 0 0 0 190 270 Z"/>
+  <clipPath id="clip"><use href="#sil"/></clipPath>
+  <symbol id="car" viewBox="40 70 920 290">
+    <use href="#sil" style="fill:var(--b,#8fc3e8)"/>
+    <g clip-path="url(#clip)"><rect x="40" y="206" width="920" height="34" style="fill:var(--s,#f28a35)"/><rect x="40" y="244" width="920" height="7" style="fill:var(--w,#f6f4ef)"/></g>
+    <path d="M318 176 L398 120 Q426 104 470 104 L500 104 L500 176 Z" fill="#33404d"/><path d="M516 104 L628 106 Q670 108 702 132 L758 176 L516 176 Z" fill="#33404d"/>
+    <use href="#sil" fill="none" stroke="#1f2730" stroke-width="3.5"/>
+    <circle cx="610" cy="196" r="44" style="fill:var(--w,#f6f4ef)" stroke="#1f2730" stroke-width="2"/>
+    <text x="610" y="214" text-anchor="middle" font-family="Arial Narrow,sans-serif" font-weight="700" font-size="54" fill="#1f2730">27</text>
+    <g fill="#1f2730"><circle cx="262" cy="272" r="60"/><circle cx="796" cy="272" r="60"/></g><g fill="#c4c8ce" stroke="#1f2730" stroke-width="3"><circle cx="262" cy="272" r="34"/><circle cx="796" cy="272" r="34"/></g>
+  </symbol>
+  <!-- a mask: only the orange band, in black, the rest outline -->
+  <symbol id="mask" viewBox="40 70 920 290">
+    <use href="#sil" fill="#fff" stroke="#1f2730" stroke-width="2" stroke-dasharray="6 5"/>
+    <g clip-path="url(#clip)"><rect x="40" y="206" width="920" height="34" fill="#111"/></g>
+  </symbol>
+  <symbol id="roundel" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#f6f4ef" stroke="#1f2730" stroke-width="3"/><text x="50" y="66" text-anchor="middle" font-family="Arial Narrow,sans-serif" font-weight="700" font-size="46" fill="#1f2730">27</text></symbol>
+  <symbol id="logo" viewBox="0 0 200 40"><rect width="200" height="40" rx="6" fill="#1f2730"/><text x="100" y="28" text-anchor="middle" font-family="Arial" font-weight="700" font-style="italic" font-size="22" fill="#fff">SLOTFORGE</text></symbol>
+</defs></svg>
+
+<!-- reusable paper contents -->
+<template id="t-plan"><div class="pg"><h5>WORKSHOP PLAN</h5><h3>Gulf tribute</h3><svg viewBox="40 70 920 290" style="width:100%"><use href="#car"/></svg><div class="sw"><b style="background:#f6f4ef"></b><b style="background:#f28a35"></b><b style="background:#7fb7e2"></b><b style="background:#1f2730"></b></div><div class="tbl"><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="tbl"><i style="width:60%"></i><i style="width:80%"></i><i style="width:40%"></i></div></div></template>
+<template id="t-order"><div class="pg"><h5>PAINTING ORDER</h5><h3>Lightest first</h3><svg viewBox="40 70 920 290" style="width:70%;--b:#fff;--s:#fff;--w:#f6f4ef"><use href="#car"/></svg><svg viewBox="40 70 920 290" style="width:70%;--b:#fff;--s:#f28a35;--w:#f6f4ef"><use href="#car"/></svg><svg viewBox="40 70 920 290" style="width:70%"><use href="#car"/></svg></div></template>
+<template id="t-mask"><span class="crop tl"></span><span class="crop tr"></span><span class="crop bl"></span><span class="crop br"></span><div class="pg" style="justify-content:center"><h5>MASK · GULF ORANGE · 1:32</h5><svg viewBox="40 70 920 290" style="width:64%"><use href="#mask"/></svg><svg viewBox="40 70 920 290" style="width:64%;transform:scaleX(-1)"><use href="#mask"/></svg></div><span class="ruler"></span><small>50 mm</small></template>
+<template id="t-decal"><span class="crop tl"></span><span class="crop tr"></span><span class="crop bl"></span><span class="crop br"></span><div class="pg"><h5>DECAL SHEET · 1:32 · WATERSLIDE</h5><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6%;padding-top:4%"><svg viewBox="0 0 100 100"><use href="#roundel"/></svg><svg viewBox="0 0 100 100"><use href="#roundel"/></svg><svg viewBox="0 0 100 100"><use href="#roundel"/></svg><svg viewBox="0 0 100 100" style="opacity:.6"><use href="#roundel"/></svg></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:6%"><svg viewBox="0 0 200 40"><use href="#logo"/></svg><svg viewBox="0 0 200 40"><use href="#logo"/></svg><svg viewBox="0 0 200 40"><use href="#logo"/></svg><svg viewBox="0 0 200 40"><use href="#logo"/></svg></div></div><span class="ruler"></span><small>50 mm</small></template>
+<template id="t-pic"><div class="pg" style="inset:0;background:repeating-conic-gradient(#e7ebef 0 25%,#fff 0 50%) 0 0/16px 16px;display:grid;place-items:center"><svg viewBox="40 70 920 290" style="width:86%"><use href="#car"/></svg></div></template>
+
+<div class="stage">
+<!-- ========================== A ========================== -->
+<section class="opt A on" id="A">
+  <header class="topbar"><button class="ib"><i data-i="menu"></i></button><span class="logo">L</span><nav class="crumbs"><span>Garage</span><span>/</span><span>Gulf tribute</span><span>/</span><strong>Print &amp; export</strong></nav><span class="grow"></span><button class="btn">Back to painting</button></header>
+  <div class="state on" data-s="masks">
+  <div class="desk">
+    <aside class="outs">
+      <span class="eyebrow" style="padding:4px 10px 8px">What to print</span>
+      <button class="out"><span class="ic"><i data-i="note"></i></span><span><b>Workshop plan</b><small>Paints, order, notes · 4 pages</small></span></button>
+      <button class="out on"><span class="ic"><i data-i="scissors"></i></span><span><b>Masks at true size</b><small>One per colour · 1:32</small></span></button>
+      <button class="out"><span class="ic"><i data-i="decal"></i></span><span><b>Decal sheet</b><small>Numbers and logos · waterslide</small></span><span class="warnmark pill warn">new</span></button>
+      <button class="out"><span class="ic"><i data-i="image"></i></span><span><b>Pictures</b><small>PNG of each view</small></span></button>
+      <span class="eyebrow" style="padding:16px 10px 8px">Share</span>
+      <button class="out"><span class="ic"><i data-i="share"></i></span><span><b>Editable package</b><small>.sfpaint for another Livery</small></span></button>
+      <button class="out"><span class="ic"><i data-i="send"></i></span><span><b>To SlotForge Decals</b><small>.sfdecal pack</small></span></button>
+    </aside>
+    <main class="view">
+      <div class="bar"><span>Page <b>2</b> of 3 · A4 portrait · true size</span><span class="grow"></span><button class="ib" style="color:inherit"><i data-i="minus"></i></button><span class="mono">fit</span><button class="ib" style="color:inherit"><i data-i="plus"></i></button></div>
+      <div class="sheet"><div class="paper a4" data-t="t-mask"></div><span class="callout" style="left:20px;top:8px">One preview for every output</span></div>
+      <div class="strip"><div class="paper a4" data-t="t-mask"></div><div class="paper a4 on" data-t="t-mask"></div><div class="paper a4" data-t="t-mask"></div></div>
+    </main>
+    <aside class="opts">
+      <div class="sec"><h4>Masks at true size</h4><p class="muted" style="margin:0;font-size:12px">Cut along the black: one mask per colour, in painting order. Check the 50 mm bar after printing.</p></div>
+      <div class="sec"><h4>Size</h4><div class="chips"><span class="chip">1:24</span><span class="chip on">1:32</span><span class="chip">1:43</span></div><span class="faint" style="font-size:11.5px">Club GT at 1:32 is 138 mm long (real car 4 420 mm).</span></div>
+      <div class="sec"><h4>Paper</h4><div class="row2"><div class="field"><label>Size</label><span class="sel">A4 <i data-i="down"></i></span></div><div class="field"><label>Turn</label><span class="sel">Portrait <i data-i="down"></i></span></div></div></div>
+      <div class="sec"><h4>Which colours</h4>
+        <span class="tog on"><i></i><span>Race white<small>Pinstripe, roundel</small></span></span>
+        <span class="tog on"><i></i><span>Gulf orange<small>Band</small></span></span>
+        <span class="tog"><i></i><span>Gulf blue<small>Body: no mask needed for the first coat</small></span></span></div>
+      <div class="sec"><h4>Extras</h4><span class="tog on"><i></i><span>Crop marks</span></span><span class="tog on"><i></i><span>Both sides on one page</span></span></div>
+      <div class="go"><button class="btn primary lg" style="justify-content:center"><i data-i="pdf"></i>Save as PDF</button><button class="btn" style="justify-content:center"><i data-i="print"></i>Print…</button></div>
+    </aside>
+  </div>
+  </div>
+  <div class="state" data-s="decals">
+  <div class="desk">
+    <aside class="outs">
+      <span class="eyebrow" style="padding:4px 10px 8px">What to print</span>
+      <button class="out"><span class="ic"><i data-i="note"></i></span><span><b>Workshop plan</b><small>Paints, order, notes · 4 pages</small></span></button>
+      <button class="out"><span class="ic"><i data-i="scissors"></i></span><span><b>Masks at true size</b><small>One per colour · 1:32</small></span></button>
+      <button class="out on"><span class="ic"><i data-i="decal"></i></span><span><b>Decal sheet</b><small>Numbers and logos · waterslide</small></span><span class="warnmark pill warn">new</span></button>
+      <button class="out"><span class="ic"><i data-i="image"></i></span><span><b>Pictures</b><small>PNG of each view</small></span></button>
+    </aside>
+    <main class="view">
+      <div class="bar"><span>Page <b>1</b> of 1 · A4 · true size</span></div>
+      <div class="sheet"><div class="paper a4" data-t="t-decal"></div><span class="callout" style="left:20px;top:8px">Decals laid out at real size for waterslide paper</span></div>
+    </main>
+    <aside class="opts">
+      <div class="sec"><h4>Decal sheet</h4><p class="muted" style="margin:0;font-size:12px">Every number, logo and decal on the car, at its real size, laid out to cut. Print on waterslide decal paper.</p></div>
+      <div class="sec"><h4>On the sheet</h4>
+        <span class="tog on"><i></i><span>Roundel 27 ×2<small>Left and right doors</small></span></span>
+        <span class="tog on"><i></i><span>SLOTFORGE ×2<small>Sills</small></span></span>
+        <span class="tog on"><i></i><span>Spares<small>One extra of each</small></span></span></div>
+      <div class="sec"><h4>Decal paper</h4><div class="chips"><span class="chip on">Clear</span><span class="chip">White</span></div>
+        <span class="tog on"><i></i><span>White layer underneath<small>For light colours on clear paper: a second page in white</small></span></span>
+        <span class="tog"><i></i><span>Mirror<small>For paper you print on the back of</small></span></span>
+        <span class="tog on"><i></i><span>3 mm gap to cut</span></span></div>
+      <div class="go"><button class="btn primary lg" style="justify-content:center"><i data-i="pdf"></i>Save as PDF</button><button class="btn" style="justify-content:center"><i data-i="send"></i>Or send to SlotForge Decals</button></div>
+    </aside>
+  </div>
+  </div>
+</section>
+
+<!-- ========================== B ========================== -->
+<section class="opt B" id="B">
+  <header class="topbar"><button class="ib"><i data-i="menu"></i></button><span class="logo">L</span><nav class="crumbs"><span>Garage</span><span>/</span><span>Gulf tribute</span><span>/</span><strong>Print pack</strong></nav><span class="grow"></span><button class="btn">Back to painting</button></header>
+  <div class="state on" data-s="pick">
+  <div class="pack">
+    <main class="pack-main">
+      <div style="display:flex;align-items:flex-end;gap:12px"><div class="grow"><span class="eyebrow">Everything for the bench, in one PDF</span><h1 style="margin:6px 0 0;font:italic 700 30px/1 var(--cond);text-transform:uppercase">Print pack</h1><div class="muted" style="margin-top:7px">Tick the pages you want. 1:32 · A4</div></div></div>
+      <div class="packbar"><span class="pb"><small>Scale</small><span class="chips"><span class="chip">1:24</span><span class="chip on">1:32</span><span class="chip">1:43</span></span></span><span class="pb"><small>Paper</small><span class="chips"><span class="chip on">A4</span><span class="chip">A3</span><span class="chip">Letter</span></span></span><span class="pb"><small>Turn</small><span class="chips"><span class="chip on">Portrait</span><span class="chip">Landscape</span></span></span><span class="pb"><span class="tog on"><i></i><span>Crop marks</span></span></span><span class="pb"><span class="tog on"><i></i><span>50 mm check bar</span></span></span><span class="callout" style="position:relative;margin-left:auto">Settings for the whole pack</span></div>
+      <section class="group"><h3><b>Workshop plan</b><small>4 pages</small><span class="gopts"><span class="tog on"><i></i><span>Shopping list</span></span><span class="tog on"><i></i><span>Notes</span></span></span></h3><div class="pages">
+        <div class="pcard"><div class="paper a4" data-t="t-plan"></div><span class="tick"><i data-i="check"></i></span><span class="cap">Paints &amp; notes<small>page 1</small></span></div>
+        <div class="pcard"><div class="paper a4" data-t="t-order"></div><span class="tick"><i data-i="check"></i></span><span class="cap">Painting order<small>3 coats</small></span></div>
+        <div class="pcard off"><div class="paper a4" data-t="t-plan"></div><span class="tick"><i data-i="check"></i></span><span class="cap">Left view<small>reference</small></span></div>
+        <div class="pcard off"><div class="paper a4" data-t="t-plan"></div><span class="tick"><i data-i="check"></i></span><span class="cap">Right view<small>reference</small></span></div></div></section>
+      <section class="group"><h3><b>Masks at true size</b><small>one per colour · tick the colours that need one</small><span class="gopts"><span class="tog on"><i></i><span>Both sides on one page</span></span><span class="tog"><i></i><span>Design page at true size</span></span></span></h3><div class="pages">
+        <div class="pcard"><div class="paper a4" data-t="t-mask"></div><span class="tick"><i data-i="check"></i></span><span class="cap">Race white<small>coat 1</small></span></div>
+        <div class="pcard"><div class="paper a4" data-t="t-mask"></div><span class="tick"><i data-i="check"></i></span><span class="cap">Gulf orange<small>coat 2</small></span></div>
+        <div class="pcard off"><div class="paper a4" data-t="t-mask"></div><span class="tick"><i data-i="check"></i></span><span class="cap">Gulf blue<small>body, no mask needed</small></span></div></div></section>
+      <section class="group"><h3><b>Decals</b><small>made in SlotForge Decals</small></h3><div class="decals-note"><span class="dn-ic"><i data-i="decal"></i></span><span class="grow"><b>Numbers, logos and decals are printed by SlotForge Decals</b><small>Send this livery's decals to Decals at their real size; lay them out and print them there. A sheet made in Decals comes back with Import decal artwork (.sfsheet or .sfdecal).</small></span><button class="btn"><i data-i="send"></i>Send decals to SlotForge Decals</button></div></section>
+      <section class="group"><h3><b>Pictures</b><small>PNG files, saved next to the PDF</small><span class="gopts"><span class="chips"><span class="chip">1000</span><span class="chip on">2000</span><span class="chip">4000 px</span></span><span class="tog on"><i></i><span>Finish preview</span></span></span></h3><div class="pages">
+        <div class="pcard off"><div class="paper land" data-t="t-pic"></div><span class="tick"><i data-i="check"></i></span><span class="cap">Left · PNG<small>2000 px</small></span></div></div></section>
+    </main>
+    <aside class="queue">
+      <div class="sec"><h4>In this pack <span class="pill" style="letter-spacing:0">4 pages</span></h4>
+        <div class="stack"><div class="paper a4" data-t="t-order" style="transform:rotate(-6deg) translateX(-30px)"></div><div class="paper a4" data-t="t-mask" style="transform:rotate(3deg) translateX(20px)"></div><div class="paper a4" data-t="t-plan"></div></div>
+        <div class="qrow"><span class="grip">⠿</span><span class="mini paper a4" data-t="t-plan"></span><span>Paints &amp; notes<small>Workshop plan</small></span></div>
+        <div class="qrow"><span class="grip">⠿</span><span class="mini paper a4" data-t="t-order"></span><span>Painting order<small>Workshop plan</small></span></div>
+        <div class="qrow"><span class="grip">⠿</span><span class="mini paper a4" data-t="t-mask"></span><span>Race white mask<small>true size</small></span></div>
+        <div class="qrow"><span class="grip">⠿</span><span class="mini paper a4" data-t="t-mask"></span><span>Gulf orange mask<small>true size</small></span></div></div>
+      <div class="sec" style="border-bottom:0;margin-top:auto"><button class="btn primary lg" style="justify-content:center"><i data-i="pdf"></i>Save the pack as one PDF</button><button class="btn" style="justify-content:center"><i data-i="print"></i>Print…</button><span class="faint" style="font-size:11.5px;text-align:center">The pack and its settings are remembered for this livery.</span><span class="eyebrow" style="padding-top:10px">Share</span><button class="btn" style="justify-content:center"><i data-i="share"></i>Editable package (.sfpaint)</button></div>
+    </aside>
+  </div>
+  </div>
+  <div class="state" data-s="page">
+  <div class="pack">
+    <main class="pack-main" style="align-items:center;justify-content:center;background:#0f1216">
+      <div class="paper a4" data-t="t-mask" style="height:min(78vh,680px)"></div>
+      <span class="callout" style="left:24px;top:16px">Click a page to see it large · arrows for the next</span>
+    </main>
+    <aside class="queue">
+      <div class="sec"><h4>Gulf orange mask · page 4 of 4</h4><p class="muted" style="margin:0;font-size:12px">Print at 100 %, not "fit to page". Check the 50 mm bar.</p></div><div class="sec"><h4>This page</h4><span class="tog on"><i></i><span>In the pack</span></span><span class="tog on"><i></i><span>Both sides on one page</span></span><span class="tog on"><i></i><span>Crop marks<small>from the pack settings</small></span></span><div class="field"><label>Colour</label><div class="chips"><span class="chip">Race white</span><span class="chip on">Gulf orange</span><span class="chip">Gulf blue</span></div></div></div><div class="sec"><h4>Pages</h4><div style="display:flex;gap:6px"><button class="btn"><i data-i="back"></i>Previous</button><button class="btn">Next</button></div></div><div class="sec" style="border-bottom:0;margin-top:auto"><button class="btn" style="justify-content:center"><i data-i="back"></i>Back to the pack</button></div>
+    </aside>
+  </div>
+  </div>
+</section>
+</div>
+<script>
+const P={menu:'M4 7h16 M4 12h16 M4 17h16',note:'M5 4h14v16H5z M8 9h8 M8 13h8 M8 17h5',scissors:'M6 7a2.5 2.5 0 1 0 0 .01 M6 17a2.5 2.5 0 1 0 0 .01 M8 8l12 10 M8 16L20 6',decal:'M4 4h11l5 5v11H4z M15 4v5h5',image:'M3 3h18v18H3z M3 17l6-7 5 5 3-3 4 5',share:'M4 7h16 M16 3l4 4-4 4 M20 17H4 M8 13l-4 4 4 4',send:'M4 12l16-8-6 16-2-6z',minus:'M5 12h14',plus:'M12 5v14 M5 12h14',down:'M6 9l6 6 6-6',pdf:'M5 2h9l5 5v15H5z M14 2v6h5 M8 12h8 M8 16h8',print:'M7 9V3h10v6 M5 9h14v8H5z M7 14h10v7H7z',check:'M5 12l5 5 9-10',back:'M15 6l-6 6 6 6'};
+document.querySelectorAll('i[data-i]').forEach(i=>{i.outerHTML=`<svg class="i" viewBox="0 0 24 24"><path d="${P[i.dataset.i]||''}"/></svg>`});
+document.querySelectorAll('[data-t]').forEach(p=>{p.innerHTML=document.getElementById(p.dataset.t).innerHTML});
+const SUB={A:[['masks','Masks'],['decals','Decal sheet']],B:[['pick','Choosing pages'],['page','One page large']]};
+const SAY={A:'A · Print desk: one page for every output. Choose what to print on the left, see the pages large in the middle with a page strip, set size, paper and what goes on it on the right, then Save as PDF or Print. New: a waterslide decal sheet at real size.',
+           B:'B · Print pack: everything for the bench as page thumbnails, grouped (workshop plan, masks per colour, pictures), with A’s options: scale, paper, crop marks and the check bar for the whole pack, options per group and per page. Decals stay with SlotForge Decals: send them there, import its sheets back. Tick, order, save one PDF; remembered per livery.'};
+let opt='A',sub={A:'masks',B:'pick'};
+function show(){document.querySelectorAll('.opt').forEach(o=>o.classList.toggle('on',o.id===opt));document.querySelectorAll('#opt button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===opt));document.getElementById('sub').innerHTML=SUB[opt].map(([v,l])=>`<button data-v="${v}" aria-pressed="${sub[opt]===v}">${l}</button>`).join('');document.getElementById('say').textContent=SAY[opt];document.getElementById(opt).querySelectorAll('.state').forEach(s=>s.classList.toggle('on',s.dataset.s===sub[opt]));}
+document.getElementById('opt').onclick=e=>{const v=e.target.closest('button')?.dataset.v;if(v){opt=v;show();}};
+document.getElementById('sub').onclick=e=>{const v=e.target.closest('button')?.dataset.v;if(v){sub[opt]=v;show();}};
+document.getElementById('theme').onclick=e=>{const v=e.target.closest('button')?.dataset.v;if(!v)return;document.documentElement.dataset.theme=v;document.querySelectorAll('#theme button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===v));};
+const q=new URLSearchParams(location.search);if(q.get('opt'))opt=q.get('opt');if(q.get('sub'))sub[opt]=q.get('sub');if(q.get('theme'))document.documentElement.dataset.theme=q.get('theme');
+show();
+</script>
+</body>
+</html>

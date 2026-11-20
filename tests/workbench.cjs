@@ -153,6 +153,7 @@ async function run() {
   // Print & export menu.
   await page.locator('#export-button').click();
   assert.deepEqual(await page.locator('#export-menu > button b').allInnerTexts(), [
+    'Print pack',
     'Workshop plan',
     'Print at true size',
     'Picture',

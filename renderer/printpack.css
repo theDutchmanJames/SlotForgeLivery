@@ -1,0 +1,389 @@
+/* Print pack (remake 2026-11, option B in docs/ui-reference/print-2026-11): page thumbnails in
+   groups, the pack's settings, the pages in order on the right, and one page large. */
+.pack-page {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 330px;
+  background: var(--bg);
+}
+.pack-page[hidden] {
+  display: none;
+}
+body.pack-open .tb-end,
+body.pack-open #project-name,
+body.pack-open .crumb-meta,
+body.pack-open .crumb-sep,
+body.pack-open .crumbs .crumb {
+  display: none !important;
+}
+.pk-main {
+  overflow: auto;
+  min-height: 0;
+  padding: 18px 24px 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.pk-main.is-large {
+  padding: 0;
+  background: #0f1216;
+}
+.pk-eyebrow,
+.pk-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.pk-head h1 {
+  margin: 6px 0 0;
+  font: italic 700 30px/1 var(--font-title);
+  text-transform: uppercase;
+}
+.pk-head p {
+  margin: 7px 0 0;
+  color: var(--muted);
+}
+.pk-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 20px;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--panel);
+}
+.pk-set {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.pk-set small {
+  color: var(--muted);
+  font-size: 11.5px;
+  margin-right: 2px;
+}
+.pk-chip {
+  height: 28px;
+  min-height: 0;
+  padding: 0 11px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: transparent;
+  font-size: 12px;
+}
+.pk-chip.on {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 14%, var(--panel));
+}
+.pk-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  cursor: pointer;
+}
+.pk-toggle input {
+  margin: 0;
+}
+.pk-toggle small {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+}
+.pk-group h3 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  margin: 0 0 10px;
+}
+.pk-group h3 b {
+  font: italic 700 17px var(--font-title);
+  text-transform: uppercase;
+}
+.pk-group h3 small {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 400;
+}
+.pk-gopts {
+  margin-left: auto;
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 18px;
+  font-weight: 400;
+}
+.pk-pages {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-start;
+}
+.pk-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.pk-paper {
+  display: block;
+  padding: 0;
+  border: 0;
+  border-radius: 2px;
+  background: #fff;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+  min-height: 0;
+  cursor: zoom-in;
+  overflow: hidden;
+}
+.pk-host {
+  display: block;
+}
+.pk-card.off .pk-paper {
+  opacity: 0.35;
+}
+.pk-card.off .pk-cap {
+  color: var(--muted);
+}
+.pk-tick {
+  position: absolute;
+  right: -7px;
+  top: -7px;
+  width: 26px;
+  height: 26px;
+  min-height: 0;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 2px solid var(--bg);
+  background: var(--accent);
+  color: #fff;
+}
+.pk-tick .icon {
+  width: 13px;
+  height: 13px;
+}
+.pk-card.off .pk-tick {
+  background: var(--panel);
+  color: var(--muted);
+  border-color: var(--line);
+}
+.pk-cap {
+  font-size: 12px;
+  line-height: 1.3;
+  max-width: 186px;
+}
+.pk-cap small {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+}
+.pk-picture {
+  width: 186px;
+  height: 112px;
+  cursor: default;
+  background: repeating-conic-gradient(#e7ebef 0 25%, #fff 0 50%) 0 0 / 14px 14px;
+}
+.pk-picture svg {
+  width: 100%;
+  height: 100%;
+}
+.pk-save-pictures {
+  margin-top: 10px;
+}
+.pk-note {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px;
+  border: 1px dashed var(--line);
+  border-radius: 12px;
+  background: var(--panel);
+  flex-wrap: wrap;
+}
+.pk-note > span:nth-child(2) {
+  flex: 1;
+  min-width: 240px;
+}
+.pk-note b {
+  display: block;
+  font-size: 13px;
+}
+.pk-note small {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: 3px;
+}
+.pk-note-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  background: color-mix(in srgb, var(--ink) 8%, var(--panel));
+  flex: none;
+}
+.pk-note-icon .icon {
+  width: 18px;
+  height: 18px;
+}
+.pk-note-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.pk-large {
+  min-height: 100%;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+}
+.pk-large .pk-host {
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+}
+
+/* ---------------------------------------------------------------- Side */
+.pk-side {
+  border-left: 1px solid var(--line);
+  background: var(--panel);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: auto;
+}
+.pk-sec {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+.pk-sec h4 {
+  margin: 0;
+  display: flex;
+  justify-content: space-between;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.pk-sec h4 span {
+  font-family: var(--font-mono);
+  letter-spacing: 0;
+  text-transform: none;
+}
+.pk-sec .note {
+  margin: 0;
+}
+.pk-queue {
+  flex: 1;
+  min-height: 0;
+}
+.pk-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+}
+.pk-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 2px;
+  border-bottom: 1px solid var(--line);
+  font-size: 12.5px;
+  cursor: grab;
+}
+.pk-grip {
+  color: var(--muted);
+}
+.pk-item-text {
+  flex: 1;
+  min-width: 0;
+}
+.pk-item-text b {
+  display: block;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pk-item-text small {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+}
+.pk-move {
+  display: flex;
+  gap: 2px;
+}
+.pk-move button {
+  width: 24px;
+  height: 24px;
+  min-height: 0;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 0;
+  background: transparent;
+}
+.pk-move .icon {
+  width: 13px;
+  height: 13px;
+}
+.pk-end {
+  margin-top: auto;
+  border-bottom: 0;
+}
+.pk-end button {
+  justify-content: center;
+}
+.pk-row {
+  display: flex;
+  gap: 6px;
+}
+@media (max-width: 1150px) {
+  .pack-page {
+    grid-template-columns: minmax(0, 1fr) 280px;
+  }
+}
+/* Stronger than the general pressed-button style. */
+.pk-card .pk-tick,
+.pk-card .pk-tick[aria-pressed='true'] {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--bg);
+}
+.pk-card.off .pk-tick,
+.pk-card.off .pk-tick[aria-pressed='false'] {
+  background: var(--panel);
+  color: var(--muted);
+  border-color: var(--line);
+}
+.pk-group h3 {
+  font:
+    400 13px/1.3 'Segoe UI',
+    system-ui,
+    sans-serif;
+  text-transform: none;
+  letter-spacing: 0;
+}
+.pk-group h3 .pk-toggle {
+  font-style: normal;
+}
+.pk-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+}

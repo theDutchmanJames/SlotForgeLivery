@@ -88,7 +88,15 @@ dragging a file in to add a car, and Import & Export remains a dialog. The Welco
   - search and filter by car, scale or series
   - Import and Export as actions on that page, not a destination
 
-### 4. Export and the workshop · Remake (one Print centre)
+### 4. Export and the workshop · Remake (one Print centre) · **Done ("Print pack", option B of `ui-reference/print-2026-11`)**
+A page with every printable page as a thumbnail in groups (workshop plan, masks per colour at true size, design at true
+size, pictures). Tick, order (drag or arrows), pack-wide settings (scale, paper, crop marks, check bar) and group options
+(shopping list, notes, both sides on one page, picture size and finish), one page large, one PDF with mixed paper sizes
+(CSS named pages). Remembered in `project.printPack`. Decals are not printed by Livery: the user chose SlotForge Decals
+(send there; its `.sfsheet`/`.sfdecal` exports come back through Import decal artwork, which already existed). Code:
+`renderer/app/printpack.js`, `renderer/printpack.css`, `reportParts()` in `export.js`; test: `tests/printpack.cjs`. Not
+built from the preview: Print… straight to a printer (save the PDF and print it), and the paper turn (plan pages are
+upright, masks sideways).
 - **What's wrong today:**
   - Export PDF goes straight to a save dialog, with no preview (export.js:211-223)
   - the workshop PDF says "not actual size" (export.js:64)

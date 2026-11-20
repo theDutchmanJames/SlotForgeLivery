@@ -91,6 +91,7 @@ function needsPreparation(view) {
 function setProject(p) {
   hideToast();
   hideGarage();
+  leavePack();
   project = p;
   store.current = p.id;
   currentView = Object.keys(p.template.views)[0] || 'left';

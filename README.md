@@ -171,12 +171,13 @@ Prepare a car, design a livery, export both, and let a friend make their own ver
 
 | Export | What you get |
 | --- | --- |
+| **Print pack** | Everything for the bench in one PDF: choose the pages (paints & notes, painting order, view references, a mask per colour at true size, the design at true size), put them in order, and set the scale, paper, crop marks and the 50 mm check bar for the whole pack. Click a page to see it large. Pictures of each view save as PNG files alongside. The pack is remembered for each livery. |
 | **Workshop PDF** | Design views, paint references and notes to print and take to your workbench. Gradient colours are included; the preview sheen is left out. |
 | **Transparent PNG** | A cropped, freestanding image of a chosen car view, without the canvas background. Choose an output size from 1,000 to 4,000 pixels and whether to include the finish preview. |
 | **Editable package** | Selected library items or a complete project that another Livery user can continue editing. |
 | **Whole-library backup** | A portable copy of your library for recovery or moving to another computer. |
 
-The workshop PDF is a **visual painting reference**, not a colour proof. For printed dimensions, set the real size and use **Print at true size**, or send your decals to SlotForge Decals to arrange them on decal paper.
+The workshop PDF is a **visual painting reference**, not a colour proof. For printed dimensions, set the real size and use the masks in the **Print pack** (or **Print at true size**). Decals are made in **SlotForge Decals**: the Print pack sends your numbers and logos there at their real size, and a sheet made in Decals comes back with **Import decal artwork** (`.sfsheet` or `.sfdecal`).
 
 ### Make the workspace comfortable
 

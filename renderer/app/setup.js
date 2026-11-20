@@ -95,6 +95,7 @@ function setupFit() {
 }
 function showSetup() {
   hideGarage();
+  leavePack();
   closeDialog();
   closeMenus();
   $('.workspace').hidden = true;

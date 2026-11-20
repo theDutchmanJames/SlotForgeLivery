@@ -29,9 +29,14 @@ function reportPaint(c) {
       : '')
   );
 }
-function makeReport() {
-  const p = project,
-    used = new Map(),
+// The workshop plan's pages, separately, for the PDF and for the Print pack:
+// the paints and notes sheet, the painting order, and one reference sheet per view.
+// A function: PAINTING_ORDER_CSS is defined in workshop.js, which loads after this file.
+const reportCSS = () =>
+  PAINTING_ORDER_CSS +
+  '@page{size:A4 portrait;margin:14mm}*{box-sizing:border-box}body{font:12px Arial,sans-serif;color:#1f2a35;margin:0}h1{font-size:26px;margin:8px 0}h2{font-size:18px;margin:18px 0 8px}small,p{color:#596573;line-height:1.6}.brand{font-size:11px;letter-spacing:2px;color:#d84149}header{border-bottom:3px solid #d84149;padding-bottom:14px}.sheet{break-after:page}.sheet:last-child{break-after:auto}.car{height:105mm;width:100%;background:#f3f5f7;margin:14px 0;border:1px solid #dce2e8}.car svg{width:100%;height:100%}table{border-collapse:collapse;width:100%;font-size:11px}td,th{border-bottom:1px solid #ddd;padding:8px;text-align:left}.swatch{display:inline-block;width:20px;height:14px;border:1px solid #bbb;vertical-align:middle;margin-right:8px}pre{white-space:pre-wrap;font:12px/1.7 Arial;color:#333;overflow-wrap:anywhere}.note{font-size:10px;color:#777}.art-list{font-size:11px;line-height:1.7}';
+function reportParts(p = project, { shopping = true, notes = true } = {}) {
+  const used = new Map(),
     add = (name, paint, ref = '') => used.set(name + JSON.stringify(paint) + ref, { name, ref, ...paint });
   add('Base paint', M.paintOf(p), p.paintRef);
   for (const k of M.VIEWS)
@@ -45,25 +50,28 @@ function makeReport() {
       }
   for (const v of Object.values(p.template.views))
     for (const r of v.regions) if (r.role === 'body') add(r.partLabel || r.name, M.paintOf(p, r), r.paintRef);
-  const css =
-    PAINTING_ORDER_CSS +
-    '@page{size:A4 portrait;margin:14mm}*{box-sizing:border-box}body{font:12px Arial,sans-serif;color:#1f2a35;margin:0}h1{font-size:26px;margin:8px 0}h2{font-size:18px;margin:18px 0 8px}small,p{color:#596573;line-height:1.6}.brand{font-size:11px;letter-spacing:2px;color:#d84149}header{border-bottom:3px solid #d84149;padding-bottom:14px}.sheet{break-after:page}.sheet:last-child{break-after:auto}.car{height:105mm;width:100%;background:#f3f5f7;margin:14px 0;border:1px solid #dce2e8}.car svg{width:100%;height:100%}table{border-collapse:collapse;width:100%;font-size:11px}td,th{border-bottom:1px solid #ddd;padding:8px;text-align:left}.swatch{display:inline-block;width:20px;height:14px;border:1px solid #bbb;vertical-align:middle;margin-right:8px}pre{white-space:pre-wrap;font:12px/1.7 Arial;color:#333;overflow-wrap:anywhere}.note{font-size:10px;color:#777}.art-list{font-size:11px;line-height:1.7}';
-  return `<!doctype html><html><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src data:;"><title>${e(p.name)}</title><style>${css}</style></head><body><section class="sheet"><header><div class="brand">SLOTFORGE LIVERY · WORKSHOP PLAN</div><h1>${e(p.name)}</h1><p>${e(p.template.name)} · ${e(p.template.scale)} · ${new Date().toLocaleDateString()}</p></header><h2>Paint & finish references</h2><table><tr><th>Use</th><th>Colour</th><th>Paint product</th><th>Effect</th><th>Finish</th></tr>${[...used.values()].map(c => `<tr><td>${e(c.name)}</td><td>${reportPaint(c)}</td><td>${e(c.ref || '—')}</td><td>${e(c.effect)}</td><td>${e(c.finish)}</td></tr>`).join('')}</table>${liveryColoursHTML(p)}<h2>Paint products</h2><pre>${e(p.paints || 'No product references entered.')}</pre><h2>Workshop notes</h2><pre>${e(p.notes || 'No additional notes entered.')}</pre><p class="note">Reference plan only. Views are not printed at actual scale and are not cutting or decal-wrap templates. Printed colours and illustrative finishes are approximate.</p></section>${paintingOrderHTML(p)}${M.VIEWS.filter(
-    k => p.template.views[k]
-  )
-    .map(
-      k =>
-        `<section class="sheet"><header><div class="brand">SLOTFORGE LIVERY · ${M.LABELS[k].toUpperCase()} VIEW</div><h2>${e(p.name)}</h2><small>${e(p.template.name)}</small></header><div class="car">${V.standalone(p, k, 'report-' + k)}</div><h2>Artwork placement</h2><div class="art-list">${
-          p.views[k]
-            .filter(l => l.visible !== false)
-            .map(
-              l =>
-                `${e(l.name)}${['image', 'vector'].includes(l.kind) ? ' · ' + l.kind + ' decal' : ` · ${e(l.effect)} / ${e(l.finish)}`}`
-            )
-            .join('<br>') || 'Base paint only.'
-        }</div><p class="note">${M.LABELS[k]} view · Design reference, not actual size. Check placement against the physical shell.</p></section>`
-    )
-    .join('')}</body></html>`;
+  const summary = `<section class="sheet"><header><div class="brand">SLOTFORGE LIVERY · WORKSHOP PLAN</div><h1>${e(p.name)}</h1><p>${e(p.template.name)} · ${e(p.template.scale)} · ${new Date().toLocaleDateString()}</p></header><h2>Paint & finish references</h2><table><tr><th>Use</th><th>Colour</th><th>Paint product</th><th>Effect</th><th>Finish</th></tr>${[...used.values()].map(c => `<tr><td>${e(c.name)}</td><td>${reportPaint(c)}</td><td>${e(c.ref || '—')}</td><td>${e(c.effect)}</td><td>${e(c.finish)}</td></tr>`).join('')}</table>${shopping ? liveryColoursHTML(p) : ''}${notes ? `<h2>Paint products</h2><pre>${e(p.paints || 'No product references entered.')}</pre><h2>Workshop notes</h2><pre>${e(p.notes || 'No additional notes entered.')}</pre>` : ''}<p class="note">Reference plan only. Views are not printed at actual scale and are not cutting or decal-wrap templates. Printed colours and illustrative finishes are approximate.</p></section>`;
+  const views = {};
+  for (const k of M.VIEWS.filter(k => p.template.views[k]))
+    views[k] =
+      `<section class="sheet"><header><div class="brand">SLOTFORGE LIVERY · ${M.LABELS[k].toUpperCase()} VIEW</div><h2>${e(p.name)}</h2><small>${e(p.template.name)}</small></header><div class="car">${V.standalone(p, k, 'report-' + k)}</div><h2>Artwork placement</h2><div class="art-list">${
+        p.views[k]
+          .filter(l => l.visible !== false)
+          .map(
+            l =>
+              `${e(l.name)}${['image', 'vector'].includes(l.kind) ? ' · ' + l.kind + ' decal' : ` · ${e(l.effect)} / ${e(l.finish)}`}`
+          )
+          .join('<br>') || 'Base paint only.'
+      }</div><p class="note">${M.LABELS[k]} view · Design reference, not actual size. Check placement against the physical shell.</p></section>`;
+  return { css: reportCSS(), summary, order: paintingOrderHTML(p), views };
+}
+function reportDocument(title, css, body) {
+  return `<!doctype html><html><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src data:;"><title>${e(title)}</title><style>${css}</style></head><body>${body}</body></html>`;
+}
+function makeReport(options) {
+  const p = project,
+    parts = reportParts(p, options);
+  return reportDocument(p.name, parts.css, parts.summary + parts.order + Object.values(parts.views).join(''));
 }
 async function preparePrintableReport(html) {
   // PDF vector compositing does not preserve the additive coverage at mesh seams.
