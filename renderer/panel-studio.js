@@ -118,8 +118,13 @@
     const dialog = $('#dialog');
     dialog.classList.add('panel-studio');
     const svg = $('#repair-preview');
+    // Moving the camera only changes the view box; everything else is drawn by draw().
+    function camera() {
+      svg.setAttribute('viewBox', `${vb.x} ${vb.y} ${vb.w} ${vb.h}`);
+      $('#panel-zoom-value').textContent = Math.round(100000 / vb.w) + '%';
+    }
     function draw() {
-      const preview = M.clone(project);
+      const preview = M.snapshotCopy(project);
       preview.template.views[viewKey] = build();
       preview.base = '#f4c875';
       preview.views[viewKey] = [];
@@ -286,7 +291,9 @@
       const w = Math.max(60, Math.min(2500, vb.w / factor)),
         ratio = w / vb.w;
       vb = { x: p.x - (p.x - vb.x) * ratio, y: p.y - (p.y - vb.y) * ratio, w, h: vb.h * ratio };
-      draw();
+      // Area numbers keep their size on screen, so they are drawn again when shown.
+      if (numbers) draw();
+      else camera();
     }
     const point = ev => new DOMPoint(ev.clientX, ev.clientY).matrixTransform(svg.getScreenCTM().inverse());
     svg.onauxclick = ev => {
@@ -320,7 +327,7 @@
       if (drag.pan) {
         vb.x += drag.start.x - p.x;
         vb.y += drag.start.y - p.y;
-        draw();
+        camera();
       } else {
         const box = $('#panel-selection-box');
         box.removeAttribute('hidden');

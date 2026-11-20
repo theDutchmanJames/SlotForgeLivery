@@ -143,7 +143,7 @@ async function renderPNG(artwork, size) {
 }
 function exportPNGDialog() {
   if (!project || !Object.keys(project.template.views).length) return toast('Add a car view before exporting.');
-  const snapshot = M.clone(project),
+  const snapshot = M.snapshotCopy(project),
     views = M.VIEWS.filter(k => snapshot.template.views[k]),
     initial = views.includes(currentView) ? currentView : views[0];
   openDialog(

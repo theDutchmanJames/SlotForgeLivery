@@ -67,7 +67,27 @@ function packMm(view, pack = packOf()) {
 
 // ---------------------------------------------------------------- Pages
 // Every page the pack can hold, in their default order. html is the sheet; size is the paper.
+// For the open livery they are remembered until the livery or the pack settings change: ticking
+// and moving pages only changes which pages are in the pack, not the pages themselves.
+let packPagesCache = null;
 function packPages(p = project) {
+  if (p !== project) return buildPackPages(p);
+  const heavy = [],
+    light = (k, v) =>
+      k === 'off' || k === 'order' || k === 'updated'
+        ? undefined
+        : typeof v === 'string' && v.length > 4096
+          ? (heavy.push(v), '\u0000' + (heavy.length - 1))
+          : v,
+    signature = JSON.stringify([p, liveryColours(p), SCALE_FACTOR[p.template.scale]], light),
+    c = packPagesCache;
+  if (c && c.signature === signature && c.heavy.length === heavy.length && c.heavy.every((h, i) => h === heavy[i]))
+    return c.pages;
+  const pages = buildPackPages(p);
+  packPagesCache = { signature, heavy, pages };
+  return pages;
+}
+function buildPackPages(p) {
   const pack = packOf(p),
     s = pack.settings,
     parts = reportParts(p, { shopping: s.shopping, notes: s.notes }),
@@ -230,6 +250,11 @@ function renderPack() {
     views = M.VIEWS.filter(k => project.template.views[k]),
     chip = (attrs, on, label, disabled = false) =>
       `<button class="pk-chip ${on ? 'on' : ''}" ${attrs} aria-pressed="${on}" ${disabled ? 'disabled' : ''}>${label}</button>`;
+  // The PNG pictures only change with the livery: reuse the drawn ones while it is unchanged.
+  const oldPics = new Map([...page.querySelectorAll('[data-pack-pic]')].map(n => [n.dataset.packPic, n])),
+    picsKey = `${packPagesCache?.signature}|${s.pngEffects}|${views.join()}`,
+    reusePics = page._picsKey === picsKey && views.every(k => oldPics.has(k));
+  page._picsKey = picsKey;
   if (packLarge && !pages.some(pg => pg.id === packLarge)) packLarge = null;
   const large = packLarge && pages.find(pg => pg.id === packLarge);
   const main = large
@@ -252,7 +277,7 @@ function renderPack() {
 <section class="pk-group"><h3><b>Pictures</b><small>PNG files, saved separately</small><span class="pk-gopts"><span class="pk-set">${PACK_PNG_SIZES.map(x => chip(`data-pack-png="${x}"`, s.pngSize === x, x + (x === 4000 ? ' px' : ''))).join('')}</span>${packToggle('data-pack-setting="pngEffects"', s.pngEffects, 'Finish preview')}</span></h3><div class="pk-pages">${views
         .map(k => {
           const on = packIsOn('png:' + k, pack);
-          return `<div class="pk-card pk-pic ${on ? '' : 'off'}"><span class="pk-paper pk-picture">${V.standalone(project, k, 'pack-png-' + k, { preview: true, effects: s.pngEffects })}</span><button class="pk-tick" data-pack-tick="png:${k}" aria-pressed="${on}" aria-label="${on ? 'Leave out' : 'Add'} the ${M.LABELS[k]} picture">${icon('check')}</button><span class="pk-cap">${M.LABELS[k]} · PNG<small>${s.pngSize} px</small></span></div>`;
+          return `<div class="pk-card pk-pic ${on ? '' : 'off'}"><span class="pk-paper pk-picture" data-pack-pic="${k}">${reusePics ? '' : V.standalone(project, k, 'pack-png-' + k, { preview: true, effects: s.pngEffects })}</span><button class="pk-tick" data-pack-tick="png:${k}" aria-pressed="${on}" aria-label="${on ? 'Leave out' : 'Add'} the ${M.LABELS[k]} picture">${icon('check')}</button><span class="pk-cap">${M.LABELS[k]} · PNG<small>${s.pngSize} px</small></span></div>`;
         })
         .join(
           ''
@@ -267,16 +292,31 @@ function renderPack() {
           )
           .join('') || '<li class="note">Tick pages on the left to add them.</li>'
       }</ol></section><section class="pk-sec pk-end"><button class="primary" data-pack-save ${queue.length ? '' : 'disabled'}>${icon('pdf')}Save the pack as one PDF</button><p class="note">The pack and its settings are remembered for this livery.</p><span class="pk-label">Share</span><button data-action="export-project">${icon('share')}Editable package (.sfpaint)</button></section>`;
+  // Page pictures that did not change are kept, not drawn again.
+  const drawn = new Map(
+    [...page.querySelectorAll('[data-pack-host]:not([data-pack-large])')]
+      .filter(h => h._packHtml)
+      .map(h => [h.dataset.packHost, h])
+  );
   page.innerHTML = `<main class="pk-main ${large ? 'is-large' : ''}">${main}</main><aside class="pk-side" aria-label="${large ? 'This page' : 'In this pack'}">${side}</aside>`;
   for (const host of page.querySelectorAll('[data-pack-host]')) {
     const pg = pages.find(x => x.id === host.dataset.packHost);
     if (!pg) continue;
+    const old = host.dataset.packLarge === undefined && drawn.get(pg.id);
+    if (old && old._packHtml === pg.html && old._packPaper === pg.paper + pg.turn) {
+      host.replaceWith(old);
+      continue;
+    }
+    host._packHtml = pg.html;
+    host._packPaper = pg.paper + pg.turn;
     if (host.dataset.packLarge !== undefined) {
       const box = page.querySelector('.pk-large').getBoundingClientRect(),
         [w, h] = paperSize(pg);
       fillPaper(host, pg, Math.max(200, Math.min(box.width - 40, ((box.height - 40) * w) / h)));
     } else fillPaper(host, pg, pg.turn === 'landscape' ? 186 : 132);
   }
+  if (reusePics)
+    for (const n of page.querySelectorAll('[data-pack-pic]')) n.replaceWith(oldPics.get(n.dataset.packPic));
   page.querySelector('.pk-main').scrollTop = scroll;
 }
 
@@ -308,7 +348,7 @@ async function savePackPDF() {
 async function savePackPictures() {
   const pack = packOf(),
     keys = M.VIEWS.filter(k => project.template.views[k] && packIsOn('png:' + k, pack)),
-    snapshot = M.clone(project);
+    snapshot = M.snapshotCopy(project);
   for (const k of keys) {
     const canvas = await renderPNG(await pngArtwork(snapshot, k, pack.settings.pngEffects), pack.settings.pngSize),
       name = snapshot.name + '-' + M.LABELS[k];

@@ -158,7 +158,7 @@ const painted = () => setup.entries.filter(a => a.paint);
 
 // ----------------------------------------------------------------- Drawing
 function setupCanvasHTML() {
-  const preview = M.clone(project),
+  const preview = M.snapshotCopy(project),
     vb = setup.vb;
   preview.template.views[setup.key] = setupBuild();
   preview.base = '#ffffff';

@@ -150,14 +150,16 @@ async function exportPackage(kind, data, name) {
     version: 1,
     kind,
     exported: new Date().toISOString(),
-    data: M.clone(data)
+    // Not copied again: sending it to the desktop side copies it already.
+    data
   };
-  if (new Blob([JSON.stringify(pkg, null, 2)]).size > 180 * 1024 * 1024)
-    throw new Error('Package exceeds 180 MB. Export fewer items at a time.');
+  // One text version, measured by its length (packages are almost all plain ASCII).
+  const text = JSON.stringify(pkg);
+  if (text.length > 180 * 1024 * 1024) throw new Error('Package exceeds 180 MB. Export fewer items at a time.');
   if (window.desktop) {
     if (await window.desktop.exportPackage({ name, data: pkg })) toast('Package exported.');
   } else {
-    download(new Blob([JSON.stringify(pkg, null, 2)], { type: 'application/json' }), name + '.sfpaint');
+    download(new Blob([text], { type: 'application/json' }), name + '.sfpaint');
     toast('Package downloaded.');
   }
 }

@@ -233,7 +233,7 @@ function paintingSteps(p = project) {
 // A copy of the design where only `colour` keeps its paint; everything else
 // is blank, and decals are hidden. `ink` replaces the colour (black masks).
 function isolateColour(p, colour, blank = '#e4e8ec', ink = null) {
-  const c = M.clone(p),
+  const c = M.snapshotCopy(p),
     keep = hex => String(hex || '').toLowerCase() === colour;
   const paint = hex => (keep(hex) ? ink || hex : blank);
   c.base = paint(c.base);
@@ -264,15 +264,17 @@ function isolateColour(p, colour, blank = '#e4e8ec', ink = null) {
     }
   return c;
 }
+// Whether a colour is painted anywhere in one view (read directly, without copying the livery).
 function usesColourInView(p, k, colour) {
-  const iso = isolateColour(p, colour, '#000001');
+  const is = hex => String(hex || '').toLowerCase() === colour;
   return (
-    String(iso.base) === colour ||
-    (iso.template.views[k]?.regions || []).some(r => r.role === 'body' && r.colour === colour) ||
-    (iso.views[k] || []).some(
+    is(p.base) ||
+    (p.template.views[k]?.regions || []).some(r => r.role === 'body' && is(r.colour || p.base)) ||
+    (p.views[k] || []).some(
       l =>
         l.visible !== false &&
-        [l.fill, l.outlineColour, l.shadowColour, ...(l.lineStripes || []).map(s => s.colour)].includes(colour)
+        !['image', 'vector'].includes(l.kind) &&
+        [l.fill, l.outlineColour, l.shadowColour, ...(l.lineStripes || []).map(s => s.colour)].some(is)
     )
   );
 }

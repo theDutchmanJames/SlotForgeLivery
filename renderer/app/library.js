@@ -102,15 +102,30 @@ function paging(items, page, kind) {
     ? `<div class="library-paging"><span role="status">Page ${page + 1} of ${pages}</span><button class="icon-button ghost sm" data-page-kind="${kind}" data-page-step="-1" aria-label="Previous page" title="Previous page" ${!page ? 'disabled' : ''}>${icon('back')}</button><button class="icon-button ghost sm page-next" data-page-kind="${kind}" data-page-step="1" aria-label="Next page" title="Next page" ${page >= pages - 1 ? 'disabled' : ''}>${icon('back')}</button></div>`
     : '';
 }
+// Card pictures already made in this session, by item and the time it last changed: a page that
+// is drawn again shows them at once, without asking the library or showing "Loading preview…".
+const previewMemory = new Map();
+const previewStamp = (bucket, item) => bucket + ':' + item.id + '|' + (item.updated || '');
+function rememberPreview(stamp, thumbnail) {
+  previewMemory.delete(stamp);
+  previewMemory.set(stamp, thumbnail);
+  while (previewMemory.size > 300) previewMemory.delete(previewMemory.keys().next().value);
+}
 function cardPreview(item, bucket) {
-  if (libraryClient.isLazy(item))
+  if (libraryClient.isLazy(item)) {
+    const stamp = previewStamp(bucket, item),
+      known = previewMemory.get(stamp);
+    if (known) return '<div class="library-preview"><img src="' + known + '" alt=""></div>';
     return (
       '<div class="library-preview" data-preview-bucket="' +
       bucket +
       '" data-preview-id="' +
       e(item.id) +
+      '" data-preview-stamp="' +
+      e(stamp) +
       '"><small>Loading preview…</small></div>'
     );
+  }
   return '<div class="library-preview">' + packagePreview(item, bucket, item.id, true) + '</div>';
 }
 // Pictures being loaded: a second call while the first runs does not load them twice.
@@ -175,6 +190,7 @@ async function loadCardPreviews() {
           thumbnail = canvas.toDataURL('image/png');
           await window.desktop.libraryThumbnail({ key, data: thumbnail, revision: result.revision });
         }
+        if (el.dataset.previewStamp) rememberPreview(el.dataset.previewStamp, thumbnail);
         if (el.isConnected) {
           const image = document.createElement('img');
           image.src = thumbnail;

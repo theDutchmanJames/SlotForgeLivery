@@ -247,6 +247,31 @@ async function measure() {
     const ds = performance.now();
     await flushSave();
     r.saveAfterDrag = +(performance.now() - ds).toFixed(1);
+    // Two sides next to each other: a redraw, a small change and a drag frame with the pair on.
+    const partner = Object.keys(project.template.views).find(k => k !== currentView);
+    if (partner) {
+      setPreference('compareOn', true);
+      setPreference('compareView', partner);
+      render();
+      await frame();
+      r.pairRender = await time(() => render());
+      r.pairEdit = await time(async () => {
+        mutate(() => (target.y += 1));
+        await frame();
+      });
+      setPreference('compareOn', false);
+      render();
+      await frame();
+    }
+    // The Print pack page: open it, and a tick (which redraws the pages).
+    const ps = performance.now();
+    actions['print-pack']();
+    await frame();
+    r.packOpen = +(performance.now() - ps).toFixed(1);
+    r.packRender = await time(() => renderPack());
+    leavePack();
+    render();
+    await frame();
     // Switch to another project (hydrates it from the database).
     const other = store.projects.find(p => p.id !== project.id);
     const os = performance.now();
@@ -261,6 +286,12 @@ async function measure() {
     document.querySelector('[data-action="projects"]')?.click();
     await frame();
     r.openProjectsPage = +(performance.now() - ls).toFixed(1);
+    // Choosing a livery card in the Garage.
+    r.garageClick = await time(async i => {
+      const cards = document.querySelectorAll('#garage-page [data-garage-select]');
+      cards[i % cards.length]?.click();
+      await frame();
+    });
     r.ipc = ipc;
     libraryClient.desktop = real;
     return r;

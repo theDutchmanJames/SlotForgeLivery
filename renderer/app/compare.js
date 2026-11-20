@@ -194,6 +194,30 @@ function renderCompare() {
     here = activeView().realWidthMm;
   $('#pair-label').innerHTML =
     `<b>${e(pairLabel(currentView))}</b><span>you are working here</span>${here ? `<small>${formatMm(here)} mm</small>` : ''}`;
+  // The other side is drawn again only when something on it changed (long strings such as
+  // photos are compared by reference, not copied into the key).
+  const heavy = [],
+    light = (k, v) => (typeof v === 'string' && v.length > 4096 ? (heavy.push(v), '\u0000' + (heavy.length - 1)) : v),
+    signature = JSON.stringify(
+      [
+        partner,
+        currentView,
+        project.views[partner],
+        project.template.views[partner],
+        M.paintOf(project),
+        store.settings?.paintPreview !== false
+      ],
+      light
+    ),
+    last = pane._pair;
+  if (
+    last &&
+    last.signature === signature &&
+    last.heavy.length === heavy.length &&
+    last.heavy.every((h, i) => h === heavy[i])
+  )
+    return queuePairMarks();
+  pane._pair = { signature, heavy };
   pane.innerHTML = `<div class="compare-head"><b>${e(pairLabel(partner))}</b>${mm ? `<small>${formatMm(mm)} mm</small>` : ''}<span class="grow"></span><button class="quiet" data-action="mirror-view" title="Put every layer of the ${e(pairLabel(currentView))} on the ${e(pairLabel(partner))}, kept in step">${icon('mirror')}Everything on both sides</button></div><div class="compare-art" data-pair-view="${partner}" title="Click to work on the ${e(pairLabel(partner))}">${V.standalone(project, partner, 'compare-' + partner, { preview: true, live: true, interactive: true, effects: store.settings?.paintPreview !== false })}</div>`;
   queuePairMarks();
 }
@@ -248,11 +272,18 @@ function drawPairMarks() {
   );
   const rowBox = $('.canvas-row').getBoundingClientRect(),
     spineBox = spine.getBoundingClientRect(),
+    // Each side's layers are looked up once, not once per layer.
+    nodes = new Map(),
+    nodesOf = svg => {
+      if (!nodes.has(svg))
+        nodes.set(svg, new Map([...svg.querySelectorAll('[data-layer]')].map(n => [n.dataset.layer, n])));
+      return nodes.get(svg);
+    },
     centre = (svg, id) => {
-      const el = id && svg.querySelector(`[data-layer="${CSS.escape(id)}"]`),
-        r = el?.getBoundingClientRect();
+      const r = id && nodesOf(svg).get(id)?.getBoundingClientRect();
       return r && r.height ? r.top + r.height / 2 : null;
-    };
+    },
+    linkedThere = new Set((project.views[partner] || []).map(x => x.pairLink).filter(Boolean));
   // Spine: one dot per linked layer (one per group), at its height; the selection gets a hollow
   // dot when it is not on the other side yet.
   const chosen = artworkSelection(),
@@ -260,7 +291,7 @@ function drawPairMarks() {
     dots = [];
   for (const l of layers()) {
     const key = l.groupId || l.id,
-      linked = pairModeOf(l, partner) !== 'only',
+      linked = !!l.pairLink && linkedThere.has(l.pairLink),
       picked = chosen.some(c => c.id === l.id);
     if (seen.has(key) || (!linked && !picked)) continue;
     const y = centre(art, l.id);

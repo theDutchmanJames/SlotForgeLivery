@@ -131,7 +131,7 @@ ipcMain.handle('package:save', async (_, { name, data }) => {
   });
   if (result.canceled) return false;
   await assertExportTarget(result.filePath, app.getPath('userData'));
-  await fs.writeFile(result.filePath, JSON.stringify(data, null, 2));
+  await fs.writeFile(result.filePath, JSON.stringify(data));
   return true;
 });
 // Automatic backups: the user picks a folder; Livery writes dated .sfpaint

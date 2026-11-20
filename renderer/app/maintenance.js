@@ -42,7 +42,7 @@ async function runBackup({ automatic = false } = {}) {
         version: 1,
         kind: 'library',
         exported: new Date().toISOString(),
-        data: M.clone(data)
+        data
       }
     });
     store.settings = { ...store.settings, lastBackup: new Date().toISOString() };

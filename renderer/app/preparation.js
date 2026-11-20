@@ -39,7 +39,7 @@ function repairTemplate() {
         ? 'Hover over a filtered area, then click to restore it as paintable.'
         : TemplateRepair.summary(result);
     }
-    const preview = M.clone(project);
+    const preview = M.snapshotCopy(project);
     preview.template.views[currentView] = TemplateRepair.apply(view, result, chosen);
     preview.base = '#ed7877';
     preview.views[currentView] = [];
