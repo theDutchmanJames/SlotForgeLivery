@@ -404,7 +404,7 @@ function decalUnits() {
   }
   return [...units.values()];
 }
-function decalsPack() {
+function decalItems() {
   const mm = viewMm();
   if (!mm) throw Error('Set the real width of this view first, so decals keep their real size.');
   const units = decalUnits();
@@ -429,7 +429,10 @@ function decalsPack() {
       }
     };
   });
-  return DecalsModel.pack(decals, []);
+  return decals;
+}
+function decalsPack() {
+  return DecalsModel.pack(decalItems(), []);
 }
 async function sendToDecals() {
   if (!project) return;

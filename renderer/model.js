@@ -103,6 +103,30 @@
     if (!Array.isArray(list)) return [];
     return [...new Set(list.filter(c => /^#[0-9a-f]{6}$/i.test(c)).map(c => c.toLowerCase()))].slice(0, PALETTE_SIZE);
   }
+  // Entries: one livery, many cars (race number, driver, team; an optional number colour).
+  const TEXT_FIELDS = ['number', 'driver', 'team'];
+  function validateEntries(list) {
+    if (!Array.isArray(list)) return [];
+    return list.slice(0, 200).map(x => {
+      const entry = {
+        id: typeof x?.id === 'string' && /^[a-zA-Z0-9_-]{1,100}$/.test(x.id) ? x.id : uid(),
+        number: String(x?.number ?? '')
+          .replace(/[\u0000-\u001f]/g, '')
+          .trim()
+          .slice(0, 12),
+        driver: String(x?.driver ?? '')
+          .replace(/[\u0000-\u001f]/g, '')
+          .trim()
+          .slice(0, 80),
+        team: String(x?.team ?? '')
+          .replace(/[\u0000-\u001f]/g, '')
+          .trim()
+          .slice(0, 80)
+      };
+      if (/^#[0-9a-f]{6}$/i.test(x?.numberColour || '')) entry.numberColour = x.numberColour.toLowerCase();
+      return entry;
+    });
+  }
   // Livery colours: the named colours of a design (Gulf blue, Race white…), each with an
   // optional real paint. Everything painted in a colour's exact hex uses it. Up to PALETTE_SIZE.
   function validateLiveryColours(list) {
@@ -310,6 +334,10 @@
     }
     if (item.kind === 'text') {
       out.text = String(item.text || '27').slice(0, 500);
+      // Entry fields: the text follows the race number, driver or team of the shown entry.
+      if (TEXT_FIELDS.includes(item.textFrom)) out.textFrom = item.textFrom;
+      if (item.textFrom === 'number' && /^#[0-9a-f]{6}$/i.test(item.fieldFill || ''))
+        out.fieldFill = item.fieldFill.toLowerCase();
       out.font = BUILTIN_FONTS.includes(item.font) ? item.font : 'Arial';
       if (item.fontData) {
         out.fontData = validateFontData(item.fontData);
@@ -567,6 +595,7 @@
       ...fillSettings(p),
       palette: validatePalette(p.palette),
       ...(p.liveryColours ? { liveryColours: validateLiveryColours(p.liveryColours) } : {}),
+      ...(p.entries?.length ? { entries: validateEntries(p.entries) } : {}),
       views: clone(p.views),
       panelPaints: Object.fromEntries(
         Object.entries(p.template.views).map(([k, v]) => [
@@ -600,6 +629,7 @@
     result.paints = livery.paints || '';
     if (livery.palette?.length) result.palette = validatePalette(livery.palette);
     if (livery.liveryColours?.length) result.liveryColours = validateLiveryColours(livery.liveryColours);
+    if (livery.entries?.length) result.entries = validateEntries(livery.entries);
     delete result.fillType;
     delete result.gradient;
     Object.assign(result, fillSettings(livery));
@@ -1116,6 +1146,8 @@
     nextLiveryName,
     PALETTE_SIZE,
     validateLiveryColours,
+    validateEntries,
+    TEXT_FIELDS,
     validatePalette,
     ALIGN_MODES,
     alignmentMoves,

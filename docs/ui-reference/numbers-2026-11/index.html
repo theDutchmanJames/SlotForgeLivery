@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Numbers and names remake</title>
+<style>
+@font-face{font-family:'SF Cond';src:url('../../../renderer/fonts/barlowcondensed/BarlowCondensed-BoldItalic.ttf') format('truetype');font-weight:700;font-style:italic}
+@font-face{font-family:'SF Mono';src:url('../../../renderer/fonts/robotomono/RobotoMono[wght].ttf') format('truetype');font-weight:100 700}
+:root{--bg:#171b21;--panel:#222831;--panel2:#1c2129;--raise:#2a313b;--ink:#e8e6e1;--ink2:#c4c8ce;--muted:#98a0ab;--faint:#6b7380;--line:#343b47;--line2:#2b313b;
+  --accent:#e5484d;--accent-text:#f06b6f;--ok:#3ecf8e;--warn:#f2b705;--blue:#4c9aff;--board:#e9ecf0;
+  --ui:'Segoe UI',system-ui,sans-serif;--cond:'SF Cond','Bahnschrift',sans-serif;--mono:'SF Mono',Consolas,monospace}
+[data-theme=light]{--bg:#eef0f3;--panel:#fff;--panel2:#f6f7f9;--raise:#eef0f3;--ink:#1c2129;--ink2:#3a414c;--muted:#5f6875;--faint:#8a929d;--line:#d5d9df;--line2:#e3e6ea;--accent-text:#c9363b;--board:#f3f5f7}
+*{box-sizing:border-box}html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:13px/1.45 var(--ui);display:flex;flex-direction:column}
+button{font:inherit;color:inherit;cursor:pointer}
+svg.i{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.muted{color:var(--muted)}.faint{color:var(--faint)}.mono{font-family:var(--mono)}.grow{flex:1}
+.eyebrow{font:600 10px/1 var(--ui);letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
+.switch{flex:none;display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;padding:9px 18px;background:#0d1014;color:#e8e6e1;border-bottom:1px solid #2b313b}
+.switch b{font:600 10.5px var(--ui);letter-spacing:.14em;text-transform:uppercase;color:#98a0ab}
+.switch p{margin:0 0 0 auto;font-size:12px;color:#8a929d;max-width:620px}
+.seg{display:inline-flex;gap:2px;padding:3px;border:1px solid #343b47;border-radius:9px;background:#171b21}
+.seg button{height:26px;padding:0 11px;border:0;border-radius:6px;background:none;color:#c4c8ce;font-size:12.5px}
+.seg button[aria-pressed=true]{background:#e5484d;color:#fff}
+.stage{flex:1;min-height:780px;display:flex}
+.opt{flex:1;display:none;min-width:0;flex-direction:column}.opt.on{display:flex}
+.state{display:none;flex:1;min-height:0}.state.on{display:flex}
+.btn{height:32px;display:inline-flex;align-items:center;gap:7px;padding:0 12px;border:1px solid var(--line);border-radius:8px;background:var(--panel);font-size:12.5px;white-space:nowrap}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+.btn.sm{height:28px;padding:0 10px;font-size:12px}
+.ib{width:30px;height:30px;display:inline-grid;place-items:center;border:1px solid transparent;border-radius:7px;background:none;color:var(--ink2)}
+.pill{font:600 10.5px var(--ui);padding:2px 8px;border-radius:999px;background:var(--raise);color:var(--muted);white-space:nowrap}
+.pill.good{background:color-mix(in srgb,var(--ok) 16%,var(--panel));color:var(--ok)}
+.callout{position:absolute;font:600 10.5px var(--ui);letter-spacing:.06em;text-transform:uppercase;color:#fff;background:#4c9aff;border-radius:999px;padding:3px 9px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.25);z-index:5}
+.topbar{height:52px;flex:none;display:flex;align-items:center;gap:10px;padding:0 12px;border-bottom:1px solid var(--line2);background:var(--panel2)}
+.logo{width:28px;height:28px;border-radius:7px;background:var(--accent);display:grid;place-items:center;color:#fff;font:italic 700 15px var(--cond)}
+.crumbs{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--muted)}
+.crumbs strong{font:italic 700 19px/1 var(--cond);text-transform:uppercase;color:var(--ink)}
+.board{background:var(--board);background-image:radial-gradient(circle,rgba(0,0,0,.06) 1px,transparent 1px);background-size:22px 22px;position:relative;overflow:hidden;border-radius:12px;display:grid;place-items:center}
+.field{display:flex;flex-direction:column;gap:5px}.field label{font-size:11.5px;color:var(--muted)}
+.inp{height:32px;border:1px solid var(--line);border-radius:8px;background:var(--panel2);display:flex;align-items:center;gap:7px;padding:0 10px;font-size:12.5px}
+.chip{height:28px;padding:0 11px;border:1px solid var(--line);border-radius:999px;background:none;font-size:12px;color:var(--ink2);display:inline-flex;align-items:center;gap:6px}
+.chip.on{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 14%,var(--panel));color:var(--ink)}
+.sec{border-top:1px solid var(--line2);padding:12px 14px;display:flex;flex-direction:column;gap:9px}
+.sec h4{margin:0;display:flex;justify-content:space-between;align-items:center;font:600 10.5px var(--ui);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.studio{flex:1;display:grid;grid-template-columns:48px 1fr 330px;min-height:0}
+.tools{border-right:1px solid var(--line2);background:var(--panel2)}
+.canvasarea{padding:0 12px 12px;display:flex;flex-direction:column;min-height:0;position:relative}
+.canvasarea .board{flex:1}
+.insp{border-left:1px solid var(--line2);background:var(--panel);display:flex;flex-direction:column;min-height:0;overflow:auto}
+.itabs{display:flex;padding:6px 10px 0;border-bottom:1px solid var(--line2)}
+.itabs span{flex:1;text-align:center;height:34px;line-height:34px;color:var(--muted);font-size:12.5px}
+.itabs span.on{color:var(--ink);font-weight:600;border-bottom:2px solid var(--accent)}
+.ihead{display:flex;align-items:center;gap:10px;padding:12px 14px}
+.ihead .ico{width:34px;height:34px;border-radius:8px;background:var(--raise);display:grid;place-items:center}
+.ihead strong{display:block;font-size:14px}.ihead small{color:var(--muted);font-size:11.5px}
+.segs{display:flex;padding:2px;border:1px solid var(--line);border-radius:8px;background:var(--panel2)}
+.segs span{flex:1;text-align:center;height:26px;line-height:26px;border-radius:6px;font-size:12px;color:var(--muted)}
+.segs span.on{background:var(--raise);color:var(--ink);font-weight:600}
+/* entry switcher above the canvas */
+.vtabs{height:46px;display:flex;align-items:center;gap:10px}
+.entrysw{display:flex;align-items:center;gap:6px;margin-left:auto;padding:4px;border:1px solid var(--line);border-radius:12px;background:var(--panel)}
+.ent{display:flex;align-items:center;gap:7px;height:30px;padding:0 10px;border:0;border-radius:8px;background:none;font-size:12.5px;color:var(--muted)}
+.ent b{font:italic 700 16px var(--cond)}
+.ent.on{background:var(--raise);color:var(--ink)}
+.table{width:100%;border-collapse:collapse;font-size:12.5px}
+.table th{font:600 10.5px var(--ui);letter-spacing:.1em;text-transform:uppercase;color:var(--faint);text-align:left;padding:8px 10px;border-bottom:1px solid var(--line)}
+.table td{padding:6px 10px;border-bottom:1px solid var(--line2)}
+.table td .inp{height:30px}
+.table tr.on td{background:color-mix(in srgb,var(--accent) 8%,var(--panel))}
+.numcell{font:italic 700 20px var(--cond);width:70px}
+.page{flex:1;display:grid;grid-template-columns:1fr 360px;min-height:0}
+.page-main{padding:20px 24px;overflow:auto;display:flex;flex-direction:column;gap:16px}
+.page-side{border-left:1px solid var(--line2);background:var(--panel);display:flex;flex-direction:column;overflow:auto}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.mini{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--panel)}
+.mini .pic{height:96px;background:var(--board);display:grid;place-items:center}
+.mini .pic svg{width:90%}
+.mini .bd{padding:8px 10px}.mini .bd b{display:block;font-size:12.5px}.mini .bd small{color:var(--muted);font-size:11px}
+/* B */
+.banner{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:10px;background:color-mix(in srgb,var(--blue) 14%,var(--panel));border:1px solid color-mix(in srgb,var(--blue) 40%,var(--line));font-size:12.5px;margin:8px 0}
+.banner b{color:var(--ink)}
+.stack{display:flex;flex-direction:column;gap:6px}
+.vrow{display:flex;align-items:center;gap:10px;padding:8px;border:1px solid var(--line);border-radius:10px}
+.vrow.on{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 8%,var(--panel))}
+.vrow .th{width:70px;height:36px;border-radius:6px;background:var(--board);display:grid;place-items:center;flex:none}
+.vrow .th svg{width:64px}
+.vrow b{display:block;font-size:12.5px}.vrow small{color:var(--muted);font-size:11px}
+.cardstack{position:relative;height:200px}
+.cardstack .mini{position:absolute;width:240px}
+.over{display:flex;flex-wrap:wrap;gap:5px}
+.over span{font-size:11.5px;padding:2px 8px;border-radius:999px;background:var(--raise)}
+</style>
+</head>
+<body>
+<div class="switch">
+  <b>Numbers &amp; names remake</b>
+  <span class="seg" id="opt"><button data-v="A" aria-pressed="true">A · Entry list</button><button data-v="B">B · Team cars</button></span>
+  <span class="seg" id="sub"></span>
+  <span class="seg" id="theme"><button data-v="dark" aria-pressed="true">Dark</button><button data-v="light">Light</button></span>
+  <p id="say"></p>
+</div>
+<svg width="0" height="0" style="position:absolute"><defs>
+  <path id="sil" d="M62 268 L70 226 Q78 204 122 196 L292 176 Q336 146 392 112 Q424 94 476 92 L632 94 Q684 96 724 126 L796 178 Q894 188 926 212 Q944 232 938 268 L868 270 A72 72 0 0 0 724 270 L334 270 A72 72 0 0 0 190 270 Z"/>
+  <clipPath id="clip"><use href="#sil"/></clipPath>
+  <symbol id="car" viewBox="40 70 920 290">
+    <use href="#sil" style="fill:var(--b,#7fb7e2)"/>
+    <g clip-path="url(#clip)"><rect x="40" y="206" width="920" height="34" style="fill:var(--s,#f28a35)"/><rect x="40" y="244" width="920" height="7" fill="#f6f4ef"/></g>
+    <path d="M318 176 L398 120 Q426 104 470 104 L500 104 L500 176 Z" fill="#33404d"/><path d="M516 104 L628 106 Q670 108 702 132 L758 176 L516 176 Z" fill="#33404d"/>
+    <use href="#sil" fill="none" stroke="#1f2730" stroke-width="3.5"/>
+    <circle cx="610" cy="196" r="44" fill="#f6f4ef" stroke="#1f2730" stroke-width="2"/>
+    <g fill="#1f2730"><circle cx="262" cy="272" r="60"/><circle cx="796" cy="272" r="60"/></g><g fill="#c4c8ce" stroke="#1f2730" stroke-width="3"><circle cx="262" cy="272" r="34"/><circle cx="796" cy="272" r="34"/></g>
+  </symbol>
+</defs></svg>
+<template id="numcar"><svg class="car" viewBox="0 0 920 290"><use href="#car"/><text x="570" y="144" text-anchor="middle" font-family="Bahnschrift,Arial Narrow,sans-serif" font-weight="700" font-size="54" fill="#1f2730">{N}</text><text x="380" y="160" text-anchor="middle" font-family="Arial" font-weight="700" font-size="17" fill="#fff">{D}</text></svg></template>
+
+<div class="stage">
+<!-- ========================== A ========================== -->
+<section class="opt A on" id="A">
+  <header class="topbar"><button class="ib"><i data-i="menu"></i></button><span class="logo">L</span><nav class="crumbs"><span>Garage</span><span>/</span><span>Club GT · 1:32</span><span>/</span><strong>Club night team</strong></nav></header>
+  <div class="state on" data-s="studio">
+    <div class="studio">
+      <aside class="tools"></aside>
+      <main class="canvasarea">
+        <div class="vtabs"><span class="chip on">Left</span><span class="chip">Right</span>
+          <div class="entrysw"><span class="faint" style="font-size:11.5px;padding:0 6px">Showing</span><button class="ent on"><b>27</b>J. de Vries</button><button class="ent"><b>28</b>S. Bakker</button><button class="ent"><b>31</b>M. Jansen</button><button class="ent"><b>44</b>R. Smit</button><button class="ib"><i data-i="list"></i></button></div></div>
+        <div class="board"><div data-car="27|J. DE VRIES" style="width:82%"></div><span class="callout" style="left:14px;top:12px">One livery, every entry: switch to see each car</span></div>
+      </main>
+      <aside class="insp">
+        <div class="itabs"><span class="on">Selection</span><span>Workshop</span></div>
+        <div class="ihead"><span class="ico"><i data-i="text"></i></span><span><strong>Race number</strong><small>Text · Left view</small></span></div>
+        <div class="sec"><h4>Text comes from</h4><div class="segs"><span>Typed text</span><span class="on">Race number</span><span>Driver</span><span>Team</span></div><span class="faint" style="font-size:11.5px">Shows each entry's number. Type it once per entry in the Entries list.</span></div>
+        <div class="sec"><h4>Typeface</h4><div class="inp">Bahnschrift Bold</div></div>
+        <div class="sec"><h4>Colour</h4><div class="segs"><span class="on">Same for all</span><span>Per entry</span></div></div>
+      </aside>
+    </div>
+  </div>
+  <div class="state" data-s="entries">
+    <div class="page">
+      <main class="page-main">
+        <div style="display:flex;align-items:flex-end;gap:12px"><div class="grow"><span class="eyebrow">Club night team · Workshop</span><h1 style="margin:6px 0 0;font:italic 700 30px/1 var(--cond);text-transform:uppercase">Entries</h1><div class="muted" style="margin-top:7px">Each entry is this livery with its own number and names</div></div><button class="btn"><i data-i="import"></i>Paste a list…</button><button class="btn primary"><i data-i="plus"></i>Add entry</button></div>
+        <table class="table"><tr><th></th><th>No.</th><th>Driver</th><th>Team</th><th>Number colour</th><th></th></tr>
+          <tr class="on"><td>⠿</td><td class="numcell">27</td><td><div class="inp">J. de Vries</div></td><td><div class="inp">Gulf Racing</div></td><td><span class="chip">same</span></td><td><button class="ib"><i data-i="trash"></i></button></td></tr>
+          <tr><td>⠿</td><td class="numcell">28</td><td><div class="inp">S. Bakker</div></td><td><div class="inp">Gulf Racing</div></td><td><span class="chip">same</span></td><td><button class="ib"><i data-i="trash"></i></button></td></tr>
+          <tr><td>⠿</td><td class="numcell">31</td><td><div class="inp">M. Jansen</div></td><td><div class="inp">Gulf Racing</div></td><td><span class="chip"><i style="width:12px;height:12px;border-radius:3px;background:#e5484d"></i>red</span></td><td><button class="ib"><i data-i="trash"></i></button></td></tr>
+          <tr><td>⠿</td><td class="numcell">44</td><td><div class="inp">R. Smit</div></td><td><div class="inp">Gulf Racing</div></td><td><span class="chip">same</span></td><td><button class="ib"><i data-i="trash"></i></button></td></tr></table>
+        <div class="grid4"><div class="mini"><div class="pic" data-car="27|J. DE VRIES"></div><div class="bd"><b>#27 J. de Vries</b><small>Gulf Racing</small></div></div><div class="mini"><div class="pic" data-car="28|S. BAKKER"></div><div class="bd"><b>#28 S. Bakker</b><small>Gulf Racing</small></div></div><div class="mini"><div class="pic" data-car="31|M. JANSEN"></div><div class="bd"><b>#31 M. Jansen</b><small>red number</small></div></div><div class="mini"><div class="pic" data-car="44|R. SMIT"></div><div class="bd"><b>#44 R. Smit</b><small>Gulf Racing</small></div></div></div>
+      </main>
+      <aside class="page-side">
+        <div class="sec" style="border-top:0"><h4>Fields on the car</h4><div class="over"><span>Race number · 2 places</span><span>Driver · 1 place</span></div><span class="faint" style="font-size:11.5px">Choose "Text comes from" on a text layer to add a field.</span></div>
+        <div class="sec"><h4>Print and decals</h4><span class="muted" style="font-size:12.5px">The Print pack prints every entry; decals go to SlotForge Decals as one set per entry.</span><div style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn sm"><i data-i="print"></i>Print pack: all entries</button><button class="btn sm"><i data-i="share"></i>Decals for all entries</button></div></div>
+        <div class="sec"><h4>Paste a list</h4><div class="inp mono" style="height:auto;align-items:flex-start;padding:8px 10px;font-size:11.5px;line-height:1.6">27, J. de Vries, Gulf Racing<br>28, S. Bakker, Gulf Racing<br>31, M. Jansen, Gulf Racing</div><span class="faint" style="font-size:11.5px">One entry per line: number, driver, team. From a club spreadsheet or SlotForge Timing.</span></div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- ========================== B ========================== -->
+<section class="opt B" id="B">
+  <header class="topbar"><button class="ib"><i data-i="menu"></i></button><span class="logo">L</span><nav class="crumbs"><span>Garage</span><span>/</span><span>Club GT · 1:32</span><span>/</span><strong>Club night #28</strong></nav></header>
+  <div class="state on" data-s="garage">
+    <div class="page">
+      <main class="page-main">
+        <div><span class="eyebrow">Car · 1:32</span><h1 style="margin:6px 0 0;font:italic 700 30px/1 var(--cond);text-transform:uppercase">Club GT</h1></div>
+        <div style="display:flex;gap:30px;align-items:flex-start">
+          <div class="cardstack" style="width:280px"><div class="mini" style="top:24px;left:24px;opacity:.6"><div class="pic" data-car="44|R. SMIT"></div><div class="bd"><b>#44</b></div></div><div class="mini" style="top:12px;left:12px;opacity:.8"><div class="pic" data-car="31|M. JANSEN"></div><div class="bd"><b>#31</b></div></div><div class="mini" style="top:0;left:0;outline:2px solid var(--accent)"><div class="pic" data-car="27|J. DE VRIES"></div><div class="bd"><b>Club night team</b><small>4 team cars · edited today</small></div></div></div>
+          <div class="mini" style="width:240px"><div class="pic" data-car="7|"></div><div class="bd"><b>Martini tribute</b><small>single livery</small></div></div>
+        </div>
+        <span class="callout" style="position:relative;align-self:flex-start">A team livery is a stack: one design, one card per car</span>
+      </main>
+      <aside class="page-side">
+        <div class="sec" style="border-top:0"><h4>Club night team</h4><span class="muted" style="font-size:12.5px">The team design. Changes here reach every team car, except what a car has made its own.</span><button class="btn primary"><i data-i="brush"></i>Open the team design</button></div>
+        <div class="sec"><h4>Team cars <span class="pill">4</span></h4><div class="stack">
+          <div class="vrow on"><span class="th" data-car="27|J. DE VRIES"></span><span class="grow"><b>#27 · J. de Vries</b><small>number, driver</small></span><button class="ib"><i data-i="chev"></i></button></div>
+          <div class="vrow"><span class="th" data-car="28|S. BAKKER"></span><span class="grow"><b>#28 · S. Bakker</b><small>number, driver</small></span><button class="ib"><i data-i="chev"></i></button></div>
+          <div class="vrow"><span class="th" data-car="31|M. JANSEN"></span><span class="grow"><b>#31 · M. Jansen</b><small>number, driver, number colour</small></span><button class="ib"><i data-i="chev"></i></button></div>
+          <div class="vrow"><span class="th" data-car="44|R. SMIT"></span><span class="grow"><b>#44 · R. Smit</b><small>number, driver, a sponsor</small></span><button class="ib"><i data-i="chev"></i></button></div>
+          <button class="btn sm" style="align-self:flex-start"><i data-i="plus"></i>Add a team car</button></div></div>
+      </aside>
+    </div>
+  </div>
+  <div class="state" data-s="variant">
+    <div class="studio">
+      <aside class="tools"></aside>
+      <main class="canvasarea">
+        <div class="banner"><i data-i="link"></i><span class="grow">Team car <b>#28</b> of <b>Club night team</b>. Changes you make here stay on this car.</span><button class="btn sm">Open the team design</button></div>
+        <div class="board"><div data-car="28|S. BAKKER" style="width:82%"></div><span class="callout" style="left:14px;top:12px">Edit one car; the rest of the team is untouched</span></div>
+      </main>
+      <aside class="insp">
+        <div class="itabs"><span class="on">Selection</span><span>Workshop</span></div>
+        <div class="ihead"><span class="ico"><i data-i="text"></i></span><span><strong>Race number</strong><small>Own to this car</small></span></div>
+        <div class="sec"><h4>Text / number</h4><div class="inp" style="font:italic 700 18px var(--cond)">28</div></div>
+        <div class="sec"><h4>This car's own changes <span class="pill">2</span></h4><div class="over"><span>Race number</span><span>Driver name</span></div><button class="btn sm" style="align-self:flex-start"><i data-i="undo"></i>Back to the team design</button></div>
+      </aside>
+    </div>
+  </div>
+</section>
+</div>
+<script>
+const P={menu:'M4 7h16 M4 12h16 M4 17h16',list:'M8 6h12 M8 12h12 M8 18h12 M4 6h.01 M4 12h.01 M4 18h.01',text:'M4 4h16 M12 4v17 M8 21h8',import:'M12 3v12 M7 10l5 5 5-5 M4 16v5h16v-5',plus:'M12 5v14 M5 12h14',trash:'M3 6h18 M9 6V3h6v3 M5 6l1 15h12l1-15',print:'M7 9V3h10v6 M5 9h14v8H5z M7 14h10v7H7z',share:'M4 7h16 M16 3l4 4-4 4 M20 17H4 M8 13l-4 4 4 4',brush:'M9.5 13.5 18.4 3.6a2.1 2.1 0 0 1 3 3l-9.9 8.9 M8.5 12.5l4 4',chev:'M9 6l6 6-6 6',link:'M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1 M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1',undo:'M8 5l-5 5 5 5 M3 10h11a6 6 0 010 12'};
+document.querySelectorAll('i[data-i]').forEach(i=>{i.outerHTML=`<svg class="i" viewBox="0 0 24 24"><path d="${P[i.dataset.i]||''}"/></svg>`});
+const T=document.getElementById('numcar').innerHTML;
+document.querySelectorAll('[data-car]').forEach(el=>{const [n,d]=el.dataset.car.split('|');el.innerHTML=T.replace('{N}',n).replace('{D}',d);const s=el.querySelector("svg");s.style.width="100%";s.style.height="auto";s.style.aspectRatio="920/290";s.style.display="block";if(n==='31')s.querySelector('text').setAttribute('fill','#e5484d');});
+const SUB={A:[['studio','Studio'],['entries','Entries']],B:[['garage','Garage'],['variant','One team car']]};
+const SAY={A:'A · Entry list: one livery with a list of entries (number, driver, team). Text layers say where their text comes from (typed, race number, driver, team). Switch above the canvas to see each car; the Print pack and decals go out per entry. Paste a list from a spreadsheet or Timing.',
+           B:'B · Team cars: a team design with one team car per entry, stacked in the Garage. Each team car is a livery you can open and change; what it changes stays its own, everything else follows the team design.'};
+let opt='A',sub={A:'studio',B:'garage'};
+function show(){document.querySelectorAll('.opt').forEach(o=>o.classList.toggle('on',o.id===opt));document.querySelectorAll('#opt button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===opt));document.getElementById('sub').innerHTML=SUB[opt].map(([v,l])=>`<button data-v="${v}" aria-pressed="${sub[opt]===v}">${l}</button>`).join('');document.getElementById('say').textContent=SAY[opt];document.getElementById(opt).querySelectorAll('.state').forEach(s=>s.classList.toggle('on',s.dataset.s===sub[opt]));}
+document.getElementById('opt').onclick=e=>{const v=e.target.closest('button')?.dataset.v;if(v){opt=v;show();}};
+document.getElementById('sub').onclick=e=>{const v=e.target.closest('button')?.dataset.v;if(v){sub[opt]=v;show();}};
+document.getElementById('theme').onclick=e=>{const v=e.target.closest('button')?.dataset.v;if(!v)return;document.documentElement.dataset.theme=v;document.querySelectorAll('#theme button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===v));};
+const q=new URLSearchParams(location.search);if(q.get('opt'))opt=q.get('opt');if(q.get('sub'))sub[opt]=q.get('sub');if(q.get('theme'))document.documentElement.dataset.theme=q.get('theme');
+show();
+</script>
+</body>
+</html>

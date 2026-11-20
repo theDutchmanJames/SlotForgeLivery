@@ -73,6 +73,7 @@ function render() {
   renderViews();
   renderInspector();
   renderStepHint();
+  renderEntrySwitch();
   fillIcons();
 }
 function renderHeader() {

@@ -157,6 +157,10 @@ Packages can contain selected templates, liveries, shapes, images, fonts or comp
 
 Prepare a car, design a livery, export both, and let a friend make their own version. Share only artwork and fonts you have permission to redistribute: a package can contain the original embedded files.
 
+### One livery, many cars
+
+Racing a team, or a club night with one design? Give the livery **entries**: a race number, driver and team for each car (Workshop tab → **Entries**, or **Paste a list** with one line per car: `27, J. de Vries, Gulf Racing`). On a text layer, **Text comes from** chooses Typed text, **Race number**, **Driver** or **Team**, and the switcher above the canvas shows each car. An entry can have its own number colour. The **Print pack** can print the ticked pages for every entry, and **Decals for all entries** sends one set per car to SlotForge Decals.
+
 ### Plan the real paint job
 
 - **Real size:** enter how wide a view is on the real shell (the **Workshop** tab beside Selection). Sizes then read in millimetres, and the rulers measure from the car's own edge.

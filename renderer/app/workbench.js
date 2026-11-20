@@ -180,7 +180,19 @@ ${liveryColoursSection()}<section class="ws-section"><h4>Painting order <span cl
         `<div class="ws-paint"><span class="ws-swatch" style="background:${s.colour}"></span><span class="ws-text"><b>${s.ref ? e(s.ref) : s.colour.toUpperCase()}</b><small>${ORDINAL(i + 1)}${i === 0 && steps.length > 1 ? ', lightest' : ''} · ${e(s.uses.slice(0, 2).join(', '))}${s.uses.length > 2 ? ` and ${s.uses.length - 2} more` : ''}${s.ref ? '' : ' · no paint chosen'}</small></span></div>`
     )
     .join('')}<p class="note">The order the workshop plan prints: lightest first.</p></section>
-<section class="ws-section"><h4>Workshop</h4>${workshopRow('notes', 'note', 'Notes', project.notes ? e(project.notes.split('\n')[0].slice(0, 70)) : 'Paint references, masking and decal notes')}${workshopRow('true-size', 'ruler', 'Print at true size', 'Masks and the design at the real size')}${workshopRow('send-decals', 'decal', 'Decals', 'Numbers and logos to SlotForge Decals')}${workshopRow('pdf', 'pdf', 'Workshop plan', 'PDF with the painting order, paints and notes')}</section>`;
+<section class="ws-section"><h4>Workshop</h4>${workshopRow(
+    'entries',
+    'list',
+    'Entries',
+    entryList().length
+      ? `${entryList().length} ${entryList().length === 1 ? 'car' : 'cars'}: ${e(
+          entryList()
+            .map(x => x.number || '–')
+            .join(', ')
+            .slice(0, 60)
+        )}`
+      : 'One livery, many cars: race numbers and names'
+  )}${workshopRow('notes', 'note', 'Notes', project.notes ? e(project.notes.split('\n')[0].slice(0, 70)) : 'Paint references, masking and decal notes')}${workshopRow('true-size', 'ruler', 'Print at true size', 'Masks and the design at the real size')}${workshopRow('send-decals', 'decal', 'Decals', 'Numbers and logos to SlotForge Decals')}${workshopRow('pdf', 'pdf', 'Workshop plan', 'PDF with the painting order, paints and notes')}</section>`;
   if (focusId) document.getElementById(focusId)?.focus({ preventScroll: true });
 }
 

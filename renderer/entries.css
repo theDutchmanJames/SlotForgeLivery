@@ -1,0 +1,253 @@
+/* Entries (rework 2026-11, option A in docs/ui-reference/numbers-2026-11): the switcher above the
+   canvas and the Entries window. */
+.view-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  min-width: 0;
+}
+.view-row > .view-tabs {
+  flex: 1;
+  min-width: 0;
+}
+.view-row + .canvas-row .canvas-wrap {
+  border-top-left-radius: 0;
+}
+.entry-switch {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  margin-bottom: 5px;
+  padding: 3px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: var(--panel);
+  max-width: 55%;
+  overflow-x: auto;
+  flex: none;
+}
+.entry-switch[hidden] {
+  display: none;
+}
+.es-label {
+  padding: 0 6px;
+  font-size: 11px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.es-entry {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  min-height: 0;
+  padding: 0 9px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 12px;
+  white-space: nowrap;
+  box-shadow: none;
+}
+.es-entry b {
+  font: italic 700 15px var(--font-title);
+  color: var(--ink);
+}
+.es-entry.on {
+  background: color-mix(in srgb, var(--ink) 10%, var(--panel));
+  color: var(--ink);
+}
+.es-list {
+  width: 28px;
+  height: 28px;
+  min-height: 0;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 0;
+  background: transparent;
+}
+.es-list .icon {
+  width: 15px;
+  height: 15px;
+}
+.text-from .segmented button {
+  font-size: 11.5px;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+/* ------------------------------------------------------------ Window */
+dialog.entries-dialog {
+  width: min(1120px, calc(100vw - 48px));
+  max-width: none;
+}
+.en-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  gap: 18px;
+}
+.en-main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.en-tools {
+  display: flex;
+  gap: 8px;
+}
+.en-paste {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border: 1px dashed var(--line);
+  border-radius: 10px;
+  margin-bottom: 12px;
+}
+.en-paste[hidden] {
+  display: none;
+}
+.en-paste textarea {
+  min-height: 90px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+.en-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+}
+.en-table th {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-align: left;
+  padding: 6px 6px;
+  border-bottom: 1px solid var(--line);
+}
+.en-table td {
+  padding: 5px 6px;
+  border-bottom: 1px solid var(--line);
+}
+.en-table tr.on td {
+  background: color-mix(in srgb, var(--accent) 8%, var(--panel));
+}
+.en-table input:not([type='checkbox']):not([type='color']) {
+  width: 100%;
+  height: 30px;
+  min-height: 0;
+}
+.en-table .en-number {
+  width: 70px !important;
+  font: italic 700 16px var(--font-title);
+}
+.en-move {
+  white-space: nowrap;
+  width: 56px;
+}
+.en-move button {
+  width: 24px;
+  height: 24px;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+.en-move .icon {
+  width: 13px;
+  height: 13px;
+}
+.en-colour {
+  white-space: nowrap;
+}
+.en-colour input[type='color'] {
+  width: 34px;
+  height: 26px;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+.en-colour small {
+  margin-left: 6px;
+  color: var(--muted);
+}
+.en-cars {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 10px;
+  margin-top: 6px;
+}
+.en-car {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 2px;
+  padding: 0 0 8px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel);
+  overflow: hidden;
+  text-align: left;
+  min-height: 0;
+}
+.en-car.on {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+.en-pic {
+  height: 92px;
+  background: #e9edf1;
+  margin-bottom: 4px;
+}
+.en-pic svg {
+  width: 100%;
+  height: 100%;
+}
+.en-car b,
+.en-car small {
+  padding: 0 10px;
+}
+.en-car small {
+  color: var(--muted);
+  font-size: 11px;
+}
+.en-empty {
+  padding: 30px;
+  text-align: center;
+  color: var(--muted);
+  border: 1px dashed var(--line);
+  border-radius: 12px;
+}
+.en-empty .icon {
+  width: 28px;
+  height: 28px;
+}
+.en-empty h3 {
+  color: var(--ink);
+}
+.en-side {
+  border-left: 1px solid var(--line);
+  padding-left: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.en-side h4 {
+  margin: 4px 0 0;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.en-side p {
+  margin: 0;
+  font-size: 12.5px;
+}
+.en-side button {
+  justify-content: center;
+}

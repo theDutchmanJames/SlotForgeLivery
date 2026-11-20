@@ -133,11 +133,11 @@ paint quantities, sharing a paint shelf between computers, and Notes' free-text 
 
 | Screen | What to rework | Ideas |
 |---|---|---|
-| Add car | Disclaimer lines; scale is a plain list; Add view and Replace view use the same dialog | Part of the Prepare flow (#2); real length entered here |
-| Text and numbers | Always starts as "27" in Arial; fonts are imported from three places | **Number and name sets**: one livery, many race numbers and driver names, exported per car |
+| Add car | Disclaimer lines; scale is a plain list; Add view and Replace view use the same dialog | **Done** with #2: Add a car is steps 1–2 of the guided setup, disclaimers gone; the real length is step 5 |
+| Text and numbers | Always starts as "27" in Arial; fonts are imported from three places | **Done** ("Entry list", option A of `ui-reference/numbers-2026-11`): `project.entries`, text layers with `textFrom`, the switcher above the canvas, the Entries window (paste a list, own number colour), the Print pack and decals for all entries. Code: `renderer/app/entries.js`; test: `tests/entries.cjs` |
 | Mirror and Copy to view | Two features for one idea, buried in the inspector; left/right only | "Keep both sides in step"; part of the Workshop panel (#1) |
 | Side by side | Read-only; it needs a toggle *and* a drop-down | All views at once as a contact sheet |
-| Backups and recovery | No list of backups and no Restore (maintenance.js:14-28); restoring means importing, which *adds* copies (sharing.js:290, 325); "Library recovery required" has no buttons (main.js:173-182) | A backups list with dates and Restore (replace or merge) |
+| Backups and recovery | No list of backups and no Restore (maintenance.js:14-28); restoring means importing, which *adds* copies (sharing.js:290, 325); "Library recovery required" has no buttons (main.js:173-182) | **Partly done** with #3: Backups list and "bring back what's missing" in the Garage. Open: "Library recovery required" still has no buttons; Replace my library |
 | Import confirm | Shows "2 templates · 1 assets" (sharing.js:291-293), no preview | Cards of what comes in, duplicate check |
 | Help | A one-paragraph tab on a huge page; the tab names keep "1." because of a broken pattern (`/^d+.s*/`, dialogs-import.js:288); the version is typed in by hand (dialogs-import.js:272, index.html:24) | A Help reader like Settings; a "?" per panel |
 | Welcome | The left and right columns repeat the same steps | A start page that is also the Garage when you have cars (#3) |

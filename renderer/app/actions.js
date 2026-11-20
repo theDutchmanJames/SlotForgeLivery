@@ -85,6 +85,7 @@ const actions = {
   },
   'setup-car': () => openSetup(currentView),
   'print-pack': () => showPack(),
+  entries: () => openEntries(),
   'repair-template': repairTemplate,
   'generate-regions': generateVectorRegions,
   trace: () => {

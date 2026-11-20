@@ -213,6 +213,7 @@ function validateLivery(l) {
     panelPaints: M.validatePanelPaints(l.panelPaints),
     palette: M.validatePalette(l.palette),
     ...(l.liveryColours ? { liveryColours: M.validateLiveryColours(l.liveryColours) } : {}),
+    ...(l.entries?.length ? { entries: M.validateEntries(l.entries) } : {}),
     views,
     bounds,
     notes: String(l.notes || '').slice(0, 12000),

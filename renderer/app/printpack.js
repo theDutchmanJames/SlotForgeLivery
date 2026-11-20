@@ -34,7 +34,8 @@ function packOf(p = project) {
       bothSides: s.bothSides !== false,
       design: s.design === true,
       pngSize: PACK_PNG_SIZES.includes(s.pngSize) ? s.pngSize : 2000,
-      pngEffects: s.pngEffects !== false
+      pngEffects: s.pngEffects !== false,
+      allEntries: s.allEntries === true
     }
   };
 }
@@ -230,7 +231,7 @@ function renderPack() {
   const main = large
     ? `<div class="pk-large"><span class="pk-host" data-pack-host="${e(large.id)}" data-pack-large></span></div>`
     : `<header class="pk-head"><div><span class="pk-eyebrow">Everything for the bench, in one PDF</span><h1>Print pack</h1><p>Tick the pages you want and put them in order on the right.</p></div><button data-action="studio">${icon('back')}Back to painting</button></header>
-<div class="pk-bar" role="group" aria-label="Settings for the whole pack"><span class="pk-set"><small>Scale</small>${PACK_SCALES.map(x => chip(`data-pack-scale="${x}"`, s.scale === x, x, !SCALE_FACTOR[project.template.scale])).join('')}</span><span class="pk-set"><small>Paper</small>${['A4', 'A3', 'Letter'].map(x => chip(`data-pack-paper="${x}"`, s.paper === x, x)).join('')}</span>${packToggle('data-pack-setting="crop"', s.crop, 'Crop marks')}${packToggle('data-pack-setting="bar"', s.bar, '50 mm check bar')}</div>
+<div class="pk-bar" role="group" aria-label="Settings for the whole pack"><span class="pk-set"><small>Scale</small>${PACK_SCALES.map(x => chip(`data-pack-scale="${x}"`, s.scale === x, x, !SCALE_FACTOR[project.template.scale])).join('')}</span><span class="pk-set"><small>Paper</small>${['A4', 'A3', 'Letter'].map(x => chip(`data-pack-paper="${x}"`, s.paper === x, x)).join('')}</span>${packToggle('data-pack-setting="crop"', s.crop, 'Crop marks')}${packToggle('data-pack-setting="bar"', s.bar, '50 mm check bar')}${entryList().length > 1 ? packToggle('data-pack-setting="allEntries"', s.allEntries, `All ${entryList().length} entries`, 'the ticked pages for each car') : ''}</div>
 <section class="pk-group"><h3><b>Workshop plan</b><small>${group('plan').length} pages</small><span class="pk-gopts">${packToggle('data-pack-setting="shopping"', s.shopping, 'Shopping list')}${packToggle('data-pack-setting="notes"', s.notes, 'Notes')}</span></h3><div class="pk-pages">${group(
         'plan'
       )
@@ -280,9 +281,19 @@ async function savePackPDF() {
   const queue = packQueue();
   if (!queue.length) return toast('Tick at least one page.');
   toast('Preparing your print pack…');
-  const html = await preparePrintableReport(
-    reportDocument(project.name + ' print pack', packCSS(), queue.map(pg => pg.html).join(''))
-  );
+  // All entries: the same ticked pages, once for each entry, in the entries' order.
+  const pack = packOf(),
+    runs = pack.settings.allEntries && entryList().length > 1 ? entryList().map(x => withEntry(project, x)) : [project],
+    body = runs
+      .map((p, i) => {
+        const html = packQueue(packPages(p), pack)
+          .map(pg => pg.html)
+          .join('');
+        // Each entry's drawings get their own ids, so one entry never borrows another's.
+        return runs.length > 1 ? html.replace(/(id="|url\(#|href="#)([^"')]+)/g, '$1e' + i + '-$2') : html;
+      })
+      .join('');
+  const html = await preparePrintableReport(reportDocument(project.name + ' print pack', packCSS(), body));
   if (window.desktop) {
     if (await window.desktop.exportPDF({ name: project.name + ' print pack', html })) toast('Print pack saved.');
   } else {
