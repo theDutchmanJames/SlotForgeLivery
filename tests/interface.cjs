@@ -53,7 +53,7 @@ async function run() {
     scale: project.template.scale
   }));
   assert.deepEqual(sample, { name: 'Sample coupe · Livery 1', car: 'Sample coupe', scale: '1:24' });
-  await page.locator('[data-action="close-dialog"]:visible').first().click();
+  await require('./inspector-helpers.cjs').clickAction(page, 'close-dialog');
   assert.equal(await hintStep(), 'prepare');
   await click('generate-regions');
   await click('finish-preparation');
@@ -68,7 +68,7 @@ async function run() {
   });
   assert.equal(await hintStep(), 'share');
   await click('save-livery');
-  await page.locator('[data-action="close-dialog"]:visible').first().click();
+  await require('./inspector-helpers.cjs').clickAction(page, 'close-dialog');
   assert.equal(await hintStep(), null, 'the tour completes after saving or exporting');
 
   // Undo depth follows the preference.
@@ -121,7 +121,7 @@ async function run() {
   await click('add-car');
   await page.locator('#dialog [data-action="sample-car"]').click();
   await page.waitForFunction(() => project?.template.name === 'Sample coupe 2');
-  await page.locator('[data-action="close-dialog"]:visible').first().click();
+  await require('./inspector-helpers.cjs').clickAction(page, 'close-dialog');
   await page.evaluate(() => flushSave());
   await app.close();
   await launch();

@@ -63,14 +63,18 @@ You can also import a **PNG, JPEG or WebP photograph** and trace its paintable a
 
 ### Click the panels you want to paint
 
-**Select a few areas, give them a label, and start painting.** The preparation workspace lets you click enclosed areas or drag a selection box, then label them together as Bodywork, Windows, Lights, Wheels, Tyres, Trim, Interior or Chassis.
+**A guided setup, one step at a time.** After **Add a car** (the car and its drawing), Livery walks you through three more steps:
 
-Labelling makes the selected areas paintable. In the editor, choose a whole label group or individual areas within it to give different parts their own appearance. Use **Reference only** for details you want to preserve without painting over them.
+1. **Panels:** click everything you will paint. Windows, lights and wheels stay as drawn.
+2. **Parts:** group the panels into the parts you paint in one go, under names you choose: Body, Bonnet, Doors, Roof stripe…
+3. **Size:** enter the real car's length and the scale, and Livery works out your model's size (4 420 mm at 1:32 is 138 mm). Then **Save the car and start painting**.
+
+Nothing is saved until the last step. **Prepare template** brings the setup back for a car you already have; you can update the car or save it as a new one. In Layers, choose a whole part or one panel within it to give it its own appearance.
 
 - **Recover paintable areas:** turn enclosed spaces in line artwork into panels, including white bodywork that was drawn as empty space rather than a separate filled shape.
 - **Add filtered areas:** recover small details excluded when a complex illustration is simplified for preparation.
 - **Trace missing areas:** draw an outline manually when an area is open or cannot be recovered automatically.
-- **Refine later:** return to **Edit areas & labels** whenever you need to change the preparation.
+- **Detailed panel editor:** for complex drawings, with filters, search and **Reference only** for details you want to keep without painting over them.
 
 Vector objects do not all have to become editable layers. **Generate all vector regions** is an optional tool for assigning Body, Protect, Detail or Hide roles when you need more control over the source artwork.
 
@@ -266,12 +270,12 @@ No artwork yet? Choose **Try a sample car** on the welcome screen (or in **Add c
 
 1. Choose **Add car**, name the car and select a view.
 2. Import vector artwork, or choose a photograph and trace the areas you need.
-3. In **Prepare areas & labels**, select panels, choose **Label** and assign a car-part label. Repeat for other groups; use **Reference only** for parts you want to leave unchanged.
-4. Save preparation. Select a label group or an individual area in **Layers**, then choose its colour, gradient and finish.
+3. Click the panels you will paint, group them into parts, and set the real size.
+4. Save the car. Select a label group or an individual area in **Layers**, then choose its colour, gradient and finish.
 5. Draw stripes and shapes, add race numbers and place your decals. Adjust fitting for angled views.
 6. Save the livery for reuse, export a workshop PDF, or share it as an editable package.
 
-**Start with the bodywork**, try a base colour, then prepare windows, wheels and trim as separate groups. You can return to **Edit areas & labels** later.
+**Start with the bodywork**, try a base colour, then prepare windows, wheels and trim as separate groups. You can prepare the car again later with **Prepare template**.
 
 ### Updating and moving to another computer
 

@@ -36,7 +36,7 @@ async function run() {
   await page
     .locator('#car-file')
     .setInputFiles({ name: 'panels.svg', mimeType: 'image/svg+xml', buffer: Buffer.from(svg) });
-  await page.waitForSelector('#repair-preview');
+  await require('./inspector-helpers.cjs').detailedEditor(page);
   async function label(indices, name) {
     for (const i of indices) await page.locator('[data-repair-check]').nth(i).check();
     await page.locator('#panel-label').click();

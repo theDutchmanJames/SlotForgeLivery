@@ -4,6 +4,15 @@
   const LABELS = { front: 'Front', top: 'Top', left: 'Left', right: 'Right', rear: 'Rear', angled: 'Angled' };
   const FINISHES = ['Matte', 'Satin', 'Gloss'];
   const PART_LABELS = ['Bodywork', 'Windows', 'Lights', 'Wheels', 'Tyres', 'Trim', 'Interior', 'Chassis'];
+  // Part names: the suggested ones above, or the user's own (Bonnet, Doors…), up to 40 characters.
+  const partLabel = value => {
+    return typeof value === 'string'
+      ? value
+          .replace(/[\u0000-\u001f\u007f]/g, '')
+          .trim()
+          .slice(0, 40)
+      : '';
+  };
   const EFFECTS = ['Solid', 'Metallic', 'Pearl'];
   const uid = () => globalThis.crypto.randomUUID();
   const clone = value => JSON.parse(JSON.stringify(value));
@@ -522,7 +531,7 @@
       if (value[k] !== undefined && !Array.isArray(value[k])) throw new Error('Invalid labelled paint layers.');
       if ((value[k] || []).length > 3500) throw new Error('Too many labelled paint layers.');
       result[k] = (value[k] || []).map(r => ({
-        label: PART_LABELS.includes(r.label) ? r.label : '',
+        label: partLabel(r.label),
         colour: colour(r.colour, '#ffffff'),
         finish: FINISHES.includes(r.finish) ? r.finish : 'Gloss',
         effect: EFFECTS.includes(r.effect) ? r.effect : 'Solid',
@@ -1063,6 +1072,7 @@
     VIEWS,
     LABELS,
     PART_LABELS,
+    partLabel,
     FINISHES,
     EFFECTS,
     uid,

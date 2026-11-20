@@ -73,6 +73,7 @@ const statusPill = p =>
 
 // ------------------------------------------------------------------ Show and hide
 function showGarage(section = garageSection) {
+  if (setup) leaveSetup();
   if (settingsOpen) {
     settingsOpen = false;
     themeSettings.cancel();

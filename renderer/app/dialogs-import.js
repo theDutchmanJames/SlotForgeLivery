@@ -19,7 +19,8 @@ function openDialog(title, subtitle, body, foot = '', kind = '') {
     'flag-danger',
     'projects-dialog',
     'help-dialog',
-    'monitor-dialog'
+    'monitor-dialog',
+    'setup-dialog'
   );
   if (kind) dlg.classList.add('flag-dialog', 'flag-' + kind);
   $('#dialog-content').innerHTML =
@@ -72,10 +73,13 @@ function confirmAction(title, description, fn, label = 'Continue', kind = 'confi
 function addCarDialog(view = null, replace = false) {
   pendingAdd = { view, replace, owner: project?.id };
   openDialog(
-    view ? `${replace ? 'Replace' : 'Add'} ${M.LABELS[view]} view` : 'Add your own car',
-    'Choose an illustration or a photograph. Your library is entirely yours.',
-    `<div class="row"><div class="field" style="flex:2"><label for="car-name">Car / template name</label><input id="car-name" value="${view ? e(project.template.name) : ''}" placeholder="e.g. My Porsche 911" maxlength="180" ${view ? 'readonly' : ''}></div><div class="field" style="flex:1"><label for="car-scale">Scale</label><select id="car-scale">${CAR_SCALES.map(s => `<option ${(view ? project?.template.scale : store.settings?.defaultScale || project?.template.scale) === s ? 'selected' : ''}>${s}</option>`).join('')}</select></div></div><div class="field"><label for="car-view">View in this image</label><select id="car-view" ${view ? 'disabled' : ''}>${M.VIEWS.map(k => `<option value="${k}" ${k === (view || 'left') ? 'selected' : ''}>${M.LABELS[k]}</option>`).join('')}</select></div><div class="choice-grid"><button class="choice-card" id="choose-svg">${icon('nodes')}<strong>Import vector artwork</strong><small>SVG, EPS or PDF. Click the panels you want to paint. Create all vector regions only if you need them.</small></button><button class="choice-card" id="choose-photo">${icon('image')}<strong>Trace a photograph</strong><small>PNG, JPG or WebP. Trace the silhouette and important features with points to create a flat template.</small></button></div>${view ? '' : `<p class="note sample-note">No artwork to hand? <button class="link-button" data-action="sample-car">Try the sample car</button></p>`}<div class="inline-note">SVG · EPS · PDF. Use flat vector artwork with clear body outlines. EPS and PDF are converted locally; bitmap scans need photo tracing.</div><p class="note">Photo tracing is manual. No AI conversion or 3D reconstruction is implied. Each view is prepared independently.</p>`
+    view ? `${replace ? 'Replace' : 'Add'} ${M.LABELS[view]} view` : 'Add a car',
+    view
+      ? 'Choose the drawing or photo of this view. Next you choose what gets paint.'
+      : 'Name the car and choose its drawing. Next you choose what gets paint.',
+    `${setupStepper(1)}<div class="row"><div class="field" style="flex:2"><label for="car-name">Car / template name</label><input id="car-name" value="${view ? e(project.template.name) : ''}" placeholder="e.g. My Porsche 911" maxlength="180" ${view ? 'readonly' : ''}></div><div class="field" style="flex:1"><label for="car-scale">Scale</label><select id="car-scale">${CAR_SCALES.map(s => `<option ${(view ? project?.template.scale : store.settings?.defaultScale || project?.template.scale) === s ? 'selected' : ''}>${s}</option>`).join('')}</select></div></div><div class="field"><label for="car-view">View in this image</label><select id="car-view" ${view ? 'disabled' : ''}>${M.VIEWS.map(k => `<option value="${k}" ${k === (view || 'left') ? 'selected' : ''}>${M.LABELS[k]}</option>`).join('')}</select></div><div class="choice-grid"><button class="choice-card" id="choose-svg">${icon('nodes')}<strong>Import vector artwork</strong><small>SVG, EPS or PDF. Click the panels you want to paint. Create all vector regions only if you need them.</small></button><button class="choice-card" id="choose-photo">${icon('image')}<strong>Trace a photograph</strong><small>PNG, JPG or WebP. Trace the silhouette and important features with points to create a flat template.</small></button></div>${view ? '' : `<p class="note sample-note">No artwork to hand? <button class="link-button" data-action="sample-car">Try the sample car</button></p>`}<p class="note">SVG, EPS and PDF drawings are converted on this computer. A scan or photo is traced by hand.</p>`
   );
+  $('#dialog').classList.add('setup-dialog');
   const choose = kind => {
     const n = $('#car-name').value.trim();
     if (!n) {
@@ -235,8 +239,8 @@ function finishCarImport(p, view) {
   fit();
   changed();
   render();
-  toast(p.kind === 'svg' ? 'Choose the panels you want to paint.' : 'Photograph added. Trace a body outline to begin.');
-  if (p.kind === 'svg') choosePaintablePanels();
+  if (p.kind === 'svg') openSetup(p.key, { fresh: !p.view });
+  else toast('Photograph added. Trace a body outline to begin.');
 }
 async function addImage(file) {
   if (/\.(svg|eps|pdf|sfsheet|sfdecal)$/i.test(file.name)) return window.DecalImport.open(file);

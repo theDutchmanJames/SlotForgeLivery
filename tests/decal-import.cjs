@@ -39,7 +39,7 @@ async function run() {
   await page.locator('#car-name').fill('Decals integration');
   await page.locator('#choose-svg').click({ noWaitAfter: true });
   await page.locator('#car-file').setInputFiles(path.join(__dirname, 'fixtures/car.svg'));
-  await page.waitForSelector('#repair-preview');
+  await require('./inspector-helpers.cjs').detailedEditor(page);
   await page.locator('[data-repair-check]').first().check();
   await page.locator('#panel-label').click();
   await page.locator('[data-part-label="Bodywork"]').click();

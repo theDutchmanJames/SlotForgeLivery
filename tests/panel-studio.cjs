@@ -23,7 +23,7 @@ async function add(file, name) {
   await page.locator('#car-name').fill(name);
   await page.locator('#choose-svg').click({ noWaitAfter: true });
   await page.locator('#car-file').setInputFiles(file);
-  await page.waitForSelector('#repair-preview');
+  await require('./inspector-helpers.cjs').detailedEditor(page);
 }
 async function label(name) {
   await page.locator('#panel-label').click();

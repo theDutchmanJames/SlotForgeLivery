@@ -48,7 +48,12 @@ linked to real paints and "keep both sides in step" (both with #5), the painting
   - a right-click menu on the canvas and Layers
   - a small floating bar beside the selection (colour, duplicate, mirror, delete)
 
-### 2. Prepare template (the flow) · Remake
+### 2. Prepare template (the flow) · Remake · **Done ("Guided setup", option A of `ui-reference/prepare-2026-11`)**
+Add a car is steps 1–2 with a stepper; the setup page does 3 Panels, 4 Parts (your own part names, up to 40 characters,
+now valid everywhere a label is stored) and 5 Size (real length ÷ scale, saved as the view's real size), then saves the car
+(update it, or save as a new car) and opens it to paint. Prepare template offers it again for vector views. Code:
+`renderer/app/setup.js`, `renderer/setup.css`; test: `tests/setup.cjs`. Still open: the Right side as a mirror of the Left,
+photos (still traced in the studio's preparation tools), and the detailed editor (Panel Studio) remains for complex drawings.
 - **What's wrong today:**
   - four tools with four names for one task (5 above)
   - only 8 fixed part labels with one body label, "Bodywork" (model.js:6), so the bonnet, roof, doors or number panel

@@ -31,7 +31,7 @@ const screen = (x, y) =>
   page.evaluate(([x, y]) => new DOMPoint(x, y).matrixTransform(art.getScreenCTM()).toJSON(), [x, y]);
 const layerById = id => page.evaluate(id => layers().find(l => l.id === id), id);
 async function prepareCurrentView() {
-  await page.locator('[data-action="close-dialog"]:visible').first().click();
+  await require('./inspector-helpers.cjs').clickAction(page, 'close-dialog');
   await click('generate-regions');
   await click('finish-preparation');
 }

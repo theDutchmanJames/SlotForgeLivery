@@ -102,7 +102,7 @@ const click = action => clickAction(page, action);
     await page.locator('#car-name').fill('Detailed front view');
     await page.locator('#choose-svg').click({ noWaitAfter: true });
     await page.locator('#car-file').setInputFiles(process.env.DETAIL_EPS);
-    await page.waitForSelector('#repair-preview', { timeout: 30000 });
+    await require('./inspector-helpers.cjs').detailedEditor(page, { timeout: 30000 });
     const count = await page.locator('[data-repair-check]').count();
     assert(count > 0 && count <= 250);
     const note = await page.locator('.panel-simplification').innerText();

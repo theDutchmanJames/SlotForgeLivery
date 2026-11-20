@@ -104,6 +104,7 @@ function showSettings(open = true) {
   themeSettings.cancel();
   settingsOpen = open;
   hideGarage();
+  if (setup) leaveSetup();
   $('.workspace').hidden = open;
   $('#settings-page').hidden = !open;
   document.body.classList.toggle('settings-open', open);

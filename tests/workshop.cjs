@@ -53,7 +53,7 @@ async function run() {
   await page.evaluate(() => (store.settings = { ...store.settings, showHints: false }));
   await click('sample-car');
   await page.waitForFunction(() => project && preparing && activeView()?.vectorSource);
-  await page.locator('[data-action="close-dialog"]:visible').first().click();
+  await require('./inspector-helpers.cjs').clickAction(page, 'close-dialog');
   await click('generate-regions');
   await click('finish-preparation');
   await page.evaluate(() => {

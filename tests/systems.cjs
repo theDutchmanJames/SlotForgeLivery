@@ -49,7 +49,7 @@ async function run() {
   await click('sample-car');
   await page.waitForFunction(() => project && preparing && activeView()?.vectorSource);
   await humanPause('import the sample car');
-  await page.locator('[data-action="close-dialog"]:visible').first().click();
+  await require('./inspector-helpers.cjs').clickAction(page, 'close-dialog');
   await humanPause('close the panel chooser');
   await click('generate-regions');
   await humanPause('generate regions');

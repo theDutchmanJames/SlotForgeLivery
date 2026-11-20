@@ -33,7 +33,7 @@ async function run() {
   await add(path.join(__dirname, 'fixtures/line-art.svg'), 'Line-art test');
   const before = await page.evaluate(() => JSON.stringify(activeView()));
   await click('repair-template');
-  await page.waitForSelector('#repair-preview');
+  await require('./inspector-helpers.cjs').detailedEditor(page);
   assert.equal(await page.locator('[data-repair-check]').count(), 3, 'three holes found, outer ink excluded');
   assert.equal(await page.evaluate(() => JSON.stringify(activeView())), before, 'preview leaves template untouched');
   await click('close-dialog');
@@ -85,7 +85,7 @@ async function run() {
   if (process.env.REPAIR_EPS) {
     await add(process.env.REPAIR_EPS, 'Porsche repair test');
     await click('repair-template');
-    await page.waitForSelector('#repair-preview');
+    await require('./inspector-helpers.cjs').detailedEditor(page);
     const info = await page.evaluate(() => TemplateRepair.inspect(activeView()));
     assert(info.candidates.length > 3);
     assert(info.backgrounds.length === 1);
@@ -129,7 +129,7 @@ async function run() {
       render();
     }, library.projects[0]);
     await click('repair-template');
-    await page.waitForSelector('#repair-preview');
+    await require('./inspector-helpers.cjs').detailedEditor(page);
     assert.equal(
       await page.locator('[data-repair-check]').count(),
       49,

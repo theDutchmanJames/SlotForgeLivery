@@ -37,6 +37,13 @@ exports.clickAction = async (page, action) => {
     (await page.locator('#garage-page').isVisible())
   )
     return page.evaluate(() => actions.studio());
+  // After a drawing is imported the guided setup page opens; Cancel keeps the car in preparation.
+  if (
+    action === 'close-dialog' &&
+    !(await page.locator('#dialog[open]').count()) &&
+    (await page.locator('#setup-page').isVisible())
+  )
+    return page.evaluate(() => cancelSetup());
   const target = `[data-action="${action}"]:visible`;
   if (!(await page.locator(target).count()))
     await page.evaluate(a => {
@@ -65,4 +72,17 @@ exports.chooseTone = async (page, tone) => {
   await page.locator('#app-menu-button').click();
   await page.locator(`[data-theme-choice="${tone}"]`).click();
   await page.keyboard.press('Escape');
+};
+
+// After a drawing is imported, the guided setup opens; tests of the detailed panel editor
+// (Panel Studio) continue there through its Detailed editor button.
+exports.detailedEditor = async (page, options = {}) => {
+  await page.waitForFunction(
+    () =>
+      document.querySelector('#repair-preview') || document.querySelector('#setup-page:not([hidden]) #setup-canvas'),
+    null,
+    options
+  );
+  if (await page.locator('#setup-page').isVisible()) await page.locator('[data-setup-detailed]').click();
+  return page.waitForSelector('#repair-preview', options);
 };

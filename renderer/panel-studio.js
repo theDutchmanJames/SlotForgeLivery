@@ -67,7 +67,14 @@
             filter === a.label) &&
           (!query || `Area ${a.index} ${a.label}`.toLowerCase().includes(query))
       );
-    const colour = a => (a.label ? COLOURS[LABELS.indexOf(a.label)] : '#98a5b2');
+    const colour = a =>
+      a.label
+        ? COLOURS[
+            LABELS.includes(a.label)
+              ? LABELS.indexOf(a.label)
+              : [...a.label].reduce((n, c) => n + c.charCodeAt(0), 0) % COLOURS.length
+          ]
+        : '#98a5b2';
     function build() {
       const next = M.clone(view);
       next.vectorSource.regions.forEach(r => {

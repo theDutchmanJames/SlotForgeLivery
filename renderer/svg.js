@@ -772,7 +772,7 @@
       panelLabels = [];
     regions.forEach((r, i) => {
       const original = v.regions[i];
-      if (M.PART_LABELS.includes(original.partLabel)) r.partLabel = original.partLabel;
+      if (M.partLabel(original.partLabel)) r.partLabel = M.partLabel(original.partLabel);
       if (M.FINISHES.includes(original.finish)) r.finish = original.finish;
       if (M.EFFECTS.includes(original.effect)) r.effect = original.effect;
       r.paintVisible = original.paintVisible !== false;
@@ -795,13 +795,13 @@
             !Number.isInteger(a.contourIndex) ||
             a.contourIndex < -1 ||
             a.contourIndex > 1000 ||
-            !M.PART_LABELS.includes(a.label)
+            !M.partLabel(a.label)
           )
             throw new Error('Invalid panel label.');
           return {
             sourceRegionId: ids.get(a.sourceRegionId),
             contourIndex: a.contourIndex,
-            label: a.label,
+            label: M.partLabel(a.label),
             paintable: typeof a.paintable === 'boolean' ? a.paintable : undefined
           };
         });

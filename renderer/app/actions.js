@@ -83,6 +83,7 @@ const actions = {
     tool = 'select';
     render();
   },
+  'setup-car': () => openSetup(currentView),
   'repair-template': repairTemplate,
   'generate-regions': generateVectorRegions,
   trace: () => {

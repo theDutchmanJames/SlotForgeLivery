@@ -114,7 +114,7 @@ async function run() {
   await page.locator('[data-view="right"]').click();
   await page.locator('#choose-svg').click({ noWaitAfter: true });
   await page.locator('#car-file').setInputFiles(path.join(__dirname, 'fixtures/car.svg'));
-  await page.waitForSelector('#repair-preview');
+  await require('./inspector-helpers.cjs').detailedEditor(page);
   await click('close-dialog');
   assert.equal(await page.evaluate(() => project.id), id);
   assert.equal(await page.evaluate(() => currentView), 'right');
