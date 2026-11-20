@@ -14,6 +14,7 @@ function openDialog(title, subtitle, body, foot = '', kind = '') {
     'package-dialog',
     'decal-import-dialog',
     'flag-dialog',
+    'rescue-dialog',
     'flag-confirm',
     'flag-alert',
     'flag-danger',

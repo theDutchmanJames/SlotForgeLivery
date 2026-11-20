@@ -31,7 +31,7 @@ The JSON and its backup are left byte-for-byte unchanged. Publication requires a
 
 **The preserved JSON is a migration-time copy, not a current backup.** After migration, new work is saved only to SQLite. Opening an older Livery executable would show the stale JSON. To move back to an older version, export compatible `.sfpaint` packages from the newer app first.
 
-When SQLite already exists, a corrupt, empty or unsupported database never triggers fallback to stale JSON. Saving is paused when startup cannot safely load the library. Restore a known-good exported package through Import & Export. Replacement is staged and compared before publication; an existing SQLite file is preserved as a uniquely named `.recovery-…` copy. The original JSON remains intact.
+When SQLite already exists, a corrupt, empty or unsupported database never triggers fallback to stale JSON. Saving is paused when startup cannot safely load the library. The rescue window opens: bring back a backup from the backups folder, open a backup file, or start with an empty library. Replacement is staged and compared before publication; an existing SQLite file is preserved as a uniquely named `.recovery-…` copy. The original JSON remains intact.
 
 Atomic SQLite rollback handles an interrupted writer. The preceding successful save is also retained internally as changed-row recovery records; this is not an additional full database copy or a user-facing Undo history. Checksums identify damaged object and media bodies when read. Startup performs SQLite's structural quick check and verifies catalogue metadata; it does not decode every inactive project. Damage in an unopened item is reported when that item is read or a complete backup is requested.
 

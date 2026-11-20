@@ -128,7 +128,7 @@ async function init() {
       : { data: JSON.parse(localStorage.getItem('slotforge-paintshop-v1') || 'null') };
     if (result.error) {
       loadBlocked = true;
-      toast(result.error);
+      loadError = result.error;
     }
     if (result.data) {
       if (
@@ -156,6 +156,7 @@ async function init() {
   } catch (error) {
     // Keep malformed local data on disk, but never try rendering it again in recovery.
     loadBlocked = true;
+    loadError = error?.message || String(error);
     store = M.emptyStore();
     project = null;
     selected = null;
@@ -166,14 +167,8 @@ async function init() {
   }
   document.body.inert = false;
   if (loadBlocked) {
-    saveStatus('paused', 'Recovery required — saving paused');
-    openDialog(
-      'Library recovery required',
-      'The existing saved files have not been overwritten.',
-      `<p>Your library could not be read safely. Saving is paused. Use Import &amp; Export to import a known-good backup; it will be saved before normal editing resumes.</p><p class="note">The existing files will be preserved alongside the restored library.</p>`,
-      '',
-      'danger'
-    );
+    saveStatus('paused', 'Library unreadable — saving paused');
+    rescueWindow();
   }
 }
 init()

@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Recovery remake</title>
+<style>
+@font-face{font-family:'SF Cond';src:url('../../../renderer/fonts/barlowcondensed/BarlowCondensed-BoldItalic.ttf') format('truetype');font-weight:700;font-style:italic}
+@font-face{font-family:'SF Mono';src:url('../../../renderer/fonts/robotomono/RobotoMono[wght].ttf') format('truetype');font-weight:100 700}
+:root{--bg:#171b21;--panel:#222831;--panel2:#1c2129;--ink:#e8e6e1;--ink2:#c4c8ce;--muted:#98a0ab;--faint:#6b7380;--line:#343b47;--line2:#2b313b;
+  --accent:#e5484d;--accent-text:#f06b6f;--ok:#3ecf8e;--warn:#f2b705;--blue:#4c9aff;--board:#e9ecf0;--cond:'SF Cond','Bahnschrift',sans-serif;--mono:'SF Mono',Consolas,monospace}
+[data-theme=light]{--bg:#eef0f3;--panel:#fff;--panel2:#f6f7f9;--ink:#1c2129;--ink2:#3a414c;--muted:#5f6875;--faint:#8a929d;--line:#d5d9df;--line2:#e3e6ea;--accent-text:#c9363b;--board:#f3f5f7}
+*{box-sizing:border-box}html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:13px/1.5 'Segoe UI',system-ui,sans-serif;display:flex;flex-direction:column}
+button{font:inherit;color:inherit;cursor:pointer}
+.grow{flex:1}.muted{color:var(--muted)}.mono{font-family:var(--mono)}
+.eyebrow{font:600 10px/1 'Segoe UI';letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
+.switch{flex:none;display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;padding:9px 18px;background:#0d1014;color:#e8e6e1;border-bottom:1px solid #2b313b}
+.switch b{font:600 10.5px 'Segoe UI';letter-spacing:.14em;text-transform:uppercase;color:#98a0ab}
+.switch p{margin:0 0 0 auto;font-size:12px;color:#8a929d;max-width:640px}
+.seg{display:inline-flex;gap:2px;padding:3px;border:1px solid #343b47;border-radius:9px;background:#171b21}
+.seg button{height:26px;padding:0 11px;border:0;border-radius:6px;background:none;color:#c4c8ce;font-size:12.5px}
+.seg button[aria-pressed=true]{background:#e5484d;color:#fff}
+.stage{flex:1;min-height:800px;display:flex}
+.opt{flex:1;display:none;min-width:0;flex-direction:column}.opt.on{display:flex}
+.state{display:none;flex:1;min-height:0;flex-direction:column;position:relative}.state.on{display:flex}
+.btn{height:32px;display:inline-flex;align-items:center;gap:7px;padding:0 12px;border:1px solid var(--line);border-radius:8px;background:var(--panel);font-size:12.5px;white-space:nowrap}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+.btn.sm{height:26px;padding:0 9px;font-size:12px}
+.callout{position:absolute;font:600 10.5px 'Segoe UI';letter-spacing:.06em;text-transform:uppercase;color:#fff;background:#4c9aff;border-radius:999px;padding:3px 9px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.25);z-index:9}
+.topbar{height:52px;flex:none;display:flex;align-items:center;gap:10px;padding:0 12px;border-bottom:1px solid var(--line2);background:var(--panel2)}
+.logo{width:28px;height:28px;border-radius:7px;background:var(--accent);display:grid;place-items:center;color:#fff;font:italic 700 15px var(--cond)}
+.crumbs strong{font:italic 700 19px/1 var(--cond);text-transform:uppercase}
+.paused{font-size:12px;color:var(--warn);border:1px solid color-mix(in srgb,var(--warn) 50%,var(--line));padding:3px 10px;border-radius:999px}
+h1,h2,h3{font-family:var(--cond);font-style:italic;font-weight:700;text-transform:uppercase;margin:0}
+.chip{display:inline-flex;align-items:center;gap:5px;padding:1px 8px;border-radius:999px;border:1px solid var(--line);font-size:11px;color:var(--ink2);background:var(--panel2)}
+/* A */
+.dim{position:absolute;inset:0;background:rgba(8,10,14,.62)}
+.win{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:760px;background:var(--panel);border:1px solid var(--line);border-radius:16px;box-shadow:0 24px 60px rgba(0,0,0,.5);overflow:hidden}
+.win-head{display:flex;gap:14px;padding:20px 22px 16px;border-bottom:1px solid var(--line2)}
+.badge{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;background:color-mix(in srgb,var(--warn) 18%,var(--panel));color:var(--warn);font-size:22px;flex:none}
+.win-head h2{font-size:26px}
+.safe{margin-top:8px;display:flex;gap:8px;flex-wrap:wrap}
+.safe span{font-size:12px;color:var(--ok);border:1px solid color-mix(in srgb,var(--ok) 45%,var(--line));border-radius:999px;padding:2px 10px}
+.choices{padding:16px 22px;display:flex;flex-direction:column;gap:10px}
+.choice{display:flex;align-items:center;gap:14px;padding:14px 16px;border:1px solid var(--line);border-radius:12px;background:var(--panel2)}
+.choice.best{border-color:color-mix(in srgb,var(--accent) 55%,var(--line));background:color-mix(in srgb,var(--accent) 6%,var(--panel2))}
+.choice .ic{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;background:var(--panel);border:1px solid var(--line);font-size:17px;flex:none}
+.choice b{display:block;font-size:14px}
+.choice small{color:var(--muted)}
+.details{margin:0 22px 18px;border:1px solid var(--line2);border-radius:10px;padding:10px 14px;background:var(--panel2);font-size:12px}
+.details summary{cursor:pointer;color:var(--ink2)}
+.details pre{margin:8px 0 0;font:11.5px/1.6 var(--mono);color:var(--muted);white-space:pre-wrap}
+.list{display:flex;flex-direction:column;gap:6px;margin-top:4px}
+.bk{display:flex;align-items:center;gap:12px;padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:var(--panel)}
+.bk.on{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.bk .mono{font-size:11.5px;color:var(--muted)}
+.inside{display:flex;gap:6px;flex-wrap:wrap}
+/* B */
+.banner{flex:none;display:flex;align-items:center;gap:12px;padding:10px 16px;background:color-mix(in srgb,var(--warn) 14%,var(--panel2));border-bottom:1px solid color-mix(in srgb,var(--warn) 45%,var(--line))}
+.banner b{color:var(--warn)}
+.garage{flex:1;display:grid;grid-template-columns:230px 1fr 330px;min-height:0}
+.rail{border-right:1px solid var(--line2);background:var(--panel2);padding:12px 10px;display:flex;flex-direction:column;gap:2px}
+.ri{display:flex;align-items:center;gap:9px;min-height:32px;padding:4px 9px;border-radius:8px;color:var(--faint)}
+.ri.on{background:color-mix(in srgb,var(--warn) 14%,var(--panel));box-shadow:inset 3px 0 0 var(--warn);color:var(--ink)}
+.rail .eyebrow{padding:12px 9px 6px}
+.main{padding:20px 26px;display:flex;flex-direction:column;gap:16px;overflow:auto}
+.main h2{font-size:34px}
+.checks{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.ck{display:flex;align-items:center;gap:12px;padding:11px 14px;border-bottom:1px solid var(--line2);background:var(--panel)}
+.ck:last-child{border-bottom:0}
+.ck i{font-style:normal;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:12px;flex:none}
+.ck.g i{background:color-mix(in srgb,var(--ok) 22%,transparent);color:var(--ok)}
+.ck.b i{background:color-mix(in srgb,var(--accent) 22%,transparent);color:var(--accent-text)}
+.ck.n i{background:var(--panel2);color:var(--muted)}
+.ck small{display:block;color:var(--muted)}
+.ways{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.way{border:1px solid var(--line);border-radius:12px;background:var(--panel);padding:14px;display:flex;flex-direction:column;gap:8px}
+.way.best{border-color:color-mix(in srgb,var(--accent) 55%,var(--line))}
+.way b{font-size:14px}.way p{margin:0;color:var(--muted);font-size:12.5px;flex:1}
+.detail{border-left:1px solid var(--line2);background:var(--panel);padding:16px;display:flex;flex-direction:column;gap:12px}
+.detail h3{font-size:20px}
+.kv{display:flex;justify-content:space-between;font-size:12.5px;padding:4px 0;border-bottom:1px solid var(--line2)}
+.files{font:11.5px/1.7 var(--mono);color:var(--muted);background:var(--panel2);border:1px solid var(--line2);border-radius:8px;padding:8px 10px}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.cards span{height:44px;border-radius:7px;background:var(--board)}
+</style>
+</head>
+<body>
+<div class="switch">
+  <b>Recovery remake</b>
+  <span class="seg" id="opt"><button data-v="A" aria-pressed="true">A · Rescue window</button><button data-v="B">B · Safe mode</button></span>
+  <span class="seg" id="sub"></span>
+  <span class="seg" id="theme"><button data-v="dark" aria-pressed="true">Dark</button><button data-v="light">Light</button></span>
+  <p id="say"></p>
+</div>
+<div class="stage">
+<!-- ===================== A ===================== -->
+<section class="opt on" id="A">
+  <header class="topbar"><span class="logo">L</span><span class="crumbs"><strong>Start</strong></span><span class="grow"></span><span class="paused">Saving paused</span></header>
+  <div class="state on" data-s="choose">
+    <div class="dim"></div>
+    <div class="win">
+      <div class="win-head"><span class="badge">!</span><div class="grow"><span class="eyebrow">Library rescue</span><h2>Your library could not be read</h2><p class="muted" style="margin:4px 0 0">Livery stopped before it changed anything. Choose how to go on.</p><div class="safe"><span>✓ Your library file is untouched</span><span>✓ Nothing is saved until you choose</span></div></div></div>
+      <div class="choices">
+        <div class="choice best"><span class="ic">⟲</span><span class="grow"><b>Bring back a backup</b><small>Your backups folder has 6 backups. The newest is from yesterday, 21:14.</small></span><button class="btn primary">Choose a backup</button></div>
+        <div class="choice"><span class="ic">⤓</span><span class="grow"><b>Open a backup file</b><small>A .sfpaint library backup from somewhere else: a USB stick, a download.</small></span><button class="btn">Open a file…</button></div>
+        <div class="choice"><span class="ic">＋</span><span class="grow"><b>Start with an empty library</b><small>The unreadable file is moved aside, not deleted, so it can still be looked at.</small></span><button class="btn">Start empty</button></div>
+      </div>
+      <details class="details" open><summary>What went wrong, and where the files are</summary><pre>Library database integrity check failed.
+paintshop-library.sqlite · 48.2 MB · last saved 20 Nov 2026 21:40
+The automatic copy (.backup) could not be read either.</pre><div style="display:flex;gap:6px;margin-top:8px"><button class="btn sm">Show the files</button><button class="btn sm">Copy the details</button><button class="btn sm">Try again</button></div></details>
+    </div>
+    <span class="callout" style="left:20px;bottom:14px">Three ways out, the safe one first; the details for whoever helps you</span>
+  </div>
+  <div class="state" data-s="pick">
+    <div class="dim"></div>
+    <div class="win">
+      <div class="win-head"><span class="badge">⟲</span><div class="grow"><span class="eyebrow">Library rescue · Bring back a backup</span><h2>Choose a backup</h2><p class="muted" style="margin:4px 0 0">From <span class="mono">D:\Livery backups</span></p></div></div>
+      <div class="choices">
+        <div class="list">
+          <div class="bk on"><span class="grow"><b>Yesterday, 21:14</b><br><span class="mono">livery-backup-2026-11-19-2114.sfpaint · 47.9 MB</span></span><span class="chip">newest</span></div>
+          <div class="bk"><span class="grow"><b>Monday 17 Nov, 20:02</b><br><span class="mono">livery-backup-2026-11-17-2002.sfpaint · 45.1 MB</span></span></div>
+          <div class="bk"><span class="grow"><b>Monday 10 Nov, 19:47</b><br><span class="mono">livery-backup-2026-11-10-1947.sfpaint · 41.0 MB</span></span></div>
+        </div>
+        <div class="choice" style="flex-direction:column;align-items:stretch;gap:8px"><span class="eyebrow">In this backup</span><div class="inside"><span class="chip">3 cars</span><span class="chip">12 liveries</span><span class="chip">4 saved designs</span><span class="chip">26 artwork</span><span class="chip">2 fonts</span></div><small class="muted">Your library becomes this backup. The unreadable file is kept next to it.</small></div>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;padding:0 22px 18px"><button class="btn">Back</button><button class="btn primary">Bring back this backup</button></div>
+    </div>
+    <span class="callout" style="left:20px;bottom:14px">See what a backup holds before it becomes your library</span>
+  </div>
+</section>
+<!-- ===================== B ===================== -->
+<section class="opt" id="B">
+  <header class="topbar"><span class="logo">L</span><span class="crumbs"><strong>Garage</strong></span><span class="grow"></span><span class="paused">Saving paused</span></header>
+  <div class="banner"><b>Safe mode</b><span class="grow">Your library could not be read. Livery is open, but nothing is saved until the library is repaired.</span><button class="btn sm">Repair</button></div>
+  <div class="state on" data-s="repair">
+  <div class="garage">
+    <aside class="rail"><span class="ri on">⚠ Repair</span><span class="eyebrow">Cars</span><span class="ri">—</span><span class="eyebrow">Reuse</span><span class="ri">Saved designs</span><span class="ri">Artwork &amp; shapes</span><span class="ri">Fonts</span><span class="eyebrow">Safe keeping</span><span class="ri">Backups</span><span class="ri">Trash</span></aside>
+    <main class="main">
+      <div><span class="eyebrow">Safe mode</span><h2>Repair your library</h2><p class="muted" style="margin:4px 0 0">What Livery checked when it opened:</p></div>
+      <div class="checks">
+        <div class="ck g"><i>✓</i><span class="grow"><b>The library file is there</b><small>paintshop-library.sqlite · 48.2 MB · last saved 20 Nov 21:40</small></span></div>
+        <div class="ck b"><i>✕</i><span class="grow"><b>The database check failed</b><small>Library database integrity check failed.</small></span></div>
+        <div class="ck b"><i>✕</i><span class="grow"><b>The automatic copy could not be read either</b><small>paintshop-library.sqlite.backup</small></span></div>
+        <div class="ck g"><i>✓</i><span class="grow"><b>Backups found</b><small>6 in D:\Livery backups · newest yesterday 21:14</small></span></div>
+      </div>
+      <div class="ways">
+        <div class="way best"><span class="eyebrow">Best</span><b>Bring back the newest backup</b><p>From yesterday, 21:14: 3 cars and 12 liveries. You lose only today's changes.</p><button class="btn primary sm" style="align-self:flex-start">Bring it back</button></div>
+        <div class="way"><span class="eyebrow">Other</span><b>Another backup or a file</b><p>Pick an older backup, or open a .sfpaint backup from elsewhere.</p><button class="btn sm" style="align-self:flex-start">Choose…</button></div>
+        <div class="way"><span class="eyebrow">Last</span><b>Start with an empty library</b><p>The unreadable file is moved aside, not deleted.</p><button class="btn sm" style="align-self:flex-start">Start empty</button></div>
+      </div>
+    </main>
+    <aside class="detail"><span class="eyebrow">The newest backup</span><h3>Yesterday, 21:14</h3><div class="cards"><span></span><span></span><span></span><span></span></div>
+      <div class="kv"><span>Cars</span><b>3</b></div><div class="kv"><span>Liveries</span><b>12</b></div><div class="kv"><span>Artwork</span><b>26</b></div><div class="kv"><span>Fonts</span><b>2</b></div>
+      <span class="eyebrow" style="margin-top:6px">Your files</span><div class="files">paintshop-library.sqlite<br>paintshop-library.sqlite.backup</div>
+      <div style="display:flex;gap:6px"><button class="btn sm">Show the files</button><button class="btn sm">Copy the details</button></div>
+    </aside>
+  </div>
+  <span class="callout" style="left:260px;bottom:20px">The app opens anyway; a Repair page explains, with the best way first</span>
+  </div>
+  <div class="state" data-s="fixed">
+  <div class="garage">
+    <aside class="rail"><span class="ri on">✓ Repaired</span><span class="eyebrow">Cars</span><span class="ri" style="color:var(--ink2)">Sample coupé</span><span class="ri" style="color:var(--ink2)">Porsche 917K</span></aside>
+    <main class="main"><div><span class="eyebrow">Safe mode is over</span><h2>Your library is back</h2><p class="muted" style="margin:4px 0 0">From the backup of yesterday, 21:14. Saving is on again.</p></div>
+      <div class="checks"><div class="ck g"><i>✓</i><span class="grow"><b>3 cars, 12 liveries, 26 artwork and 2 fonts</b><small>Checked and saved</small></span></div><div class="ck n"><i>i</i><span class="grow"><b>The unreadable file is kept</b><small>paintshop-library.sqlite.recovery-7c1e… next to your library</small></span></div></div>
+      <div style="display:flex;gap:8px"><button class="btn primary">Go to the Garage</button><button class="btn">Show the kept file</button></div>
+    </main>
+    <aside class="detail"></aside>
+  </div>
+  <span class="callout" style="left:260px;bottom:20px">After: what came back, and where the old file is</span>
+  </div>
+</section>
+</div>
+<script>
+const SUB={A:[['choose','Three ways'],['pick','Choose a backup']],B:[['repair','Repair page'],['fixed','Repaired']]};
+const SAY={A:'A · Rescue window: one clear window instead of a message without buttons. It says nothing was changed, then offers three ways: bring back a backup from your backups folder (with what is in it), open a backup file, or start with an empty library (the unreadable file is moved aside). Details and Show the files for whoever helps.',
+           B:'B · Safe mode: Livery opens anyway with a Safe mode bar and saving paused. A Repair page in the Garage shows what was checked, then the best way first: bring back the newest backup (what it holds, what you lose), another backup or file, or start empty. After: what came back and where the old file is.'};
+let opt='A',sub={A:'choose',B:'repair'};
+function show(){document.querySelectorAll('.opt').forEach(o=>o.classList.toggle('on',o.id===opt));document.querySelectorAll('#opt button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===opt));document.getElementById('sub').innerHTML=SUB[opt].map(([v,l])=>`<button data-v="${v}" aria-pressed="${sub[opt]===v}">${l}</button>`).join('');document.getElementById('say').textContent=SAY[opt];document.getElementById(opt).querySelectorAll('.state').forEach(s=>s.classList.toggle('on',s.dataset.s===sub[opt]));}
+document.getElementById('opt').onclick=e=>{const v=e.target.closest('button')?.dataset.v;if(v){opt=v;show();}};
+document.getElementById('sub').onclick=e=>{const v=e.target.closest('button')?.dataset.v;if(v){sub[opt]=v;show();}};
+document.getElementById('theme').onclick=e=>{const v=e.target.closest('button')?.dataset.v;if(!v)return;document.documentElement.dataset.theme=v;document.querySelectorAll('#theme button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===v));};
+const q=new URLSearchParams(location.search);if(q.get('opt'))opt=q.get('opt');if(q.get('sub'))sub[opt]=q.get('sub');if(q.get('theme'))document.documentElement.dataset.theme=q.get('theme');
+show();
+</script>
+</body>
+</html>

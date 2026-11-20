@@ -17,6 +17,9 @@ contextBridge.exposeInMainWorld('desktop', {
   listBackups: folder => ipcRenderer.invoke('backup:list', folder),
   readBackup: payload => ipcRenderer.invoke('backup:read', payload),
   revealBackup: payload => ipcRenderer.invoke('backup:reveal', payload),
+  knownBackupFolder: () => ipcRenderer.invoke('backup:known-folder'),
+  libraryFiles: () => ipcRenderer.invoke('library:files'),
+  revealLibrary: () => ipcRenderer.invoke('library:reveal'),
   // Update check (Settings → Updates and the update window); resolves to { ok, value } or { error }.
   updateCheck: (action, payload) => ipcRenderer.invoke('update:action', String(action), payload),
   onUpdateChange: callback => ipcRenderer.on('update:changed', () => callback()),

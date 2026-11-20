@@ -135,19 +135,62 @@ ipcMain.handle('package:save', async (_, { name, data }) => {
 });
 // Automatic backups: the user picks a folder; Livery writes dated .sfpaint
 // library packages there and prunes only its own older backups.
+// The backups folder is also remembered outside the library, so the rescue window can find the
+// backups when the library itself cannot be read.
+const backupMemo = () => path.join(app.getPath('userData'), 'backup-folder.json');
+function rememberBackupFolder(folder) {
+  if (typeof folder === 'string' && folder) fs.writeFile(backupMemo(), JSON.stringify({ folder })).catch(() => {});
+}
 ipcMain.handle('backup:choose-folder', async () => {
-  if (process.env.PAINTSHOP_TEST_BACKUP_DIR) return process.env.PAINTSHOP_TEST_BACKUP_DIR;
+  if (process.env.PAINTSHOP_TEST_BACKUP_DIR) {
+    rememberBackupFolder(process.env.PAINTSHOP_TEST_BACKUP_DIR);
+    return process.env.PAINTSHOP_TEST_BACKUP_DIR;
+  }
   const result = await dialog.showOpenDialog(mainWindow, {
     title: 'Choose a folder for automatic backups',
     properties: ['openDirectory', 'createDirectory']
   });
+  if (!result.canceled) rememberBackupFolder(result.filePaths[0]);
   return result.canceled ? null : result.filePaths[0];
 });
-ipcMain.handle('backup:write', (_, payload) =>
-  maintenance.writeBackup(payload, file => assertExportTarget(file, app.getPath('userData')))
-);
+ipcMain.handle('backup:known-folder', async () => {
+  try {
+    const { folder } = JSON.parse(await fs.readFile(backupMemo(), 'utf8'));
+    await fs.access(folder);
+    return folder;
+  } catch {
+    return null;
+  }
+});
+ipcMain.handle('backup:write', async (_, payload) => {
+  const result = await maintenance.writeBackup(payload, file => assertExportTarget(file, app.getPath('userData')));
+  rememberBackupFolder(payload?.folder);
+  return result;
+});
 // The Garage's Backups list, Restore and Show in folder; only Livery's own backup files.
-ipcMain.handle('backup:list', (_, folder) => maintenance.listBackups(folder));
+ipcMain.handle('backup:list', async (_, folder) => {
+  const list = await maintenance.listBackups(folder);
+  rememberBackupFolder(folder);
+  return list;
+});
+// The library's own files, for the rescue window's details and Show the files.
+const libraryFiles = async () => {
+  const dir = app.getPath('userData'),
+    names = (await fs.readdir(dir).catch(() => [])).filter(n => /^paintshop-library./.test(n)),
+    list = [];
+  for (const name of names) {
+    const stat = await fs.stat(path.join(dir, name)).catch(() => null);
+    if (stat?.isFile()) list.push({ name, size: stat.size, modified: stat.mtime.toISOString() });
+  }
+  return list.sort((a, b) => a.name.localeCompare(b.name));
+};
+ipcMain.handle('library:files', () => libraryFiles());
+ipcMain.handle('library:reveal', async () => {
+  const list = await libraryFiles(),
+    main = list.find(f => f.name.endsWith('.sqlite')) || list[0];
+  if (main) shell.showItemInFolder(path.join(app.getPath('userData'), main.name));
+  else await shell.openPath(app.getPath('userData'));
+});
 ipcMain.handle('backup:read', (_, payload) => maintenance.readBackup(payload || {}));
 ipcMain.handle('backup:reveal', async (_, { folder, name } = {}) => {
   const list = await maintenance.listBackups(folder);

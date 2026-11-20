@@ -257,8 +257,17 @@ function validateProject(p) {
 }
 async function readPackage(file) {
   if (file.size > 180 * 1024 * 1024) throw new Error('Package exceeds the 180 MB import limit.');
-  const pkg = JSON.parse(await file.text());
-  if (pkg.format !== 'slotforge-paintshop' || pkg.version !== 1)
+  const pkg = JSON.parse(await file.text()),
+    additions = await packageAdditions(pkg);
+  // Normally it comes in straight away and the Garage shows it (Arrivals). Restoring a library
+  // that could not be read goes through the rescue window, which shows what it holds first.
+  if (!loadBlocked) return arrive(additions, { file: file.name, exported: pkg.exported });
+  pendingPackage = additions;
+  rescueWindow('pick', { name: file.name, exported: pkg.exported, additions });
+}
+// Checks every item of a package and returns them as copies for the library.
+async function packageAdditions(pkg) {
+  if (pkg?.format !== 'slotforge-paintshop' || pkg.version !== 1)
     throw new Error('This is not a supported Livery package.');
   const additions = { templates: [], liveries: [], assets: [], fonts: [], projects: [] };
   const map = {
@@ -286,23 +295,7 @@ async function readPackage(file) {
     additions[spec[0]].push(spec[1](pkg.data));
   }
   await FontLibrary.loadAll(additions);
-  // Normally it comes in straight away and the Garage shows it (Arrivals). Restoring a library
-  // that could not be read still asks first, because it replaces what is saved.
-  if (!loadBlocked) return arrive(additions, { file: file.name, exported: pkg.exported });
-  pendingPackage = additions;
-  openDialog(
-    'Restore from this package?',
-    'All items are added as independent copies. Existing items are kept.',
-    `<div class="import-info"><strong>${e(file.name)}</strong><p style="margin:12px 0 0">${Object.entries(additions)
-      .filter(([k, v]) => v.length)
-      .map(([k, v]) => `${v.length} ${k}`)
-      .join(
-        ' · '
-      )}</p></div><p class="note" style="margin-top:15px">Artwork is checked before import. Scripts and external resources are excluded; vector decals retain supported gradients, clipping and embedded images.</p>`,
-    `<button data-action="close-dialog">Cancel</button><button class="primary" data-action="confirm-import">Import items</button>`,
-    'confirm'
-  );
-  pendingPackage = additions;
+  return additions;
 }
 async function importConfirmed() {
   const a = pendingPackage;
@@ -330,7 +323,8 @@ async function importConfirmed() {
     } else for (const k of Object.keys(a)) store[k].push(...a[k]);
     pendingPackage = null;
     closeDialog();
-    if (a.projects.length) setProject(store.projects.find(p => p.id === a.projects[0].id));
+    if (recovering) render();
+    else if (a.projects.length) setProject(store.projects.find(p => p.id === a.projects[0].id));
     else
       openLibrary(
         a.templates.length ? 'templates' : a.liveries.length ? 'liveries' : a.fonts?.length ? 'fonts' : 'assets'
@@ -339,7 +333,9 @@ async function importConfirmed() {
     await flushSave();
     toast(
       recovering
-        ? 'Backup restored and saved. Previous files were preserved.'
+        ? Object.values(a).some(list => list.length)
+          ? 'Your library is back and saved. The unreadable file was kept next to it.'
+          : 'You have an empty library. The unreadable file was kept next to it.'
         : 'Items imported. Your existing library was kept.'
     );
   } catch (error) {
