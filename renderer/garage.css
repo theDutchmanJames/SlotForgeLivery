@@ -1,0 +1,587 @@
+/* Garage: the "Parts Room" page (remake 2026-11, option A in docs/ui-reference/garage-2026-11).
+   A rail of cars and library sections, the liveries of the chosen car as cards, and a detail panel. */
+
+.garage-page {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 248px minmax(0, 1fr) 330px;
+  background: var(--bg);
+}
+.garage-page[hidden] {
+  display: none;
+}
+body.garage-open .tb-end,
+body.garage-open #project-name,
+body.garage-open .crumb-meta,
+body.garage-open .crumb-sep,
+body.garage-open .crumbs .crumb {
+  display: none !important;
+}
+
+/* ---------------------------------------------------------------- Rail */
+.gr-rail {
+  border-right: 1px solid var(--line);
+  background: var(--subpanel, var(--panel));
+  padding: 12px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow: auto;
+  min-height: 0;
+}
+.gr-label {
+  padding: 14px 9px 6px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.gr-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  min-height: 34px;
+  padding: 4px 9px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--ink);
+  font-size: 13px;
+  text-align: left;
+  justify-content: flex-start;
+  box-shadow: none;
+}
+.gr-item:hover {
+  background: color-mix(in srgb, var(--ink) 6%, transparent);
+}
+.gr-item.on {
+  background: color-mix(in srgb, var(--accent) 15%, var(--panel));
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+.gr-item > .icon {
+  width: 16px;
+  height: 16px;
+  color: var(--muted);
+  flex: none;
+}
+.gr-text {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.gr-n {
+  font: 11.5px var(--font-mono);
+  color: var(--muted);
+}
+.gr-car {
+  min-height: 40px;
+}
+.gr-th {
+  width: 40px;
+  height: 24px;
+  flex: none;
+  border-radius: 5px;
+  overflow: hidden;
+  background: #e9edf1;
+  display: grid;
+  place-items: center;
+  color: #5f6875;
+}
+.gr-th .library-preview {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  border-radius: 0;
+}
+.gr-th .library-preview small {
+  display: none;
+}
+.gr-th .icon {
+  width: 16px;
+  height: 16px;
+}
+.gr-add,
+.gr-back {
+  color: var(--muted);
+}
+.gr-back {
+  border: 1px dashed var(--line);
+  margin-bottom: 6px;
+}
+.gr-grow {
+  flex: 1;
+}
+.gr-foot {
+  margin: 10px 9px 0;
+  font-size: 11.5px;
+  color: var(--muted);
+}
+.gr-foot .good {
+  color: var(--green, #3ecf8e);
+}
+.gr-foot .bad {
+  color: var(--accent-text, var(--accent));
+}
+
+/* ---------------------------------------------------------------- Main */
+.gr-main {
+  overflow: auto;
+  min-height: 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.gr-head {
+  display: flex;
+  align-items: flex-end;
+  gap: 14px;
+  padding: 20px 24px 12px;
+  flex-wrap: wrap;
+}
+.gr-title {
+  flex: 1;
+  min-width: 240px;
+}
+.gr-eyebrow {
+  display: block;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.gr-head h1 {
+  margin: 6px 0 0;
+  font: italic 700 30px/1 var(--font-title);
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+}
+.gr-meta {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 12.5px;
+}
+.gr-head-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.gr-head-actions button {
+  height: 34px;
+  min-height: 0;
+}
+.gr-tools {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 24px 12px;
+  border-bottom: 1px solid var(--line);
+  flex-wrap: wrap;
+}
+.gr-chip {
+  height: 30px;
+  min-height: 0;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: transparent;
+  font-size: 12px;
+  color: var(--ink);
+}
+.gr-chip span {
+  font-family: var(--font-mono);
+  color: var(--muted);
+  margin-left: 4px;
+}
+.gr-chip.on {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 14%, var(--panel));
+}
+.gr-tools select {
+  height: 32px;
+  min-height: 0;
+  width: auto;
+}
+.gr-tools .catalogue-field {
+  min-width: 220px;
+}
+.gr-grid {
+  padding: 16px 24px 24px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 14px;
+  align-content: start;
+}
+.gr-card {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--panel);
+  overflow: hidden;
+  text-align: left;
+  color: var(--ink);
+  min-height: 0;
+  box-shadow: none;
+}
+.gr-card:hover {
+  border-color: color-mix(in srgb, var(--ink) 30%, var(--line));
+}
+.gr-card.on {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+.gr-card .library-preview {
+  height: 132px;
+  margin: 0;
+  border-radius: 0;
+}
+.gr-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 10px 12px 12px;
+  min-width: 0;
+}
+.gr-card-body strong {
+  font-size: 13.5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.gr-card-car {
+  color: var(--muted);
+  font-size: 11.5px;
+}
+.gr-card-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 11.5px;
+  flex-wrap: wrap;
+}
+.gr-trashed .gr-card-row button {
+  height: 28px;
+  min-height: 0;
+  font-size: 12px;
+}
+.gr-dots {
+  display: inline-flex;
+  gap: 3px;
+}
+.gr-dots i {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  border: 1px solid rgba(0, 0, 0, 0.25);
+}
+.gr-pill {
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  white-space: nowrap;
+  background: color-mix(in srgb, var(--ink) 8%, var(--panel));
+  color: var(--muted);
+}
+.gr-pill.good {
+  background: color-mix(in srgb, var(--green, #3ecf8e) 16%, var(--panel));
+  color: var(--green, #3ecf8e);
+}
+.gr-pill.warn {
+  background: color-mix(in srgb, var(--amber, #f2b705) 16%, var(--panel));
+  color: color-mix(in srgb, var(--amber, #f2b705) 85%, var(--ink));
+}
+.gr-new {
+  border-style: dashed;
+  background: transparent;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 210px;
+  color: var(--muted);
+}
+.gr-new strong {
+  color: var(--ink);
+}
+.gr-plus {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1.5px dashed var(--line);
+  display: grid;
+  place-items: center;
+}
+.gr-empty {
+  grid-column: 1 / -1;
+  padding: 50px 20px;
+  text-align: center;
+  color: var(--muted);
+}
+.gr-empty .icon {
+  width: 30px;
+  height: 30px;
+}
+.gr-empty h3 {
+  margin: 10px 0 4px;
+  color: var(--ink);
+}
+/* Library sections inside the page: no dialog frame. */
+.gr-main .lib-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 0 24px 24px;
+}
+.gr-main .library-toolbar {
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 10px;
+  margin-bottom: 14px;
+}
+.gr-main #library-items {
+  overflow: visible;
+}
+
+/* ----------------------------------------------------- Backups table */
+.gr-banner {
+  margin: 4px 24px 10px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.gr-banner > .icon {
+  width: 30px;
+  height: 30px;
+  padding: 6px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--ink) 8%, var(--panel));
+}
+.gr-banner.good > .icon {
+  color: var(--green, #3ecf8e);
+}
+.gr-banner.bad > .icon {
+  color: var(--accent-text, var(--accent));
+}
+.gr-banner b {
+  display: block;
+}
+.gr-banner small {
+  color: var(--muted);
+}
+.gr-table {
+  padding: 4px 24px 24px;
+}
+.gr-tr {
+  display: grid;
+  grid-template-columns: 34px 1.8fr 1fr 0.7fr 130px;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--line);
+  font-size: 12.5px;
+}
+.gr-tr.on {
+  background: color-mix(in srgb, var(--accent) 9%, var(--panel));
+  border-radius: 8px;
+}
+.gr-th-row {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.gr-tico {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 7px;
+  background: color-mix(in srgb, var(--ink) 7%, var(--panel));
+}
+.gr-tr-acts {
+  display: flex;
+  justify-content: flex-end;
+}
+.gr-tr-acts button,
+.gr-banner button {
+  height: 28px;
+  min-height: 0;
+  font-size: 12px;
+}
+
+/* ---------------------------------------------------------- Detail */
+.gr-detail {
+  border-left: 1px solid var(--line);
+  background: var(--panel);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: auto;
+}
+.gr-dpic .library-preview {
+  height: 180px;
+  margin: 0;
+  border-radius: 0;
+}
+.gr-dsec {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.gr-dsec p {
+  margin: 0;
+}
+.gr-dsec h2 {
+  margin: 0;
+  font: italic 700 22px/1.05 var(--font-title);
+  text-transform: uppercase;
+}
+.gr-name {
+  font: italic 700 21px/1.1 var(--font-title);
+  text-transform: uppercase;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  padding: 4px 6px;
+  margin-left: -7px;
+  color: var(--ink);
+  width: calc(100% + 7px);
+}
+.gr-name:hover,
+.gr-name:focus {
+  border-color: var(--line);
+  background: var(--bg);
+}
+.gr-kv {
+  display: grid;
+  grid-template-columns: 70px 1fr;
+  gap: 5px 10px;
+  margin: 0;
+  font-size: 12.5px;
+}
+.gr-kv dt {
+  color: var(--muted);
+}
+.gr-kv dd {
+  margin: 0;
+}
+.gr-status button {
+  flex: 1;
+}
+.gr-swatches {
+  display: flex;
+  gap: 6px;
+}
+.gr-swatches span {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.15);
+}
+.gr-dact {
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.gr-row {
+  display: flex;
+  gap: 6px;
+}
+.gr-row button {
+  flex: 1;
+}
+.gr-dact button {
+  justify-content: center;
+}
+.gr-dact .danger {
+  color: var(--accent-text, var(--accent));
+}
+.gr-hint {
+  margin: auto 16px 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.gr-hint .icon {
+  width: 16px;
+  height: 16px;
+}
+.gr-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12.5px;
+}
+.gr-list li {
+  display: flex;
+  gap: 8px;
+}
+.gr-list small {
+  margin-left: auto;
+  color: var(--muted);
+}
+
+/* ------------------------------------------------------------ Narrow */
+@media (max-width: 1250px) {
+  .garage-page {
+    grid-template-columns: 220px minmax(0, 1fr) 290px;
+  }
+}
+@media (max-width: 1020px) {
+  .garage-page {
+    grid-template-columns: 200px minmax(0, 1fr);
+  }
+  .gr-detail {
+    display: none;
+  }
+}
+
+/* Search field in the toolbar of a car or Recent. */
+.gr-tools .catalogue-field {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  height: 32px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--muted);
+}
+.gr-tools .catalogue-field .icon {
+  width: 15px;
+  height: 15px;
+  flex: none;
+}
+.gr-tools .catalogue-field input {
+  flex: 1;
+  min-width: 0;
+  height: 30px;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}

@@ -51,7 +51,7 @@ async function run() {
   assert.equal(await page.evaluate(() => getComputedStyle(document.body).backgroundColor), 'rgb(241, 239, 234)');
   assert.equal(await page.evaluate(() => JSON.stringify(project)), artworkBefore, 'theme never changes artwork');
   await click('library');
-  assert(await page.locator('#dialog').evaluate(d => d.clientWidth > innerWidth * 0.85));
+  assert(await page.locator('#garage-page').isVisible(), 'the library is a section of the Garage page');
   await page.locator('[data-library-tab="assets"]').click();
   assert.equal(await page.locator('.library-card').count(), 26);
   await page.locator('#library-search').fill('stripe 02');
@@ -62,13 +62,13 @@ async function run() {
   await page.screenshot({ path: path.join(out, '14-library-light.png') });
   await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].setSize(1050, 720));
   assert(
-    await page.locator('#dialog').evaluate(d => {
+    await page.locator('#garage-page .gr-main').evaluate(d => {
       const b = d.getBoundingClientRect();
       return b.x >= 0 && b.right <= innerWidth && b.bottom <= innerHeight;
     })
   );
-  assert(await page.locator('#library-items').evaluate(el => el.scrollHeight > el.clientHeight));
-  assert(await page.locator('.dialog-foot').isVisible());
+  assert(await page.locator('#garage-page .gr-main').evaluate(el => el.scrollHeight > el.clientHeight));
+  assert(await page.locator('#garage-page .gr-rail').isVisible());
   await page.screenshot({ path: path.join(out, '15-library-small.png') });
   await click('close-dialog');
   assert(await page.locator('#app-menu-button').isVisible());

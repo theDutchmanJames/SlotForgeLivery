@@ -39,8 +39,7 @@ async function run() {
   await page.locator('#app-menu-button').click();
   assert.equal(await page.locator('#app-menu-button').getAttribute('aria-expanded'), 'true');
   assert.deepEqual(await page.locator('#app-menu > button').allInnerTexts(), [
-    'Projects',
-    'User Library',
+    'Garage',
     'Add a car',
     'Import & Export',
     'Settings',
@@ -48,7 +47,7 @@ async function run() {
   ]);
   assert.equal(await page.evaluate(() => document.activeElement.dataset.action), 'projects');
   await page.keyboard.press('ArrowDown');
-  assert.equal(await page.evaluate(() => document.activeElement.dataset.action), 'library');
+  assert.equal(await page.evaluate(() => document.activeElement.dataset.action), 'add-car');
   await page.keyboard.press('Escape');
   assert.equal(await visible('#app-menu'), false);
   assert.equal(await page.evaluate(() => document.activeElement.id), 'app-menu-button');

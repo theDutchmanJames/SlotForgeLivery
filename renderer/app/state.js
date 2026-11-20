@@ -55,7 +55,8 @@ const icons = {
   more: 'M5 12h.01 M12 12h.01 M19 12h.01',
   note: 'M5 4h14v16H5z M8 9h8 M8 13h8 M8 17h5',
   paste: 'M8 4h8v3H8z M6 6H5v15h14V6h-1',
-  chev: 'M9 6l6 6-6 6'
+  chev: 'M9 6l6 6-6 6',
+  clock: 'M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18 M12 7v5l3 3'
 };
 function icon(n) {
   if (n === 'livery')
@@ -102,6 +103,7 @@ function showSettings(open = true) {
   closeDialog();
   themeSettings.cancel();
   settingsOpen = open;
+  hideGarage();
   $('.workspace').hidden = open;
   $('#settings-page').hidden = !open;
   document.body.classList.toggle('settings-open', open);

@@ -48,40 +48,37 @@ const LIBRARY_KINDS = [
 function pageNote(iconName, lead, more, use) {
   return `<div class="sn"><span class="sn-tile">${icon(iconName)}</span><p class="sn-lead">${e(lead)}</p><p class="sn-more">${e(more)}</p><p class="sn-use">${icon('back')}<span>${e(use)}</span></p></div>`;
 }
+// The library sections (All cars, Saved designs, Artwork & shapes, Fonts) are part of the
+// Garage page (garage.js); this opens one of them.
 function openLibrary(tab = libraryTab) {
   libraryPage = 0;
   libraryTab = tab;
+  showGarage(tab);
+}
+// The toolbar and item list of a library section, drawn by renderGarage().
+function libraryPageHTML(tab) {
   const kind = LIBRARY_KINDS.find(k => k[0] === tab) || LIBRARY_KINDS[0],
     add =
       tab === 'templates'
-        ? ['add-car', 'Add car']
+        ? ['add-car', 'Add a car']
         : tab === 'assets'
           ? ['upload-image', 'Import artwork']
           : tab === 'fonts'
             ? ['upload-font', 'Import font']
-            : ['save-livery', 'Save current'];
-  openDialog(
-    'User Library',
-    'Browse your cars, liveries, artwork and fonts. Choose an item to use it, or export a selection to share.',
-    `<div class="lib-shell"><div class="lib-rail" role="tablist" aria-orientation="vertical" aria-label="Library sections"><span class="lib-label">Your library</span>${LIBRARY_KINDS.map(
-      ([k, n, ic]) =>
-        `<button role="tab" data-library-tab="${k}" class="lib-tab kind-${k}${k === tab ? ' active' : ''}" aria-selected="${k === tab}">${icon(ic)}<span class="lib-text">${n}</span><small>${store[k].length}</small></button>`
-    ).join(
+            : ['save-livery', 'Save the open livery'];
+  return `<div class="lib-page kind-${tab}"><div class="library-toolbar"><div class="row library-controls catalogue-toolbar"><button class="primary" data-action="${add[0]}" ${tab === 'liveries' && !project ? 'disabled title="Open a livery first"' : ''}>${icon('plus')}${add[1]}</button><div class="catalogue-controls"><span class="catalogue-field">${icon('search')}<input id="library-search" type="search" placeholder="Search ${kind[3]}…" aria-label="Search library"></span><select id="library-sort" aria-label="Sort library"><option value="az">Name A–Z</option><option value="za">Name Z–A</option><option value="recent">Recently added</option></select><div class="segmented library-view-toggle" role="group" aria-label="Library layout">${[
+    'grid',
+    'list'
+  ]
+    .map(
+      v =>
+        `<button data-library-view="${v}" aria-pressed="${(store.settings?.libraryView || 'grid') === v}">${v === 'grid' ? 'Cards' : 'List'}</button>`
+    )
+    .join(
       ''
-    )}</div><div class="lib-page kind-${tab}"><div class="library-toolbar">${pageNote(kind[2], kind[4], kind[5], kind[6])}<div class="row library-controls catalogue-toolbar"><button class="primary" data-action="${add[0]}" ${tab === 'liveries' && !project ? 'disabled' : ''}>${icon('plus')}${add[1]}</button><div class="catalogue-controls"><span class="catalogue-field">${icon('search')}<input id="library-search" type="search" placeholder="Search ${kind[3]}…" aria-label="Search library"></span><select id="library-sort" aria-label="Sort library"><option value="az">Name A–Z</option><option value="za">Name Z–A</option><option value="recent">Recently added</option></select><div class="segmented library-view-toggle" role="group" aria-label="Library layout">${[
-      'grid',
-      'list'
-    ]
-      .map(
-        v =>
-          `<button data-library-view="${v}" aria-pressed="${(store.settings?.libraryView || 'grid') === v}">${v === 'grid' ? 'Cards' : 'List'}</button>`
-      )
-      .join(
-        ''
-      )}</div></div></div><p id="library-count" class="note" role="status"></p></div><div id="library-items"></div></div></div>`,
-    `<span class="dialog-foot-note">Share several items in one editable .sfpaint package.</span><button data-action="export-selection">${icon('share')}Export a package</button><button data-action="close-dialog">Done</button>`
-  );
-  $('#dialog').classList.add('library-dialog');
+    )}</div></div></div><p id="library-count" class="note" role="status"></p></div><div id="library-items"></div></div>`;
+}
+function wireLibraryPage() {
   $('#library-search').oninput = () => {
     libraryPage = 0;
     renderLibraryItems();
@@ -194,9 +191,11 @@ async function loadCardPreviews() {
 // How many projects were started from this car (matched by template id or name).
 function carUsage(template) {
   const count = store.projects.filter(p =>
-    p.template
-      ? p.template.id === template.id || p.template.name === template.name
-      : p.storageSummary?.templateName === template.name
+    p.trashedAt
+      ? false
+      : p.template
+        ? p.template.id === template.id || p.template.name === template.name
+        : p.storageSummary?.templateName === template.name
   ).length;
   return count ? `Used by ${count} project${count === 1 ? '' : 's'}` : 'Not used yet';
 }
@@ -341,6 +340,7 @@ function useLibrary(id) {
   if (!project) return toast('Open or create a car project first.');
   if (libraryTab === 'fonts') {
     closeDialog();
+    hideGarage();
     useFont(item);
     return;
   }
@@ -349,6 +349,7 @@ function useLibrary(id) {
       'Apply this livery?',
       `“${item.name}” will replace this project’s current artwork. You can undo this change.`,
       () => {
+        hideGarage();
         record();
         project = M.applyLivery(project, item);
         selected = null;
@@ -365,6 +366,7 @@ function useLibrary(id) {
   if (!activeView()?.regions.some(r => r.role === 'body'))
     return toast('Prepare at least one paintable body region first.');
   closeDialog();
+  hideGarage();
   if (item.type === 'group') {
     mutate(() => {
       const placed = M.placeGroup(item);
@@ -385,30 +387,7 @@ function useLibrary(id) {
     addLayer(l);
   }
 }
+// Projects are the liveries in the Garage (garage.js).
 function openProjects() {
-  projectPage = Math.min(projectPage, Math.max(0, Math.ceil(store.projects.length / LIBRARY_PAGE_SIZE) - 1));
-  openDialog(
-    'Your projects',
-    'Saved locally, with their own car template and editable artwork.',
-    pageNote(
-      'projects',
-      'A project is one livery on one car: its own copy of the car template and all of its artwork.',
-      'Projects save automatically on this computer while you work.',
-      'Open one to keep painting, or export it to share.'
-    ) +
-      `<div class="row catalogue-toolbar"><button data-action="add-car" class="primary">${icon('plus')}New car project</button><span class="note">${store.projects.length} project${store.projects.length === 1 ? '' : 's'}</span></div>` +
-      (store.projects.length
-        ? '<div class="library-grid">' +
-          pageSlice(store.projects, projectPage)
-            .map(
-              p =>
-                `<article class="library-card showroom">${cardPreview(p, 'projects')}<div class="lc-body"><strong>${e(p.name)}</strong><small>${e(p.template?.name || p.storageSummary?.templateName || '')}<br><span class="lc-num">${new Date(p.updated).toLocaleDateString()}</span></small></div><div class="row lc-foot"><button data-project-open="${e(p.id)}" class="primary sm">Open</button><button class="icon-button sm" data-project-export="${e(p.id)}" title="Export project" aria-label="Export project">${icon('share')}</button><button class="icon-button sm danger" data-project-delete="${e(p.id)}" title="Delete project" aria-label="Delete project">${icon('trash')}</button></div></article>`
-            )
-            .join('') +
-          '</div>' +
-          paging(store.projects, projectPage, 'projects')
-        : `<div class="empty-library"><span class="empty-tile">${icon('projects')}</span><h3>No projects yet</h3><p>Your saved designs will appear here. Start one with New car project.</p></div>`)
-  );
-  $('#dialog').classList.add('projects-dialog');
-  loadCardPreviews().catch(reportError);
+  showGarage('recent');
 }

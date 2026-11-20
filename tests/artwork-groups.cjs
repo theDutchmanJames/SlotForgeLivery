@@ -179,7 +179,12 @@ async function run() {
   await click('confirm-import');
   await click('close-dialog');
   assert.equal(await page.evaluate(() => store.assets.length), 3);
-  assert.equal(await page.evaluate(() => store.assets[2].layers[1].rotation), 25);
+  assert.equal(
+    await page.evaluate(
+      async () => (await libraryClient.hydrate(store, 'assets', store.assets[2].id)).layers[1].rotation
+    ),
+    25
+  );
   for (let i = 0; i < 2; i++) {
     await click('library');
     await page.locator('[data-library-tab="assets"]').click();

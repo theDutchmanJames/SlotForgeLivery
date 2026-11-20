@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="restyle.css">
   <link rel="stylesheet" href="update-window.css">
   <link rel="stylesheet" href="workbench.css">
+  <link rel="stylesheet" href="garage.css">
 </head>
 <body>
   <header class="topbar">
@@ -19,8 +20,7 @@
       <div class="tb-menu">
         <button id="app-menu-button" class="tb-icon" aria-haspopup="menu" aria-expanded="false" aria-controls="app-menu" title="Menu: projects, library, settings and help" aria-label="Menu"><span data-icon="menu"></span></button>
         <div id="app-menu" class="pop-menu app-menu" role="menu" data-opener="#app-menu-button" hidden>
-          <button role="menuitem" data-action="projects"><span data-icon="projects"></span>Projects</button>
-          <button role="menuitem" data-action="library"><span data-icon="folder"></span>User Library</button>
+          <button role="menuitem" data-action="projects"><span data-icon="projects"></span>Garage</button>
           <button role="menuitem" data-action="add-car"><span data-icon="carplus"></span>Add a car</button>
           <button role="menuitem" data-action="sharing"><span data-icon="share"></span>Import &amp; Export</button>
           <hr>
@@ -31,12 +31,13 @@
           <div class="menu-brand"><img class="footer-brand-dark" src="../assets/slotforge-wordmark-dark.svg" alt="SlotForge App Collection" width="621" height="90"><img class="footer-brand-light" src="../assets/slotforge-wordmark-light.svg" alt="SlotForge App Collection" width="621" height="90"></div>
         </div>
       </div>
-      <a class="brand" href="#" id="home-link" title="Your projects"><img class="brand-app-icon" src="../assets/icon.svg" alt="SlotForge Livery" width="30" height="30"></a>
+      <a class="brand" href="#" id="home-link" title="Your Garage"><img class="brand-app-icon" src="../assets/icon.svg" alt="SlotForge Livery" width="30" height="30"></a>
       <nav class="crumbs" aria-label="Where you are">
-        <button class="crumb project-only" data-action="projects" title="Back to your projects">Projects</button><span class="crumb-sep project-only" aria-hidden="true">/</span>
+        <button class="crumb project-only" data-action="projects" title="Your cars and liveries">Garage</button><span class="crumb-sep project-only" aria-hidden="true">/</span>
         <span id="project-meta" class="crumb-meta"></span><span class="crumb-sep project-only" aria-hidden="true">/</span>
         <button id="project-name" class="name-button crumb-name" data-action="rename" title="Rename this project">Your next livery starts here</button>
         <span id="settings-crumb" class="crumb-name" hidden>Settings</span>
+        <span id="garage-crumb" class="crumb-name" hidden>Garage</span>
       </nav>
     </div>
     <div class="tb-end project-actions">
@@ -57,6 +58,7 @@
     </div>
   </header>
   <main id="settings-page" aria-label="Settings" hidden></main>
+  <main id="garage-page" class="garage-page" aria-label="Garage" hidden></main>
 <main class="workspace">
     <aside class="toolbox" aria-label="Drawing tools"><div id="tools"></div><div class="tool-separator"></div><div class="tool-colours"><input id="quick-colour" type="color" value="#f28a35" title="Current paint colour" aria-label="Current paint colour"><span id="base-swatch" title="Base paint"></span></div></aside>
     <aside id="layers-panel" class="layers-panel" aria-label="Layers" hidden></aside>
@@ -89,5 +91,5 @@
   <input id="font-file" type="file" accept=".ttf,.otf,.woff,.woff2" multiple hidden>
   <input id="package-file" type="file" accept=".sfpaint,.json" hidden>
   <div id="toast" role="status" aria-live="polite"></div>
-  <script src="storage-codec.js"></script><script src="library-client.js"></script><script src="model.js"></script><script src="decals/model.js"></script><script src="decals/art.js"></script><script src="decal-artwork.js"></script><script src="fonts.js"></script><script src="mask-preview.js"></script><script src="svg.js"></script><script src="perspective-preview.js"></script><script src="repair.js"></script><script src="panel-studio.js"></script><script src="theme.js"></script><script src="settings.js"></script><script src="paints.js"></script><script src="sample-car.js"></script><script src="app/state.js"></script><script src="app/fit-lines.js"></script><script src="app/artwork.js"></script><script src="app/paint-selection.js"></script><script src="app/core.js"></script><script src="app/preferences.js"></script><script src="app/hints.js"></script><script src="app/render.js"></script><script src="app/inspector.js"></script><script src="app/drawing.js"></script><script src="app/preparation.js"></script><script src="app/dialogs-import.js"></script><script src="app/library.js"></script><script src="app/sharing.js"></script><script src="app/export.js"></script><script src="app/actions.js"></script><script src="app/layer-order.js"></script><script src="app/events.js"></script><script src="app/pointer.js"></script><script src="app/guides.js"></script><script src="app/compare.js"></script><script src="app/workshop.js"></script><script src="app/workbench.js"></script><script src="update-ui.js"></script><script src="app/maintenance.js"></script><script src="app/main.js"></script><script src="decal-import.js"></script>
+  <script src="storage-codec.js"></script><script src="library-client.js"></script><script src="model.js"></script><script src="decals/model.js"></script><script src="decals/art.js"></script><script src="decal-artwork.js"></script><script src="fonts.js"></script><script src="mask-preview.js"></script><script src="svg.js"></script><script src="perspective-preview.js"></script><script src="repair.js"></script><script src="panel-studio.js"></script><script src="theme.js"></script><script src="settings.js"></script><script src="paints.js"></script><script src="sample-car.js"></script><script src="app/state.js"></script><script src="app/fit-lines.js"></script><script src="app/artwork.js"></script><script src="app/paint-selection.js"></script><script src="app/core.js"></script><script src="app/preferences.js"></script><script src="app/hints.js"></script><script src="app/render.js"></script><script src="app/inspector.js"></script><script src="app/drawing.js"></script><script src="app/preparation.js"></script><script src="app/dialogs-import.js"></script><script src="app/library.js"></script><script src="app/sharing.js"></script><script src="app/export.js"></script><script src="app/actions.js"></script><script src="app/layer-order.js"></script><script src="app/events.js"></script><script src="app/pointer.js"></script><script src="app/guides.js"></script><script src="app/compare.js"></script><script src="app/workshop.js"></script><script src="app/workbench.js"></script><script src="app/garage.js"></script><script src="update-ui.js"></script><script src="app/maintenance.js"></script><script src="app/main.js"></script><script src="decal-import.js"></script>
 </body></html>

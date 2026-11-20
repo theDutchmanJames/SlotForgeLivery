@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Garage remake</title>
+<style>
+/* Livery's own bundled fonts; Segoe UI is the body text as in the app. */
+@font-face{font-family:'SF Cond';src:url('../../../renderer/fonts/barlowcondensed/BarlowCondensed-BoldItalic.ttf') format('truetype');font-weight:700;font-style:italic}
+@font-face{font-family:'SF Cond';src:url('../../../renderer/fonts/barlowcondensed/BarlowCondensed-Bold.ttf') format('truetype');font-weight:700}
+@font-face{font-family:'SF Mono';src:url('../../../renderer/fonts/robotomono/RobotoMono[wght].ttf') format('truetype');font-weight:100 700}
+:root{--bg:#171b21;--panel:#222831;--panel2:#1c2129;--raise:#2a313b;--ink:#e8e6e1;--ink2:#c4c8ce;--muted:#98a0ab;--faint:#6b7380;--line:#343b47;--line2:#2b313b;
+  --accent:#e5484d;--accent-text:#f06b6f;--ok:#3ecf8e;--warn:#f2b705;--blue:#4c9aff;--board:#e9ecf0;
+  --ui:'Segoe UI',system-ui,sans-serif;--cond:'SF Cond','Bahnschrift',sans-serif;--mono:'SF Mono',Consolas,monospace}
+[data-theme=light]{--bg:#eef0f3;--panel:#fff;--panel2:#f6f7f9;--raise:#eef0f3;--ink:#1c2129;--ink2:#3a414c;--muted:#5f6875;--faint:#8a929d;--line:#d5d9df;--line2:#e3e6ea;--accent-text:#c9363b;--board:#f3f5f7}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:13px/1.45 var(--ui);display:flex;flex-direction:column}
+button{font:inherit;color:inherit;cursor:pointer}
+svg.i{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.muted{color:var(--muted)}.faint{color:var(--faint)}.mono{font-family:var(--mono)}
+.title{font:italic 700 15px/1 var(--cond);letter-spacing:.02em;text-transform:uppercase}
+.big{font:italic 700 26px/1 var(--cond);letter-spacing:.01em;text-transform:uppercase;margin:0}
+.eyebrow{font:600 10px/1 var(--ui);letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
+.grow{flex:1}
+
+/* ---------- preview switcher (not part of the design) ---------- */
+.switch{flex:none;display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;padding:9px 18px;background:#0d1014;color:#e8e6e1;border-bottom:1px solid #2b313b}
+.switch b{font:600 10.5px var(--ui);letter-spacing:.14em;text-transform:uppercase;color:#98a0ab}
+.switch p{margin:0 0 0 auto;font-size:12px;color:#8a929d;max-width:600px}
+.seg{display:inline-flex;gap:2px;padding:3px;border:1px solid #343b47;border-radius:9px;background:#171b21}
+.seg button{height:26px;padding:0 11px;border:0;border-radius:6px;background:none;color:#c4c8ce;font-size:12.5px}
+.seg button[aria-pressed=true]{background:#e5484d;color:#fff}
+.stage{flex:1;min-height:780px;display:flex}
+.opt{flex:1;display:none;min-width:0;flex-direction:column}
+.opt.on{display:flex}
+.state{display:none;flex:1;min-height:0}.state.on{display:flex}
+
+/* ---------- shared bits ---------- */
+.btn{height:32px;display:inline-flex;align-items:center;gap:7px;padding:0 12px;border:1px solid var(--line);border-radius:8px;background:var(--panel);font-size:12.5px;white-space:nowrap}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+.btn.ghost{background:none;border-color:transparent}
+.btn.sm{height:28px;padding:0 10px;font-size:12px}
+.ib{width:30px;height:30px;display:inline-grid;place-items:center;border:1px solid transparent;border-radius:7px;background:none;color:var(--ink2)}
+.pill{font:600 10.5px var(--ui);padding:2px 8px;border-radius:999px;background:var(--raise);color:var(--muted);white-space:nowrap}
+.pill.good{background:color-mix(in srgb,var(--ok) 16%,var(--panel));color:var(--ok)}
+.pill.warn{background:color-mix(in srgb,var(--warn) 16%,var(--panel));color:color-mix(in srgb,var(--warn) 85%,var(--ink))}
+.pill.red{background:color-mix(in srgb,var(--accent) 16%,var(--panel));color:var(--accent-text)}
+.dots{display:flex;gap:3px}.dots i{width:10px;height:10px;border-radius:3px;border:1px solid rgba(0,0,0,.25)}
+.search{height:32px;display:flex;align-items:center;gap:8px;padding:0 10px;border:1px solid var(--line);border-radius:8px;background:var(--panel2);color:var(--faint);font-size:12.5px;min-width:260px}
+.search kbd{margin-left:auto;font:11px var(--mono);color:var(--faint);border:1px solid var(--line);border-radius:4px;padding:0 4px}
+.callout{position:absolute;font:600 10.5px var(--ui);letter-spacing:.06em;text-transform:uppercase;color:#fff;background:#4c9aff;border-radius:999px;padding:3px 9px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.25);z-index:5}
+.pic{background:var(--board);display:grid;place-items:center;overflow:hidden;position:relative}
+.pic svg.car{width:86%;height:auto}
+
+/* top bar, as in the Workbench */
+.topbar{height:52px;flex:none;display:flex;align-items:center;gap:10px;padding:0 12px;border-bottom:1px solid var(--line2);background:var(--panel2)}
+.logo{width:28px;height:28px;border-radius:7px;background:var(--accent);display:grid;place-items:center;color:#fff;font:italic 700 15px var(--cond)}
+.crumbs{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--muted)}
+.crumbs strong{font:italic 700 19px/1 var(--cond);letter-spacing:.02em;text-transform:uppercase;color:var(--ink)}
+
+/* ================= OPTION A: PARTS ROOM ================= */
+.A-body{flex:1;display:grid;grid-template-columns:248px 1fr 340px;min-height:0}
+.rail{border-right:1px solid var(--line2);background:var(--panel2);padding:12px 10px;display:flex;flex-direction:column;gap:2px;overflow:auto}
+.rail .eyebrow{padding:12px 8px 6px}
+.ritem{display:flex;align-items:center;gap:9px;height:34px;padding:0 9px;border:0;border-radius:8px;background:none;color:var(--ink2);font-size:13px;text-align:left;width:100%}
+.ritem .n{margin-left:auto;font:11.5px var(--mono);color:var(--faint)}
+.ritem.on{background:color-mix(in srgb,var(--accent) 14%,var(--panel));color:var(--ink);box-shadow:inset 3px 0 0 var(--accent)}
+.ritem .th{width:38px;height:22px;border-radius:5px;background:var(--board);display:grid;place-items:center;flex:none}
+.ritem .th svg{width:34px;height:auto}
+.ritem.car{height:40px}
+.ritem.sub{padding-left:14px}
+.rail .add{color:var(--muted)}
+.A-main{display:flex;flex-direction:column;min-width:0;min-height:0}
+.mhead{display:flex;align-items:flex-end;gap:14px;padding:18px 22px 12px}
+.mhead .meta{display:flex;gap:8px;align-items:center;margin-top:7px;color:var(--muted);font-size:12.5px}
+.mtools{display:flex;align-items:center;gap:8px;padding:0 22px 12px;border-bottom:1px solid var(--line2)}
+.chip{height:28px;padding:0 11px;border:1px solid var(--line);border-radius:999px;background:none;font-size:12px;color:var(--ink2);display:inline-flex;align-items:center;gap:6px}
+.chip.on{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 14%,var(--panel));color:var(--ink)}
+.grid{flex:1;overflow:auto;padding:16px 22px 22px;display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px;align-content:start}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden;display:flex;flex-direction:column;position:relative}
+.card.sel{outline:2px solid var(--accent);outline-offset:1px}
+.card .pic{height:128px}
+.card .bd{padding:10px 12px 12px;display:flex;flex-direction:column;gap:6px}
+.card .bd strong{font-size:13.5px}
+.card .bd .row{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:11.5px}
+.card .kind{position:absolute;left:8px;top:8px}
+.card.new{border-style:dashed;background:none;align-items:center;justify-content:center;gap:8px;color:var(--muted);min-height:200px}
+.card.new .plus{width:40px;height:40px;border-radius:50%;border:1.5px dashed var(--line);display:grid;place-items:center}
+.detail{border-left:1px solid var(--line2);background:var(--panel);display:flex;flex-direction:column;min-height:0}
+.detail .pic{height:190px;border-bottom:1px solid var(--line2)}
+.detail .views{display:flex;gap:6px;padding:10px 16px 0}
+.detail .views span{flex:1;height:40px;border-radius:6px;background:var(--board);display:grid;place-items:center;border:1px solid var(--line)}
+.detail .views span.on{border:2px solid var(--accent)}
+.detail .views svg{width:80%;height:auto}
+.dsec{padding:14px 16px;border-bottom:1px solid var(--line2);display:flex;flex-direction:column;gap:8px}
+.dsec h4{margin:0;font:600 10.5px var(--ui);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.kv{display:grid;grid-template-columns:96px 1fr;gap:5px 10px;font-size:12.5px}
+.kv span:nth-child(odd){color:var(--muted)}
+.paintrow{display:flex;align-items:center;gap:9px;font-size:12.5px}
+.paintrow i{width:18px;height:18px;border-radius:5px;border:1px solid rgba(0,0,0,.25);flex:none}
+.paintrow small{margin-left:auto;font:11.5px var(--mono);color:var(--muted)}
+.dact{padding:14px 16px;display:flex;flex-direction:column;gap:8px;margin-top:auto}
+.dact .row{display:flex;gap:6px}.dact .row .btn{flex:1;justify-content:center}
+.dact .danger{color:var(--accent-text)}
+/* A · backups */
+.table{flex:1;overflow:auto;padding:6px 22px 22px}
+.tr{display:grid;grid-template-columns:34px 1.6fr 1fr .8fr 1fr 210px;align-items:center;gap:12px;padding:10px 12px;border-bottom:1px solid var(--line2);font-size:12.5px}
+.tr.h{font:600 10.5px var(--ui);letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+.tr .acts{display:flex;gap:6px;justify-content:flex-end}
+.tr.sel{background:color-mix(in srgb,var(--accent) 8%,var(--panel));border-radius:8px}
+.tico{width:30px;height:30px;border-radius:7px;background:var(--raise);display:grid;place-items:center}
+.banner{margin:14px 22px 4px;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--panel);display:flex;align-items:center;gap:12px}
+.banner b{display:block;font-size:13px}.banner small{color:var(--muted)}
+.choice{display:flex;flex-direction:column;gap:8px}
+.opt2{display:flex;gap:10px;padding:10px;border:1px solid var(--line);border-radius:10px;align-items:flex-start}
+.opt2.on{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 8%,var(--panel))}
+.opt2 .rb{width:16px;height:16px;border-radius:50%;border:2px solid var(--line);flex:none;margin-top:2px}
+.opt2.on .rb{border:5px solid var(--accent)}
+.opt2 b{display:block;font-size:12.5px}.opt2 small{color:var(--muted);font-size:11.5px}
+
+/* ================= OPTION B: PIT LANE ================= */
+.B-body{flex:1;display:grid;grid-template-columns:1fr 330px;min-height:0}
+.B-main{overflow:auto;padding:20px 26px 30px;display:flex;flex-direction:column;gap:26px}
+.hero{display:grid;grid-template-columns:1.35fr 1fr;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:var(--panel);min-height:250px}
+.hero .pic{min-height:250px}
+.hero .pic svg.car{width:84%}
+.hero .txt{padding:24px 26px;display:flex;flex-direction:column;gap:10px}
+.hero .txt .big{font-size:34px}
+.hero .acts{display:flex;gap:8px;margin-top:auto}
+.views-mini{display:flex;gap:6px}
+.views-mini span{width:62px;height:30px;border-radius:6px;background:var(--board);display:grid;place-items:center}
+.views-mini svg{width:54px;height:auto}
+.shelf h3{display:flex;align-items:baseline;gap:10px;margin:0 0 10px}
+.shelf h3 .title{font-size:19px}
+.shelf h3 .muted{font-size:12.5px}
+.shelf h3 .lnk{margin-left:auto;font-size:12.5px;color:var(--muted);display:flex;align-items:center;gap:4px}
+.row-cards{display:flex;gap:12px;overflow:hidden}
+.lc{flex:0 0 220px;background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.lc .pic{height:118px}
+.lc .bd{padding:9px 11px 11px}
+.lc .bd strong{display:block;font-size:13px}
+.lc .bd small{color:var(--muted);font-size:11.5px;display:flex;align-items:center;gap:6px;margin-top:3px}
+.lc.newl{border-style:dashed;background:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:var(--muted);flex-basis:150px}
+.lc.newl .plus{width:38px;height:38px;border-radius:50%;border:1.5px dashed var(--line);display:grid;place-items:center}
+.B-side{border-left:1px solid var(--line2);background:var(--panel2);padding:18px 16px;display:flex;flex-direction:column;gap:14px;overflow:auto}
+.sc{background:var(--panel);border:1px solid var(--line);border-radius:12px}
+.sc .hd{display:flex;align-items:center;gap:8px;padding:11px 14px;border-bottom:1px solid var(--line2)}
+.sc .hd .title{flex:1}
+.sc .bd{padding:11px 14px;display:flex;flex-direction:column;gap:8px}
+.drop{border:1.5px dashed var(--line);border-radius:12px;padding:18px 14px;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;background:color-mix(in srgb,var(--panel) 60%,transparent)}
+.drop .ic{width:42px;height:42px;border-radius:50%;background:color-mix(in srgb,var(--accent) 14%,var(--panel));color:var(--accent-text);display:grid;place-items:center}
+.drop b{font-size:13.5px}.drop small{color:var(--muted);font-size:11.5px}
+.mini{display:flex;align-items:center;gap:10px;font-size:12.5px}
+.mini .th{width:46px;height:26px;border-radius:5px;background:var(--board);display:grid;place-items:center;flex:none}
+.mini .th svg{width:40px;height:auto}
+.mini small{display:block;color:var(--muted);font-size:11px}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tile{padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--panel2);display:flex;flex-direction:column;gap:3px}
+.tile b{font:700 20px var(--mono)}.tile small{color:var(--muted);font-size:11.5px}
+/* B · first run */
+.first{flex:1;display:grid;place-items:center;padding:30px;overflow:auto}
+.first .wrap{width:min(980px,100%);display:flex;flex-direction:column;gap:20px;align-items:stretch}
+.first .lead{text-align:center;display:flex;flex-direction:column;gap:8px;align-items:center}
+.first .lead .big{font-size:44px}
+.bigdrop{border:2px dashed var(--line);border-radius:18px;padding:34px;display:grid;grid-template-columns:1fr auto 1fr;gap:26px;align-items:center;background:var(--panel)}
+.bigdrop .side{display:flex;flex-direction:column;gap:8px;align-items:flex-start}
+.bigdrop .or{color:var(--faint);font:600 11px var(--ui);letter-spacing:.14em}
+.bigdrop .ic{width:52px;height:52px;border-radius:14px;background:color-mix(in srgb,var(--accent) 14%,var(--panel));color:var(--accent-text);display:grid;place-items:center}
+.steps3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.steps3 div{padding:14px;border:1px solid var(--line);border-radius:12px;background:var(--panel2)}
+.steps3 b{display:block;font:italic 700 16px var(--cond);text-transform:uppercase;margin:4px 0}
+.steps3 small{color:var(--muted)}
+.steps3 .k{font:700 12px var(--mono);color:var(--accent-text)}
+</style>
+</head>
+<body>
+<div class="switch">
+  <b>Garage remake</b>
+  <span class="seg" id="opt"><button data-v="A" aria-pressed="true">A · Parts Room</button><button data-v="B">B · Pit Lane</button></span>
+  <span class="seg" id="sub"></span>
+  <span class="seg" id="theme"><button data-v="dark" aria-pressed="true">Dark</button><button data-v="light">Light</button></span>
+  <p id="say"></p>
+</div>
+
+<!-- A stand-in car drawing; colours come from --b (body), --s (stripe), --n (roundel) on each use. -->
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <path id="bodyp" d="M62 268 L70 226 Q78 204 122 196 L292 176 Q336 146 392 112 Q424 94 476 92 L632 94 Q684 96 724 126 L796 178 Q894 188 926 212 Q944 232 938 268 L868 270 A72 72 0 0 0 724 270 L334 270 A72 72 0 0 0 190 270 Z"/>
+    <clipPath id="bodyclip"><use href="#bodyp"/></clipPath>
+    <symbol id="car" viewBox="40 70 920 290">
+      <use href="#bodyp" style="fill:var(--b,#8fc3e8)"/>
+      <g clip-path="url(#bodyclip)"><rect x="40" y="206" width="920" height="34" style="fill:var(--s,#f28a35)"/><rect x="40" y="244" width="920" height="7" fill="#f6f4ef" opacity=".9"/></g>
+      <path d="M318 176 L398 120 Q426 104 470 104 L500 104 L500 176 Z" fill="#33404d"/>
+      <path d="M516 104 L628 106 Q670 108 702 132 L758 176 L516 176 Z" fill="#33404d"/>
+      <use href="#bodyp" fill="none" stroke="#1f2730" stroke-width="3.5"/>
+      <circle cx="610" cy="196" r="44" style="fill:var(--n,#f6f4ef)" stroke="#1f2730" stroke-width="2"/>
+      <text x="610" y="214" text-anchor="middle" font-family="Bahnschrift,Arial Narrow,sans-serif" font-weight="700" font-size="54" fill="#1f2730">27</text>
+      <g fill="#1f2730"><circle cx="262" cy="272" r="60"/><circle cx="796" cy="272" r="60"/></g>
+      <g fill="#c4c8ce" stroke="#1f2730" stroke-width="3"><circle cx="262" cy="272" r="34"/><circle cx="796" cy="272" r="34"/></g>
+    </symbol>
+    <symbol id="white" viewBox="40 70 920 290">
+      <use href="#bodyp" fill="#fff" stroke="#1f2730" stroke-width="3.5"/>
+      <path d="M318 176 L398 120 Q426 104 470 104 L500 104 L500 176 Z" fill="#59636f"/>
+      <path d="M516 104 L628 106 Q670 108 702 132 L758 176 L516 176 Z" fill="#59636f"/>
+      <g fill="#59636f"><circle cx="262" cy="272" r="60"/><circle cx="796" cy="272" r="60"/></g>
+      <g fill="#dfe3e8"><circle cx="262" cy="272" r="34"/><circle cx="796" cy="272" r="34"/></g>
+    </symbol>
+    <symbol id="gt" viewBox="40 70 920 290">
+      <path d="M50 262 L58 230 Q70 214 130 208 L330 192 Q380 140 470 128 L640 130 Q720 136 790 184 Q900 196 940 226 L944 262 L870 264 A70 70 0 0 0 730 264 L330 264 A70 70 0 0 0 190 264 Z" style="fill:var(--b,#2b8887)" stroke="#1f2730" stroke-width="3.5"/>
+      <path d="M360 190 Q400 146 470 140 L560 140 L560 190 Z" fill="#33404d"/><path d="M576 140 L640 142 Q700 148 744 184 L576 188 Z" fill="#33404d"/>
+      <rect x="60" y="222" width="880" height="18" style="fill:var(--s,#f9efc9)"/>
+      <circle cx="470" cy="226" r="34" style="fill:var(--n,#f9efc9)" stroke="#1f2730" stroke-width="2"/>
+      <text x="470" y="240" text-anchor="middle" font-family="Bahnschrift,Arial Narrow,sans-serif" font-weight="700" font-size="40" fill="#1f2730">7</text>
+      <g fill="#1f2730"><circle cx="260" cy="266" r="58"/><circle cx="800" cy="266" r="58"/></g>
+      <g fill="#c4c8ce" stroke="#1f2730" stroke-width="3"><circle cx="260" cy="266" r="32"/><circle cx="800" cy="266" r="32"/></g>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="stage">
+<!-- ===================================================== A ===================================================== -->
+<section class="opt A on" id="A">
+  <header class="topbar">
+    <button class="ib"><i data-i="menu"></i></button><span class="logo">L</span>
+    <nav class="crumbs"><strong>Garage</strong></nav>
+    <span class="grow"></span>
+    <span class="search"><i data-i="search"></i>Search cars, liveries, artwork…<kbd>Ctrl K</kbd></span>
+    <button class="btn"><i data-i="import"></i>Import…</button>
+    <button class="btn primary"><i data-i="carplus"></i>Add a car</button>
+  </header>
+  <div class="A-body">
+    <aside class="rail">
+      <button class="ritem"><i data-i="clock"></i>Recent<span class="n">6</span></button>
+      <span class="eyebrow">Cars</span>
+      <button class="ritem car on" data-a="car"><span class="th"><svg viewBox="40 70 920 290" style="--b:#2b8887;--s:#f9efc9"><use href="#gt"/></svg></span>Club GT<span class="n">3</span></button>
+      <button class="ritem car"><span class="th"><svg viewBox="40 70 920 290"><use href="#car"/></svg></span>Sample coupe<span class="n">2</span></button>
+      <button class="ritem car"><span class="th"><svg viewBox="40 70 920 290" style="--b:#e5484d;--s:#fff"><use href="#gt"/></svg></span>Porsche 917K · 1:32<span class="n">1</span></button>
+      <button class="ritem add"><i data-i="plus"></i>Add a car</button>
+      <span class="eyebrow">Reuse</span>
+      <button class="ritem"><i data-i="brush"></i>Saved designs<span class="n">4</span></button>
+      <button class="ritem"><i data-i="image"></i>Artwork &amp; shapes<span class="n">26</span></button>
+      <button class="ritem"><i data-i="text"></i>Fonts<span class="n">3</span></button>
+      <span class="eyebrow">Safe keeping</span>
+      <button class="ritem" data-a="backups"><i data-i="save"></i>Backups<span class="n">5</span></button>
+      <button class="ritem"><i data-i="trash"></i>Trash<span class="n">2</span></button>
+      <span class="grow"></span>
+      <div style="padding:10px 8px 2px;font-size:11.5px;color:var(--faint)">Last backup <b style="color:var(--ok)">today 09:12</b> · weekly</div>
+    </aside>
+
+    <!-- A · car selected -->
+    <div class="state on" data-s="car" style="display:contents">
+      <main class="A-main">
+        <div class="mhead">
+          <div class="grow"><span class="eyebrow">Car · 1:32 · Left, Right, Top</span><h1 class="big" style="margin-top:6px">Club GT</h1>
+            <div class="meta"><span>3 liveries</span>·<span>real length 4 420 mm</span>·<span class="pill good">Prepared</span></div></div>
+          <button class="btn"><i data-i="nodes"></i>Edit the car</button>
+          <button class="btn primary"><i data-i="plus"></i>New livery on this car</button>
+        </div>
+        <div class="mtools">
+          <button class="chip on">All 3</button><button class="chip">Being painted 2</button><button class="chip">Finished 1</button>
+          <span class="grow"></span>
+          <span class="faint" style="font-size:12px">Sort</span><button class="chip">Last edited <i data-i="down"></i></button>
+          <button class="ib" title="Cards"><i data-i="grid"></i></button><button class="ib" title="List"><i data-i="list"></i></button>
+        </div>
+        <div class="grid">
+          <div class="card sel"><div class="pic"><svg class="car" viewBox="40 70 920 290" style="--b:#2b8887;--s:#f9efc9;--n:#f9efc9"><use href="#gt"/></svg></div><div class="bd"><strong>Heritage racing</strong><div class="row"><span class="dots"><i style="background:#f9efc9"></i><i style="background:#2b8887"></i><i style="background:#ee6657"></i></span><span>Edited 10 min ago</span><span class="grow"></span><span class="pill warn">Being painted</span></div></div></div>
+          <div class="card"><div class="pic"><svg class="car" viewBox="40 70 920 290" style="--b:#1f3a93;--s:#f2b705;--n:#fff"><use href="#gt"/></svg></div><div class="bd"><strong>Club night #12</strong><div class="row"><span class="dots"><i style="background:#fff"></i><i style="background:#f2b705"></i><i style="background:#1f3a93"></i></span><span>Yesterday</span><span class="grow"></span><span class="pill warn">Being painted</span></div></div></div>
+          <div class="card"><div class="pic"><svg class="car" viewBox="40 70 920 290" style="--b:#e9e4d8;--s:#c0392b;--n:#c0392b"><use href="#gt"/></svg></div><div class="bd"><strong>Martini tribute</strong><div class="row"><span class="dots"><i style="background:#e9e4d8"></i><i style="background:#c0392b"></i><i style="background:#1f2730"></i></span><span>12 Nov</span><span class="grow"></span><span class="pill good">Finished</span></div></div></div>
+          <div class="card new"><span class="plus"><i data-i="plus"></i></span><b style="color:var(--ink)">New livery</b><small>Blank, or start from a saved design</small></div>
+        </div>
+      </main>
+      <aside class="detail">
+        <div class="pic"><svg class="car" viewBox="40 70 920 290" style="--b:#2b8887;--s:#f9efc9;--n:#f9efc9"><use href="#gt"/></svg><span class="callout" style="left:12px;top:10px">Details of the selected livery</span></div>
+        <div class="views"><span class="on"><svg viewBox="40 70 920 290" style="--b:#2b8887;--s:#f9efc9"><use href="#gt"/></svg></span><span><svg viewBox="40 70 920 290" style="--b:#2b8887;--s:#f9efc9;transform:scaleX(-1)"><use href="#gt"/></svg></span><span><svg viewBox="40 70 920 290"><use href="#white"/></svg></span></div>
+        <div class="dsec"><h1 class="big" style="font-size:22px">Heritage racing</h1>
+          <div class="kv"><span>Car</span><span>Club GT · 1:32</span><span>Views</span><span>Left, Right, Top</span><span>Edited</span><span>Today 10:42</span><span>Status</span><span><span class="pill warn">Being painted</span></span></div></div>
+        <div class="dsec"><h4>Paints</h4>
+          <div class="paintrow"><i style="background:#f9efc9"></i>Ivory<small>TS-7</small></div>
+          <div class="paintrow"><i style="background:#2b8887"></i>Heritage teal<small>X-13</small></div>
+          <div class="paintrow"><i style="background:#ee6657"></i>Coral pinstripe<small>no paint yet</small></div></div>
+        <div class="dact">
+          <button class="btn primary" style="justify-content:center"><i data-i="brush"></i>Open in Paint Studio</button>
+          <div class="row"><button class="btn"><i data-i="copy"></i>Duplicate</button><button class="btn"><i data-i="car"></i>Use on another car…</button></div>
+          <div class="row"><button class="btn"><i data-i="share"></i>Share…</button><button class="btn"><i data-i="save"></i>Save as design</button></div>
+          <button class="btn ghost danger" style="justify-content:center"><i data-i="trash"></i>Move to Trash</button>
+        </div>
+      </aside>
+    </div>
+
+    <!-- A · backups -->
+    <div class="state" data-s="backups" style="display:none">
+      <main class="A-main">
+        <div class="mhead"><div class="grow"><span class="eyebrow">Safe keeping</span><h1 class="big" style="margin-top:6px">Backups</h1>
+          <div class="meta"><span>Weekly into <span class="mono">D:\Livery backups</span></span>·<span>keeps 5</span></div></div>
+          <button class="btn"><i data-i="settings"></i>Backup settings</button><button class="btn primary"><i data-i="save"></i>Back up now</button></div>
+        <div class="banner"><span class="tico" style="color:var(--ok)"><i data-i="check"></i></span><span class="grow"><b>Your library is backed up</b><small>Last backup today 09:12 · 3 cars, 6 liveries, 26 artwork, 3 fonts · 41 MB</small></span><button class="btn sm">Show in folder</button></div>
+        <div class="table">
+          <div class="tr h"><span></span><span>Backup</span><span>Made</span><span>Size</span><span>Holds</span><span></span></div>
+          <div class="tr sel"><span class="tico"><i data-i="save"></i></span><span>Automatic · weekly</span><span>Today 09:12</span><span class="mono">41 MB</span><span>3 cars · 6 liveries</span><span class="acts"><button class="btn sm primary">Restore…</button></span></div>
+          <div class="tr"><span class="tico"><i data-i="save"></i></span><span>Automatic · weekly</span><span>13 Nov</span><span class="mono">38 MB</span><span>3 cars · 5 liveries</span><span class="acts"><button class="btn sm">Restore…</button></span></div>
+          <div class="tr"><span class="tico"><i data-i="save"></i></span><span>Before the 1.5 update</span><span>11 Nov</span><span class="mono">38 MB</span><span>2 cars · 5 liveries</span><span class="acts"><button class="btn sm">Restore…</button></span></div>
+          <div class="tr"><span class="tico"><i data-i="save"></i></span><span>Automatic · weekly</span><span>6 Nov</span><span class="mono">31 MB</span><span>2 cars · 3 liveries</span><span class="acts"><button class="btn sm">Restore…</button></span></div>
+        </div>
+      </main>
+      <aside class="detail">
+        <div class="dsec" style="padding-top:18px"><h4>Restore the backup of today 09:12</h4>
+          <div class="choice">
+            <div class="opt2 on"><span class="rb"></span><span><b>Bring back what's missing</b><small>Adds cars and liveries you no longer have. Nothing you have now changes.</small></span></div>
+            <div class="opt2"><span class="rb"></span><span><b>Replace my library</b><small>Your library becomes exactly this backup. A backup of today's library is made first.</small></span></div>
+          </div></div>
+        <div class="dsec"><h4>What comes back</h4>
+          <div class="paintrow"><i style="background:var(--raise)"></i>Martini tribute<small>livery · was deleted</small></div>
+          <div class="paintrow"><i style="background:var(--raise)"></i>Gulf stripe set<small>artwork</small></div>
+          <div class="paintrow" style="color:var(--muted)"><i style="background:none;border-color:transparent"></i>Everything else is already here</div></div>
+        <div class="dact"><button class="btn primary" style="justify-content:center"><i data-i="undo"></i>Restore 2 items</button><span class="faint" style="font-size:11.5px;text-align:center">Undo is available right after restoring.</span></div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- ===================================================== B ===================================================== -->
+<section class="opt B" id="B">
+  <header class="topbar">
+    <button class="ib"><i data-i="menu"></i></button><span class="logo">L</span>
+    <nav class="crumbs"><strong>Garage</strong></nav>
+    <span class="grow"></span>
+    <span class="search"><i data-i="search"></i>Find a livery or car…<kbd>Ctrl K</kbd></span>
+  </header>
+
+  <!-- B · home -->
+  <div class="state on" data-s="home">
+  <div class="B-body" style="flex:1">
+    <main class="B-main">
+      <section class="hero">
+        <div class="pic"><svg class="car" viewBox="40 70 920 290" style="--b:#2b8887;--s:#f9efc9;--n:#f9efc9"><use href="#gt"/></svg><span class="callout" style="left:14px;top:12px">Carry on where you left off</span></div>
+        <div class="txt"><span class="eyebrow">Continue · edited 10 min ago</span><h1 class="big">Heritage racing</h1>
+          <span class="muted">Club GT · 1:32 · Left, Right and Top</span>
+          <div class="views-mini"><span><svg viewBox="40 70 920 290" style="--b:#2b8887;--s:#f9efc9"><use href="#gt"/></svg></span><span><svg viewBox="40 70 920 290" style="--b:#2b8887;--s:#f9efc9;transform:scaleX(-1)"><use href="#gt"/></svg></span><span><svg viewBox="40 70 920 290"><use href="#white"/></svg></span></div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap"><span class="pill warn">Being painted</span><span class="pill">3 paints · 1 to buy</span></div>
+          <div class="acts"><button class="btn primary"><i data-i="brush"></i>Open in Paint Studio</button><button class="btn"><i data-i="pdf"></i>Workshop plan</button><button class="ib"><i data-i="more"></i></button></div></div>
+      </section>
+
+      <section class="shelf"><h3><span class="title">Club GT</span><span class="muted">1:32 · 3 liveries</span><span class="lnk">Car details <i data-i="chev"></i></span></h3>
+        <div class="row-cards">
+          <div class="lc"><div class="pic"><svg class="car" viewBox="40 70 920 290" style="--b:#2b8887;--s:#f9efc9;--n:#f9efc9"><use href="#gt"/></svg></div><div class="bd"><strong>Heritage racing</strong><small><span class="dots"><i style="background:#f9efc9"></i><i style="background:#2b8887"></i><i style="background:#ee6657"></i></span>10 min ago</small></div></div>
+          <div class="lc"><div class="pic"><svg class="car" viewBox="40 70 920 290" style="--b:#1f3a93;--s:#f2b705;--n:#fff"><use href="#gt"/></svg></div><div class="bd"><strong>Club night #12</strong><small><span class="dots"><i style="background:#fff"></i><i style="background:#f2b705"></i><i style="background:#1f3a93"></i></span>Yesterday</small></div></div>
+          <div class="lc"><div class="pic"><svg class="car" viewBox="40 70 920 290" style="--b:#e9e4d8;--s:#c0392b;--n:#c0392b"><use href="#gt"/></svg></div><div class="bd"><strong>Martini tribute</strong><small><span class="dots"><i style="background:#e9e4d8"></i><i style="background:#c0392b"></i></span>12 Nov · <span style="color:var(--ok)">finished</span></small></div></div>
+          <div class="lc newl"><span class="plus"><i data-i="plus"></i></span><b style="color:var(--ink);font-size:12.5px">New livery</b></div>
+        </div></section>
+
+      <section class="shelf"><h3><span class="title">Sample coupe</span><span class="muted">1:32 · 2 liveries</span><span class="lnk">Car details <i data-i="chev"></i></span></h3>
+        <div class="row-cards">
+          <div class="lc"><div class="pic"><svg class="car" viewBox="40 70 920 290"><use href="#car"/></svg></div><div class="bd"><strong>Gulf tribute</strong><small><span class="dots"><i style="background:#8fc3e8"></i><i style="background:#f28a35"></i></span>3 days ago</small></div></div>
+          <div class="lc"><div class="pic"><svg class="car" viewBox="40 70 920 290" style="--b:#1f2730;--s:#e5484d;--n:#f2b705"><use href="#car"/></svg></div><div class="bd"><strong>Night race</strong><small><span class="dots"><i style="background:#1f2730"></i><i style="background:#e5484d"></i><i style="background:#f2b705"></i></span>8 Nov</small></div></div>
+          <div class="lc newl"><span class="plus"><i data-i="plus"></i></span><b style="color:var(--ink);font-size:12.5px">New livery</b></div>
+        </div></section>
+
+      <section class="shelf"><h3><span class="title">Porsche 917K</span><span class="muted">1:32 · prepared, no livery yet</span></h3>
+        <div class="row-cards">
+          <div class="lc"><div class="pic"><svg class="car" viewBox="40 70 920 290"><use href="#white"/></svg></div><div class="bd"><strong>White kit</strong><small>Ready to paint</small></div></div>
+          <div class="lc newl"><span class="plus"><i data-i="plus"></i></span><b style="color:var(--ink);font-size:12.5px">First livery</b></div>
+        </div></section>
+    </main>
+
+    <aside class="B-side">
+      <div class="drop"><span class="ic"><i data-i="carplus"></i></span><b>Add a car</b><small>Drop an SVG, PDF or photo here, or</small><button class="btn sm">Choose a file…</button></div>
+      <div class="sc"><div class="hd"><span class="title">Saved designs</span><span class="pill">4</span></div><div class="bd">
+        <div class="mini"><span class="th"><svg viewBox="40 70 920 290" style="--b:#2b8887;--s:#f9efc9"><use href="#gt"/></svg></span><span class="grow">Heritage stripes<small>Use on any car</small></span><button class="btn sm">Use…</button></div>
+        <div class="mini"><span class="th"><svg viewBox="40 70 920 290"><use href="#car"/></svg></span><span class="grow">Gulf colours<small>Use on any car</small></span><button class="btn sm">Use…</button></div>
+        <span class="faint" style="font-size:11.5px">+ 2 more</span></div></div>
+      <div class="sc"><div class="hd"><span class="title">Parts bin</span></div><div class="bd"><div class="tiles"><div class="tile"><b>26</b><small>Artwork &amp; shapes</small></div><div class="tile"><b>3</b><small>Fonts</small></div></div></div></div>
+      <div class="sc"><div class="hd"><span class="title">Safe keeping</span><span class="pill good">Backed up</span></div><div class="bd">
+        <span style="font-size:12.5px">Last backup <b>today 09:12</b> · weekly · keeps 5</span>
+        <div style="display:flex;gap:6px"><button class="btn sm"><i data-i="save"></i>Back up now</button><button class="btn sm"><i data-i="undo"></i>Restore…</button></div>
+        <span class="faint" style="font-size:11.5px">Trash: 2 liveries · emptied after 30 days</span></div></div>
+      <div class="sc"><div class="hd"><span class="title">Share</span></div><div class="bd">
+        <button class="btn sm" style="justify-content:flex-start"><i data-i="import"></i>Open a shared package…</button>
+        <button class="btn sm" style="justify-content:flex-start"><i data-i="share"></i>Share cars or liveries…</button></div></div>
+    </aside>
+  </div>
+  </div>
+
+  <!-- B · first run -->
+  <div class="state" data-s="first">
+    <div class="first"><div class="wrap">
+      <div class="lead"><span class="eyebrow">From white kit to your colours</span><h1 class="big">Your garage is empty.</h1><span class="muted" style="font-size:14px">Bring in a car drawing or a photo. Everything stays on this computer.</span></div>
+      <div class="bigdrop">
+        <div class="side"><span class="ic"><i data-i="carplus"></i></span><b style="font-size:16px">Add your first car</b><span class="muted">Drop an SVG, EPS or PDF drawing, or a photo, anywhere on this page.</span><button class="btn primary"><i data-i="plus"></i>Choose a file…</button></div>
+        <span class="or">OR</span>
+        <div class="side"><div class="pic" style="width:100%;height:120px;border-radius:10px"><svg class="car" viewBox="40 70 920 290"><use href="#car"/></svg></div><button class="btn"><i data-i="car"></i>Try the sample car</button><span class="faint" style="font-size:11.5px">Have a package from a friend? <u>Open it</u></span></div>
+      </div>
+      <div class="steps3"><div><span class="k">01</span><b>Add your car</b><small>Pick the panels you'll paint.</small></div><div><span class="k">02</span><b>Paint &amp; personalise</b><small>Colours, stripes, numbers, decals.</small></div><div><span class="k">03</span><b>Take it to the bench</b><small>Painting plan, masks, decals.</small></div></div>
+    </div></div>
+  </div>
+</section>
+</div>
+
+<script>
+const P={menu:'M4 7h16 M4 12h16 M4 17h16',search:'M11 4a7 7 0 1 0 0 14a7 7 0 1 0 0-14 M20 20l-4-4',import:'M12 3v12 M7 10l5 5 5-5 M4 16v5h16v-5',carplus:'M4 10l2-6h10l2 6 M3 10h15v8H3z M5 18v3 M15 18v3 M19 3v6 M16 6h6',clock:'M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18 M12 7v5l3 3',plus:'M12 5v14 M5 12h14',brush:'M9.5 13.5 18.4 3.6a2.1 2.1 0 0 1 3 3l-9.9 8.9 M8.5 12.5l4 4 M8.5 14c-2.5-.3-3.8 1.4-3.8 3.2 0 1.3-.8 2.5-2.2 3.3 4.2 1.2 8.3.2 8.3-3.2 0-1.4-.8-2.7-2.3-3.3Z',image:'M3 3h18v18H3z M3 17l6-7 5 5 3-3 4 5 M16 7h.01',text:'M4 4h16 M12 4v17 M8 21h8',save:'M4 3h13l4 4v14H3V3z M7 3v6h9V3 M7 21v-7h10v7',trash:'M3 6h18 M9 6V3h6v3 M5 6l1 15h12l1-15',nodes:'M6 5l12 3-7 11z M4 3h4v4H4z M16 6h4v4h-4z M9 17h4v4H9z',down:'M6 9l6 6 6-6',grid:'M4 4h7v7H4z M13 4h7v7h-7z M4 13h7v7H4z M13 13h7v7h-7z',list:'M8 6h12 M8 12h12 M8 18h12 M4 6h.01 M4 12h.01 M4 18h.01',copy:'M8 8h13v13H8z M16 8V3H3v13h5',car:'M4 10l2-6h12l2 6 M3 10h18v8H3z M5 18v3 M19 18v3',share:'M4 7h16 M16 3l4 4-4 4 M20 17H4 M8 13l-4 4 4 4',settings:'M4 6h16 M4 12h16 M4 18h16 M8 3v6 M16 9v6 M10 15v6',check:'M5 12l5 5 9-10',undo:'M8 5l-5 5 5 5 M3 10h11a6 6 0 010 12',pdf:'M5 2h9l5 5v15H5z M14 2v6h5 M8 12h8 M8 16h8',more:'M5 12h.01 M12 12h.01 M19 12h.01',chev:'M9 6l6 6-6 6'};
+document.querySelectorAll('i[data-i]').forEach(i=>{i.outerHTML=`<svg class="i" viewBox="0 0 24 24"><path d="${P[i.dataset.i]||''}"/></svg>`});
+const SUB={A:[['car','A car'],['backups','Backups']],B:[['home','Garage'],['first','First start']]};
+const SAY={A:'A · Parts Room: a library you manage. Cars, designs, artwork, fonts, backups and the Trash in one rail; the liveries of the chosen car as cards; everything about the selected one in a detail panel with its actions. Backups get a real list with Restore (bring back what is missing, or replace).',
+           B:'B · Pit Lane: a home page you start from. The livery you were painting is the big card on top, then one shelf per car with its liveries and a New livery tile. Adding a car, saved designs, the parts bin, backups and sharing sit in the side column. The first start becomes a drop zone with the sample car.'};
+let opt='A',sub={A:'car',B:'home'};
+function show(){
+  document.querySelectorAll('.opt').forEach(o=>o.classList.toggle('on',o.id===opt));
+  document.querySelectorAll('#opt button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===opt));
+  document.getElementById('sub').innerHTML=SUB[opt].map(([v,l])=>`<button data-v="${v}" aria-pressed="${sub[opt]===v}">${l}</button>`).join('');
+  document.getElementById('say').textContent=SAY[opt];
+  const sec=document.getElementById(opt);
+  sec.querySelectorAll('.state').forEach(s=>{const on=s.dataset.s===sub[opt];s.classList.toggle('on',on);if(opt==='A')s.style.display=on?'contents':'none';});
+  if(opt==='A')document.querySelectorAll('[data-a]').forEach(r=>r.classList.toggle('on',r.dataset.a===sub.A));
+}
+document.getElementById('opt').onclick=e=>{const v=e.target.closest('button')?.dataset.v;if(v){opt=v;show();}};
+document.getElementById('sub').onclick=e=>{const v=e.target.closest('button')?.dataset.v;if(v){sub[opt]=v;show();}};
+document.querySelectorAll('[data-a]').forEach(r=>r.onclick=()=>{sub.A=r.dataset.a;show();});
+document.getElementById('theme').onclick=e=>{const v=e.target.closest('button')?.dataset.v;if(!v)return;document.documentElement.dataset.theme=v;document.querySelectorAll('#theme button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===v));};
+const q=new URLSearchParams(location.search);if(q.get('opt'))opt=q.get('opt');if(q.get('sub'))sub[opt]=q.get('sub');if(q.get('theme')){document.documentElement.dataset.theme=q.get('theme');document.querySelectorAll('#theme button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===q.get('theme')));}
+show();
+</script>
+</body>
+</html>

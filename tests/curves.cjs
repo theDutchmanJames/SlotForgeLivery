@@ -177,7 +177,12 @@ async function run() {
   await page.locator('#package-file').setInputFiles(file);
   await page.waitForSelector('[data-action="confirm-import"]');
   await click('confirm-import');
-  assert.deepEqual(await page.evaluate(() => store.assets.at(-1).layer.points), expected);
+  assert.deepEqual(
+    await page.evaluate(
+      async () => (await libraryClient.hydrate(store, 'assets', store.assets.at(-1).id)).layer.points
+    ),
+    expected
+  );
   await page.locator('[data-library-use]').last().click();
   assert.deepEqual(await page.evaluate(() => selection().points), expected);
   await click('pdf');

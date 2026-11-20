@@ -31,4 +31,29 @@ async function writeBackup({ folder, data, keep = 10 }, assertTarget) {
   for (const name of removed) await fs.unlink(path.join(folder, name)).catch(() => {});
   return { file, removed: removed.length };
 }
-module.exports = { BACKUP_PATTERN, backupName, writeBackup };
+// The Garage lists Livery's own backups in the chosen folder, newest first.
+async function listBackups(folder) {
+  await assertFolder(folder);
+  const names = (await fs.readdir(folder)).filter(name => BACKUP_PATTERN.test(name));
+  const list = [];
+  for (const name of names) {
+    const stat = await fs.stat(path.join(folder, name)).catch(() => null);
+    if (stat?.isFile()) list.push({ name, size: stat.size, modified: stat.mtime.toISOString() });
+  }
+  return list.sort((a, b) => b.name.localeCompare(a.name));
+}
+// Reads one of those backups for Restore. Only a file named like Livery's own backups,
+// directly inside the chosen folder, can be read.
+async function readBackup({ folder, name }) {
+  await assertFolder(folder);
+  if (typeof name !== 'string' || path.basename(name) !== name || !BACKUP_PATTERN.test(name))
+    throw new Error('That is not a Livery backup.');
+  const file = path.join(folder, name),
+    stat = await fs.stat(file);
+  if (stat.size > 180 * 1024 * 1024) throw new Error('The backup exceeds 180 MB.');
+  const data = JSON.parse(await fs.readFile(file, 'utf8'));
+  if (data?.format !== 'slotforge-paintshop' || data.version !== 1 || data.kind !== 'library')
+    throw new Error('That is not a Livery backup.');
+  return data;
+}
+module.exports = { BACKUP_PATTERN, backupName, writeBackup, listBackups, readBackup };

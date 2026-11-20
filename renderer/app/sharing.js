@@ -21,7 +21,7 @@ let packageChoices = new Set(),
 function packageItems() {
   const query = $('#package-search').value.toLowerCase().trim();
   return store[packageTab]
-    .filter(a => a.name.toLowerCase().includes(query))
+    .filter(a => !a.trashedAt && a.name.toLowerCase().includes(query))
     .sort((a, b) => a.name.localeCompare(b.name));
 }
 function openPackageExport() {

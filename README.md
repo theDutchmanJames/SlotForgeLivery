@@ -100,7 +100,7 @@ Give shapes and text an **outline** in any colour and width. It sits outside the
 
 Import your graphics as images and position them on the car. **PNG transparency is preserved**, so a logo or decal can sit on the bodywork without a rectangular background.
 
-Use **Import decal artwork** in the toolbar, **User Library → Import artwork**, or **Import & Export → Import decal artwork or Decals sheet** (Projects, User Library, Import & Export, Settings and Help are in the ≡ menu at the top left). SVG, EPS and PDF decals retain supported gradients, masks, clipping, symbols and embedded images. Imported artwork keeps its own colours and can be positioned, resized, rotated and fitted to an angled panel.
+Use **Import decal artwork** in the toolbar, **Garage → Artwork & shapes → Import artwork**, or **Import & Export → Import decal artwork or Decals sheet** (the Garage, Import & Export, Settings and Help are in the ≡ menu at the top left). SVG, EPS and PDF decals retain supported gradients, masks, clipping, symbols and embedded images. Imported artwork keeps its own colours and can be positioned, resized, rotated and fitted to an angled panel.
 
 ### Bring a sheet from SlotForge Decals
 
@@ -137,7 +137,9 @@ Livery is a **2D editor**. Fitting controls help match a drawing's perspective; 
 
 ### Build a library you can reuse
 
-Keep prepared car templates, saved liveries, uploaded images, fonts and reusable artwork in **User Library**. Search and sort your items, rename them and edit their details.
+The **Garage** (≡ menu, or **Garage** at the top left) is where your work lives. Its side list shows your **cars**; choose one to see its liveries as cards, with their colours and whether they are **Being painted** or **Finished**. Select a livery for its details: open it, rename it, **duplicate** it, **use it on another car**, share it, save it as a reusable design, or **move it to the Trash**. The Trash keeps liveries for 30 days, so you can put them back.
+
+Under **Reuse** you keep saved designs, uploaded images and reusable artwork, and fonts. Search and sort them, rename them and edit their details. **Backups** lists the backups in your backup folder; **Restore** brings back the cars, liveries and artwork a backup has and your library no longer does, without changing anything you have now.
 
 Shapes stay in the project until you choose **Add to Library**. Select several shapes to save an editable group; each element keeps its own properties for later changes.
 
@@ -181,7 +183,7 @@ Use pan, zoom, Snap, Grid and undo/redo while editing. Click empty canvas to cle
 - The Paint Studio is laid out like a workbench: **Layers** on the left, the canvas with a tab for each view in the middle, and on the right the **Selection** tab (what you selected) and the **Workshop** tab (real size, mirroring, the paints in this livery and printing). Snap, Grid, Rulers, Side by side and Finish preview are the small switches under the canvas.
 - A **quick bar** above the selected artwork duplicates, reorders, copies to another view or deletes it; **right-click** the artwork or its row in Layers for more. **Print & export** at the top right holds the workshop plan, true-size prints, the PNG picture, decals and sharing the project.
 - **Settings → Studio** sets the scale for new cars, the number of undo steps, the finish preview, and whether Snap and Grid start switched on.
-- The **User Library** has a compact **List** view that shows how many projects use each car.
+- The library sections of the Garage have a compact **List** view; **All cars** shows how many liveries use each car.
 - New projects are numbered per car (for example *Club GT · Livery 2*), and the welcome screen lists your recent projects.
 
 | Action | Control |

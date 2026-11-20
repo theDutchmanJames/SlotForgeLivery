@@ -28,6 +28,15 @@ exports.openPropertyFolders = async page =>
 // Clicks a [data-action] button. A button in a closed menu or in the Workshop tab
 // is revealed first through the opener its container names (data-opener).
 exports.clickAction = async (page, action) => {
+  // The User Library is part of the Garage page (≡ → Garage → a library section), and the
+  // Garage is left for the studio rather than closed like a dialog.
+  if (action === 'library') return page.evaluate(() => actions.library());
+  if (
+    action === 'close-dialog' &&
+    !(await page.locator('#dialog[open]').count()) &&
+    (await page.locator('#garage-page').isVisible())
+  )
+    return page.evaluate(() => actions.studio());
   const target = `[data-action="${action}"]:visible`;
   if (!(await page.locator(target).count()))
     await page.evaluate(a => {

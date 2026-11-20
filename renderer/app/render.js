@@ -47,7 +47,10 @@ function renderWelcomeRecent() {
   const box = $('#welcome-recent'),
     recent = project
       ? []
-      : [...store.projects].sort((a, b) => String(b.updated || '').localeCompare(String(a.updated || ''))).slice(0, 4);
+      : store.projects
+          .filter(p => !p.trashedAt)
+          .sort((a, b) => String(b.updated || '').localeCompare(String(a.updated || '')))
+          .slice(0, 4);
   box.hidden = !recent.length;
   $('#welcome').classList.toggle('returning', store.templates.length + store.projects.length > 0);
   if (!recent.length) return;

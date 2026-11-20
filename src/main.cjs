@@ -145,6 +145,15 @@ ipcMain.handle('backup:choose-folder', async () => {
 ipcMain.handle('backup:write', (_, payload) =>
   maintenance.writeBackup(payload, file => assertExportTarget(file, app.getPath('userData')))
 );
+// The Garage's Backups list, Restore and Show in folder; only Livery's own backup files.
+ipcMain.handle('backup:list', (_, folder) => maintenance.listBackups(folder));
+ipcMain.handle('backup:read', (_, payload) => maintenance.readBackup(payload || {}));
+ipcMain.handle('backup:reveal', async (_, { folder, name } = {}) => {
+  const list = await maintenance.listBackups(folder);
+  const entry = list.find(b => b.name === name) || list[0];
+  if (entry) shell.showItemInFolder(path.join(folder, entry.name));
+  else await shell.openPath(folder);
+});
 // The update check (shared with SlotForge Circuit, see docs/update-check.md): once when Livery
 // starts, and when Check now is clicked in Settings. A newer version opens a window with What's
 // new, Skip and Download; Download saves this copy's file in Downloads and never runs it.

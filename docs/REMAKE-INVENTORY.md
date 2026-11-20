@@ -63,7 +63,13 @@ linked to real paints and "keep both sides in step" (both with #5), the painting
   - prepare the left side and mirror it to the right
   - "Save as a new car" or "Update the car" at the end, instead of a silent overwrite
 
-### 3. Projects, Library and Import & Export · Remake (one place)
+### 3. Projects, Library and Import & Export · Remake (one place) · **Done ("Parts Room", option A of `ui-reference/garage-2026-11`)**
+The Garage page: a rail of cars and library sections, a car's liveries as cards with colours and status (Being painted,
+Finished), a detail panel (open, rename, duplicate, use on another car, share, save as design, Move to Trash), the Trash
+(30 days, put back), the library sections inside the page, and Backups with "bring back what's missing". Code:
+`renderer/app/garage.js`, `renderer/garage.css`, backup listing in `src/maintenance.cjs`; test: `tests/garage.cjs`. Still
+open: "Replace my library" from a backup, a Trash for cars, designs, artwork and fonts (they are still removed at once),
+dragging a file in to add a car, and Import & Export remains a dialog. The Welcome screen is unchanged.
 - **What's wrong today:**
   - three dialogs for one collection
   - a "project" and a "livery" overlap: a project is one livery on one car, and a livery is a saved design for any car

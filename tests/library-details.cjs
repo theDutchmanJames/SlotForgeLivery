@@ -78,7 +78,7 @@ async function run() {
   assert.equal(await page.locator('#library-sort').inputValue(), 'za');
   // Save metadata for each asset kind without modifying its image/shape contents.
   for (const id of ['shape', 'image', 'group']) {
-    const before = await page.evaluate(id => M.clone(store.assets.find(a => a.id === id)), id);
+    const before = await page.evaluate(async id => M.clone(await libraryClient.hydrate(store, 'assets', id)), id);
     await edit('assets', id);
     await page.locator('#library-detail-name').fill('New ' + id);
     await page.locator('#library-detail-creator').fill('Artist ' + id);

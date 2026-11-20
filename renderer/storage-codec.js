@@ -178,7 +178,9 @@
       'base',
       'finish',
       'notes',
-      'paints'
+      'paints',
+      'status',
+      'trashedAt'
     ])
       if (item[k] !== undefined) s[k] = item[k];
     if (bucket === 'fonts') s.fontData = { name: item.fontData?.name, family: item.fontData?.family };
@@ -189,7 +191,26 @@
         item.layers?.length ||
         Object.values(item.views || {}).reduce((n, v) => n + (Array.isArray(v) ? v.length : 0), 0)
     };
+    // The Garage groups liveries by car and shows their main colours without loading them.
+    if (bucket === 'projects') {
+      if (item.template?.id) s.storageSummary.templateId = item.template.id;
+      s.storageSummary.colours = projectColours(item);
+    }
     return s;
+  }
+  // Up to five colours a livery uses most visibly: the base, painted panels, then artwork.
+  function projectColours(item) {
+    const seen = [],
+      add = c => {
+        const hex = typeof c === 'string' && /^#[0-9a-f]{6}$/i.test(c) ? c.toLowerCase() : null;
+        if (hex && !seen.includes(hex) && seen.length < 5) seen.push(hex);
+      };
+    add(item.base);
+    for (const v of Object.values(item.template?.views || {}))
+      for (const r of v?.regions || []) if (r.role === 'body') add(r.colour);
+    for (const list of Object.values(item.views || {}))
+      for (const l of Array.isArray(list) ? list : []) if (!['image', 'vector'].includes(l.kind)) add(l.fill);
+    return seen;
   }
   function validate(data) {
     if (

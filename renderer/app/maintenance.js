@@ -76,6 +76,7 @@ function startMaintenance() {
   };
   setTimeout(tick, 4000);
   setInterval(tick, 30 * 60e3);
+  emptyOldTrash();
   startUpdates();
 }
 // Settings → Updates is drawn by update-ui.js into this holder; settingsSheet() moves it into

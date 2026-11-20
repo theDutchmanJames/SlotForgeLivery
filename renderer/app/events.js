@@ -327,27 +327,7 @@ document.addEventListener('click', async ev => {
       return;
     }
     if (b.dataset.projectDelete) {
-      const id = b.dataset.projectDelete;
-      confirmAction(
-        'Delete this project?',
-        'Its car template and saved library items will remain available.',
-        () => {
-          store.projects = store.projects.filter(p => p.id !== id);
-          if (project?.id === id) {
-            project = null;
-            store.current = null;
-            undo = [];
-            redo = [];
-            preparing = false;
-            selected = null;
-          }
-          scheduleSave();
-          render();
-          openProjects();
-        },
-        'Delete project',
-        'danger'
-      );
+      await trashProject(b.dataset.projectDelete);
       return;
     }
     if (b.dataset.preset) {
