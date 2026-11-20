@@ -1,0 +1,564 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Paint Studio remake</title>
+<style>
+/* Livery's own bundled fonts; Segoe UI is the body text as in the app. */
+@font-face{font-family:'SF Cond';src:url('../../../renderer/fonts/barlowcondensed/BarlowCondensed-BoldItalic.ttf') format('truetype');font-weight:700;font-style:italic}
+@font-face{font-family:'SF Cond';src:url('../../../renderer/fonts/barlowcondensed/BarlowCondensed-Bold.ttf') format('truetype');font-weight:700}
+@font-face{font-family:'SF Mono';src:url('../../../renderer/fonts/robotomono/RobotoMono[wght].ttf') format('truetype');font-weight:100 700}
+:root{--bg:#171b21;--panel:#222831;--panel2:#1c2129;--raise:#2a313b;--ink:#e8e6e1;--ink2:#c4c8ce;--muted:#98a0ab;--faint:#6b7380;--line:#343b47;--line2:#2b313b;
+  --accent:#e5484d;--accent-text:#f06b6f;--ok:#3ecf8e;--warn:#f2b705;--blue:#4c9aff;--board:#e9ecf0;
+  --ui:'Segoe UI',system-ui,sans-serif;--cond:'SF Cond','Bahnschrift',sans-serif;--mono:'SF Mono',Consolas,monospace}
+[data-theme=light]{--bg:#eef0f3;--panel:#fff;--panel2:#f6f7f9;--raise:#eef0f3;--ink:#1c2129;--ink2:#3a414c;--muted:#5f6875;--faint:#8a929d;--line:#d5d9df;--line2:#e3e6ea;--accent-text:#c9363b;--board:#f7f8fa}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:13px/1.45 var(--ui);display:flex;flex-direction:column}
+button{font:inherit;color:inherit;cursor:pointer}
+svg.i{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.mono{font-family:var(--mono)}.muted{color:var(--muted)}.faint{color:var(--faint)}
+.title{font:italic 700 15px/1 var(--cond);letter-spacing:.02em;text-transform:uppercase}
+.eyebrow{font:600 10px/1 var(--ui);letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
+
+/* ---------- preview switcher (not part of the design) ---------- */
+.switch{flex:none;display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;padding:9px 18px;background:#0d1014;color:#e8e6e1;border-bottom:1px solid #2b313b}
+.switch b{font:600 10.5px var(--ui);letter-spacing:.14em;text-transform:uppercase;color:#98a0ab}
+.switch p{margin:0 0 0 auto;font-size:12px;color:#8a929d;max-width:560px}
+.seg{display:inline-flex;gap:2px;padding:3px;border:1px solid #343b47;border-radius:9px;background:#171b21}
+.seg button{height:26px;padding:0 11px;border:0;border-radius:6px;background:none;color:#c4c8ce;font-size:12.5px}
+.seg button[aria-pressed=true]{background:#e5484d;color:#fff}
+.stage{flex:1;min-height:760px;display:flex}
+.opt{flex:1;display:none;min-width:0}
+.opt.on{display:flex}
+
+/* ---------- shared bits ---------- */
+.btn{height:30px;display:inline-flex;align-items:center;gap:7px;padding:0 12px;border:1px solid var(--line);border-radius:7px;background:var(--panel);font-size:12.5px;white-space:nowrap}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+.btn.ghost{background:none;border-color:transparent}
+.ib{width:30px;height:30px;display:inline-grid;place-items:center;border:1px solid transparent;border-radius:7px;background:none;color:var(--ink2)}
+.ib:hover{background:var(--raise)}
+.ib.on{background:color-mix(in srgb,var(--accent) 16%,var(--panel));color:var(--accent-text);border-color:color-mix(in srgb,var(--accent) 40%,var(--line))}
+.sw{width:18px;height:18px;border-radius:5px;border:1px solid rgba(0,0,0,.25);box-shadow:inset 0 0 0 1px rgba(255,255,255,.15);flex:none}
+.board{background:var(--board);background-image:radial-gradient(circle,rgba(0,0,0,.06) 1px,transparent 1px);background-size:22px 22px;position:relative;overflow:hidden}
+.board svg.car{position:absolute;left:50%;top:50%;transform:translate(-50%,-52%);width:min(80%,860px);height:auto}
+.sel{position:absolute;border:1.5px solid var(--accent);pointer-events:none}
+.sel i{position:absolute;width:8px;height:8px;background:#fff;border:1.5px solid var(--accent);border-radius:2px}
+.callout{position:absolute;font:600 10.5px var(--ui);letter-spacing:.06em;text-transform:uppercase;color:#fff;background:#4c9aff;border-radius:999px;padding:3px 9px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+.callout::before{content:'';position:absolute;width:7px;height:7px;background:inherit;transform:rotate(45deg)}
+.callout.down::before{left:14px;bottom:-3px}.callout.up::before{left:14px;top:-3px}.callout.left::before{left:-3px;top:8px}.callout.right::before{right:-3px;top:8px}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:11.5px;color:var(--muted)}
+.inp{height:30px;border:1px solid var(--line);border-radius:7px;background:var(--panel2);display:flex;align-items:center;gap:7px;padding:0 9px;font-size:12.5px;min-width:0}
+.inp .mono{font-size:12px}
+.chips{display:flex;flex-wrap:wrap;gap:5px}
+.chip{height:26px;padding:0 10px;border:1px solid var(--line);border-radius:999px;background:none;font-size:12px;color:var(--ink2);display:inline-flex;align-items:center;gap:6px}
+.chip.on{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 14%,var(--panel));color:var(--ink)}
+.pill{font:600 10.5px var(--ui);padding:2px 7px;border-radius:999px;background:var(--raise);color:var(--muted)}
+.pill.good{background:color-mix(in srgb,var(--ok) 18%,var(--panel));color:var(--ok)}
+.pill.warn{background:color-mix(in srgb,var(--warn) 18%,var(--panel));color:var(--warn)}
+
+/* ================= OPTION A: WORKBENCH ================= */
+.A{flex-direction:column}
+.A-top{height:48px;flex:none;display:flex;align-items:center;gap:10px;padding:0 12px;border-bottom:1px solid var(--line2);background:var(--panel2)}
+.logo{width:28px;height:28px;border-radius:7px;background:var(--accent);display:grid;place-items:center;color:#fff;font:italic 700 15px var(--cond)}
+.crumbs{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--muted)}
+.crumbs strong{font:italic 700 17px/1 var(--cond);letter-spacing:.02em;text-transform:uppercase;color:var(--ink)}
+.crumbs .sep{color:var(--faint)}
+.saved{display:inline-flex;align-items:center;gap:6px;color:var(--ok);font-size:12px}
+.grow{flex:1}
+.A-body{flex:1;display:grid;grid-template-columns:48px 248px 1fr 304px;min-height:0}
+.A-tools{border-right:1px solid var(--line2);background:var(--panel2);display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 0}
+.A-tools .ib{width:34px;height:34px}
+.A-tools hr{width:24px;border:0;border-top:1px solid var(--line);margin:6px 0}
+.cur{width:30px;height:30px;border-radius:7px;position:relative;margin-top:4px}
+.cur.b{width:20px;height:20px;position:absolute;right:-6px;bottom:-6px;border:2px solid var(--panel2)}
+.A-layers{border-right:1px solid var(--line2);background:var(--panel);display:flex;flex-direction:column;min-height:0}
+.ph{display:flex;align-items:center;gap:8px;padding:12px 12px 8px}
+.ph .title{flex:1}
+.lrow{display:flex;align-items:center;gap:7px;height:30px;padding:0 8px 0 12px;font-size:12.5px;color:var(--ink2)}
+.lrow .sw{width:14px;height:14px;border-radius:4px}
+.lrow .name{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lrow .x{opacity:.45}
+.lrow.kid{padding-left:30px}
+.lrow.sel-row{background:color-mix(in srgb,var(--accent) 14%,var(--panel));color:var(--ink);box-shadow:inset 3px 0 0 var(--accent)}
+.lgroup{font:600 10px var(--ui);letter-spacing:.12em;text-transform:uppercase;color:var(--faint);padding:12px 12px 4px;display:flex;justify-content:space-between}
+.lfoot{margin-top:auto;border-top:1px solid var(--line2);padding:8px 10px;display:flex;gap:6px}
+.A-centre{display:flex;flex-direction:column;min-width:0;background:var(--bg)}
+.vtabs{height:40px;flex:none;display:flex;align-items:flex-end;gap:2px;padding:0 10px;border-bottom:1px solid var(--line2)}
+.vtab{height:32px;display:flex;align-items:center;gap:8px;padding:0 12px;border:1px solid transparent;border-bottom:0;border-radius:8px 8px 0 0;color:var(--muted);font-size:12.5px;background:none}
+.vtab.on{background:var(--board);color:#1c2129;border-color:var(--line);font-weight:600}
+.vtab svg.thumb{width:34px;height:16px}
+.vtab.add{color:var(--faint)}
+.A-canvas{flex:1;margin:0 10px;border:1px solid var(--line);border-top:0;border-radius:0 0 10px 10px}
+.floatbar{position:absolute;display:flex;align-items:center;gap:2px;padding:4px;background:var(--panel);border:1px solid var(--line);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.28);color:var(--ink)}
+.floatbar .ib{width:28px;height:28px}
+.floatbar .div{width:1px;height:18px;background:var(--line);margin:0 3px}
+.floatbar .cname{display:flex;align-items:center;gap:6px;padding:0 8px 0 4px;font-size:12px}
+.ctx{position:absolute;width:272px;white-space:nowrap;padding:5px;background:var(--panel);border:1px solid var(--line);border-radius:10px;box-shadow:0 12px 32px rgba(0,0,0,.32);color:var(--ink);font-size:12.5px}
+.ctx div{display:flex;align-items:center;gap:9px;height:28px;padding:0 9px;border-radius:6px}
+.ctx div:hover,.ctx div.hi{background:var(--raise)}
+.ctx kbd{margin-left:auto;font:11px var(--mono);color:var(--faint)}
+.ctx hr{border:0;border-top:1px solid var(--line2);margin:4px 2px}
+.ctx .danger{color:var(--accent-text)}
+.A-status{height:34px;flex:none;display:flex;align-items:center;gap:4px;padding:0 10px;color:var(--muted);font-size:12px}
+.A-status .ib{width:26px;height:26px}
+.zoom{display:inline-flex;align-items:center;gap:2px;border:1px solid var(--line);border-radius:7px;padding:1px}
+.zoom span{min-width:46px;text-align:center;font:12px var(--mono);color:var(--ink2)}
+.A-insp{border-left:1px solid var(--line2);background:var(--panel);display:flex;flex-direction:column;min-height:0}
+.itabs{display:flex;gap:2px;padding:8px 10px 0;border-bottom:1px solid var(--line2)}
+.itab{flex:1;height:32px;border:0;background:none;color:var(--muted);font-size:12.5px;border-bottom:2px solid transparent}
+.itab.on{color:var(--ink);border-bottom-color:var(--accent);font-weight:600}
+.ihead{display:flex;align-items:center;gap:10px;padding:12px 14px 10px}
+.ihead .ico{width:34px;height:34px;border-radius:8px;background:var(--raise);display:grid;place-items:center}
+.ihead .t{flex:1;min-width:0}
+.ihead .t strong{display:block;font-size:14px}
+.ihead .t small{color:var(--muted);font-size:11.5px}
+.isec{border-top:1px solid var(--line2);padding:12px 14px;display:flex;flex-direction:column;gap:10px}
+.isec h4{margin:0;display:flex;align-items:center;justify-content:space-between;font:600 10.5px var(--ui);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.isec h4 .ib{width:22px;height:22px}
+.isec.closed h4{color:var(--faint)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.segs{display:flex;padding:2px;border:1px solid var(--line);border-radius:8px;background:var(--panel2)}
+.segs span{flex:1;text-align:center;height:24px;line-height:24px;border-radius:6px;font-size:12px;color:var(--muted)}
+.segs span.on{background:var(--raise);color:var(--ink);font-weight:600}
+.paintlink{display:flex;align-items:center;gap:9px;padding:8px 9px;border:1px solid var(--line);border-radius:8px;background:var(--panel2)}
+.paintlink .sw{width:26px;height:26px;border-radius:6px}
+.paintlink b{display:block;font-size:12.5px}
+.paintlink small{color:var(--muted);font-size:11px}
+.slider{height:4px;border-radius:2px;background:var(--line);position:relative;margin:8px 0 4px}
+.slider::after{content:'';position:absolute;left:var(--v);top:-5px;width:14px;height:14px;border-radius:50%;background:var(--ink);transform:translateX(-50%)}
+.slider::before{content:'';position:absolute;left:0;top:0;bottom:0;width:var(--v);background:var(--accent);border-radius:2px}
+.wrow{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line2)}
+.wrow:last-child{border-bottom:0}
+.wrow .ico{width:30px;height:30px;border-radius:7px;background:var(--raise);display:grid;place-items:center;flex:none}
+.wrow .t{flex:1;min-width:0}
+.wrow .t b{display:block;font-size:12.5px;font-weight:600}
+.wrow .t small{color:var(--muted);font-size:11.5px}
+.ptab{display:none}.ptab.on{display:flex;flex-direction:column;min-height:0;flex:1;overflow:auto}
+
+/* ================= OPTION B: SPRAY BOOTH ================= */
+.B{flex-direction:column;background:#101318}
+[data-theme=light] .B{background:#dfe3e8}
+.B-top{height:56px;flex:none;display:flex;align-items:center;gap:14px;padding:0 14px;background:var(--panel2);border-bottom:1px solid var(--line2)}
+.B-name{display:flex;flex-direction:column;gap:3px}
+.B-name strong{font:italic 700 19px/1 var(--cond);text-transform:uppercase;letter-spacing:.02em}
+.stages{margin:0 auto;display:flex;align-items:center;gap:4px;padding:4px;border:1px solid var(--line);border-radius:12px;background:var(--panel)}
+.stg{display:flex;align-items:center;gap:9px;height:38px;padding:0 16px 0 8px;border:0;border-radius:9px;background:none;color:var(--muted)}
+.stg .n{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font:700 12px var(--mono);border:1.5px solid var(--line);color:var(--faint)}
+.stg .l{display:flex;flex-direction:column;align-items:flex-start;line-height:1.15}
+.stg .l b{font:italic 700 15px var(--cond);text-transform:uppercase;letter-spacing:.03em}
+.stg .l small{font-size:10.5px;color:var(--faint)}
+.stg.done .n{background:var(--ok);border-color:var(--ok);color:#0d1014}
+.stg.on{background:color-mix(in srgb,var(--accent) 16%,var(--panel));color:var(--ink)}
+.stg.on .n{background:var(--accent);border-color:var(--accent);color:#fff}
+.stg-arrow{color:var(--faint)}
+.B-main{flex:1;position:relative;min-height:0;display:flex}
+.B-booth{flex:1;position:relative;margin:12px;border-radius:14px;box-shadow:0 0 0 1px var(--line)}
+.B-booth.board svg.car{width:min(74%,900px);transform:translate(-50%,-58%)}
+.dock{position:absolute;display:flex;background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.25);color:var(--ink)}
+.B-tools{left:24px;top:50%;transform:translateY(-50%);flex-direction:column;gap:3px;padding:6px}
+.B-tools .ib{width:36px;height:36px}
+.B-tools hr{border:0;border-top:1px solid var(--line);margin:3px 4px}
+.B-views{left:24px;top:24px;align-items:center;gap:4px;padding:5px}
+.vchip{display:flex;align-items:center;gap:7px;height:34px;padding:0 10px 0 6px;border:0;border-radius:9px;background:none;font-size:12.5px;color:var(--muted)}
+.vchip svg.thumb{width:38px;height:18px;background:var(--board);border-radius:4px}
+.vchip.on{background:var(--raise);color:var(--ink);font-weight:600}
+.B-viewtools{right:24px;top:24px;align-items:center;gap:2px;padding:5px}
+.B-viewtools .zoom{border:0}
+.B-card{right:24px;top:84px;width:288px;flex-direction:column}
+.B-card .hd{display:flex;align-items:center;gap:10px;padding:12px 12px 10px;border-bottom:1px solid var(--line2)}
+.B-card .hd .t{flex:1}.B-card .hd strong{display:block;font-size:13.5px}.B-card .hd small{font-size:11.5px;color:var(--muted)}
+.B-card .bd{padding:12px;display:flex;flex-direction:column;gap:12px}
+.B-card .ft{display:flex;gap:6px;padding:10px 12px;border-top:1px solid var(--line2)}
+.fin{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}
+.fin span{display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 0;border:1px solid var(--line);border-radius:8px;font-size:10.5px;color:var(--muted)}
+.fin span i{width:22px;height:22px;border-radius:50%;background:var(--c)}
+.fin span.on{border-color:var(--accent);color:var(--ink);background:color-mix(in srgb,var(--accent) 10%,var(--panel))}
+.B-palette{left:50%;bottom:22px;transform:translateX(-50%);align-items:stretch;padding:6px;gap:6px}
+.pc{display:flex;flex-direction:column;justify-content:space-between;width:112px;height:76px;padding:7px 9px;border-radius:10px;border:0;text-align:left;position:relative;color:#1c2129}
+.pc b{font-size:12.5px;line-height:1.1}
+.pc small{font:10.5px var(--mono);opacity:.75}
+.pc.dark{color:#fff}
+.pc.on{outline:2.5px solid var(--accent);outline-offset:2px}
+.pc .uses{position:absolute;right:7px;top:6px;font:600 10px var(--mono);opacity:.7}
+.pc.add{background:var(--panel2);border:1.5px dashed var(--line);color:var(--muted);align-items:center;justify-content:center;gap:4px;width:86px}
+.pdiv{width:1px;background:var(--line);margin:4px 2px}
+.plabel{display:flex;flex-direction:column;justify-content:center;gap:4px;padding:0 10px 0 6px;width:128px}
+.B-layers{left:84px;top:84px;width:220px;flex-direction:column;padding:6px 0}
+.B-layers .lrow{height:28px}
+.B-layers .ph{padding:6px 12px 6px}
+.hintstrip{position:absolute;left:50%;top:84px;transform:translateX(-50%);display:flex;align-items:center;gap:10px;padding:7px 8px 7px 14px;background:#1c2129;color:#e8e6e1;border-radius:999px;font-size:12.5px;box-shadow:0 6px 20px rgba(0,0,0,.25)}
+.hintstrip b{color:#f06b6f}
+.hintstrip .btn{height:26px;background:#2a313b;border-color:#343b47;color:#e8e6e1}
+/* B · workshop stage */
+.B-ws{flex:1;display:grid;grid-template-columns:1fr 380px;gap:12px;padding:12px;min-height:0}
+.wsboard{border-radius:14px;box-shadow:0 0 0 1px var(--line);display:flex;flex-direction:column}
+.wsboard .board{flex:1;border-radius:14px 14px 0 0}
+.dim{position:absolute;display:flex;align-items:center;gap:6px;font:600 11.5px var(--mono);color:#3a414c}
+.dim .ln{flex:1;height:1px;background:#3a414c;position:relative}
+.dim .ln::before,.dim .ln::after{content:'';position:absolute;top:-4px;width:1px;height:9px;background:#3a414c}
+.dim .ln::before{left:0}.dim .ln::after{right:0}
+.ws-views{display:flex;gap:10px;padding:10px;background:var(--panel);border-radius:0 0 14px 14px;border-top:1px solid var(--line)}
+.ws-views div{flex:1;height:70px;border-radius:9px;background:var(--board);border:1px solid var(--line);position:relative}
+.ws-views div svg{position:absolute;inset:6px 10px;width:calc(100% - 20px);height:calc(100% - 20px)}
+.ws-views div small{position:absolute;left:8px;bottom:4px;font:600 10px var(--ui);color:#5f6875;letter-spacing:.08em;text-transform:uppercase}
+.ws-views div.add{background:none;border-style:dashed;display:grid;place-items:center;color:var(--muted);font-size:12px}
+.wsside{display:flex;flex-direction:column;gap:12px;min-height:0;overflow:auto}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px}
+.card .hd{display:flex;align-items:center;gap:8px;padding:11px 14px;border-bottom:1px solid var(--line2)}
+.card .hd .title{flex:1}
+.card .bd{padding:10px 14px}
+.order{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--line2);font-size:12.5px}
+.order:last-child{border-bottom:0}
+.order .k{width:20px;height:20px;border-radius:50%;background:var(--raise);display:grid;place-items:center;font:700 11px var(--mono);color:var(--muted);flex:none}
+.order .sw{width:22px;height:22px}
+.order .t{flex:1}.order .t small{display:block;color:var(--muted);font-size:11px}
+.order .tin{font:12px var(--mono);color:var(--muted)}
+.outs{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.out{display:flex;flex-direction:column;gap:6px;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--panel2)}
+.out b{font-size:12.5px}.out small{font-size:11px;color:var(--muted)}
+.B-wsonly{display:none}.B.ws .B-wsonly{display:grid}.B.ws .B-paintonly{display:none}
+</style>
+</head>
+<body>
+<div class="switch">
+  <b>Paint Studio remake</b>
+  <span class="seg" id="opt"><button data-v="A" aria-pressed="true">A · Workbench</button><button data-v="B">B · Spray Booth</button></span>
+  <span class="seg" id="sub"></span>
+  <span class="seg" id="theme"><button data-v="dark" aria-pressed="true">Dark</button><button data-v="light">Light</button></span>
+  <p id="say"></p>
+</div>
+
+<!-- The car drawing used everywhere in this preview (a stand-in for the user's own template). -->
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <clipPath id="bodyclip"><path id="bodyp" d="M62 268 L70 226 Q78 204 122 196 L292 176 Q336 146 392 112 Q424 94 476 92 L632 94 Q684 96 724 126 L796 178 Q894 188 926 212 Q944 232 938 268 L868 270 A72 72 0 0 0 724 270 L334 270 A72 72 0 0 0 190 270 Z"/></clipPath>
+    <symbol id="car" viewBox="40 70 920 290">
+      <use href="#bodyp" fill="#8fc3e8"/>
+      <g clip-path="url(#bodyclip)">
+        <rect x="40" y="206" width="920" height="34" fill="#f28a35"/>
+        <rect x="40" y="244" width="920" height="7" fill="#f6f4ef"/>
+        <rect x="40" y="70" width="920" height="40" fill="#2b3440" opacity=".0"/>
+      </g>
+      <path d="M318 176 L398 120 Q426 104 470 104 L500 104 L500 176 Z" fill="#33404d"/>
+      <path d="M516 104 L628 106 Q670 108 702 132 L758 176 L516 176 Z" fill="#33404d"/>
+      <path d="M508 102 L508 262" stroke="#2b3440" stroke-width="2.5" opacity=".55"/>
+      <path d="M86 214 L120 210 L118 230 L82 232 Z" fill="#fff4cf" stroke="#2b3440" stroke-width="2"/>
+      <path d="M902 206 L928 214 L930 230 L904 226 Z" fill="#d94a4a" stroke="#2b3440" stroke-width="2"/>
+      <use href="#bodyp" fill="none" stroke="#1f2730" stroke-width="3.5"/>
+      <circle cx="610" cy="196" r="44" fill="#f6f4ef" stroke="#1f2730" stroke-width="2"/>
+      <text x="610" y="214" text-anchor="middle" font-family="Bahnschrift,Arial Narrow,sans-serif" font-weight="700" font-size="54" fill="#1f2730">27</text>
+      <text x="300" y="232" font-family="Bahnschrift,Arial Narrow,sans-serif" font-weight="700" font-style="italic" font-size="22" fill="#fff" letter-spacing="1">SLOTFORGE</text>
+      <g fill="#1f2730"><circle cx="262" cy="272" r="60"/><circle cx="796" cy="272" r="60"/></g>
+      <g fill="#c4c8ce" stroke="#1f2730" stroke-width="3"><circle cx="262" cy="272" r="34"/><circle cx="796" cy="272" r="34"/></g>
+      <g fill="#1f2730"><circle cx="262" cy="272" r="8"/><circle cx="796" cy="272" r="8"/></g>
+    </symbol>
+    <symbol id="cartop" viewBox="0 0 400 160">
+      <rect x="20" y="22" width="360" height="116" rx="46" fill="#8fc3e8" stroke="#1f2730" stroke-width="4"/>
+      <rect x="20" y="66" width="360" height="28" fill="#f28a35"/>
+      <rect x="150" y="34" width="120" height="92" rx="16" fill="#33404d"/>
+      <circle cx="210" cy="80" r="26" fill="#f6f4ef" stroke="#1f2730" stroke-width="2"/>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="stage">
+<!-- ===================================================== A ===================================================== -->
+<section class="opt A on" id="A">
+  <header class="A-top">
+    <button class="ib" title="Menu: Settings, Help, theme, version"><i data-i="menu"></i></button>
+    <span class="logo">L</span>
+    <nav class="crumbs"><span>Garage</span><span class="sep">/</span><span>Sample coupe · 1:32</span><span class="sep">/</span><strong>Gulf tribute</strong><i data-i="chev" class="faint"></i></nav>
+    <span class="grow"></span>
+    <span class="saved"><i data-i="check"></i>Saved</span>
+    <button class="ib" title="Undo"><i data-i="undo"></i></button><button class="ib" title="Redo"><i data-i="redo"></i></button>
+    <button class="btn"><i data-i="save"></i>Save as livery</button>
+    <button class="btn primary"><i data-i="print"></i>Print &amp; export…</button>
+  </header>
+  <div class="A-body">
+    <aside class="A-tools">
+      <button class="ib on" title="Select (V)"><i data-i="select"></i></button>
+      <button class="ib" title="Edit points (A)"><i data-i="nodes"></i></button>
+      <hr>
+      <button class="ib" title="Rectangle (R)"><i data-i="rect"></i></button>
+      <button class="ib" title="Ellipse (E)"><i data-i="ellipse"></i></button>
+      <button class="ib" title="Draw shape (P)"><i data-i="pen"></i></button>
+      <button class="ib" title="Line / stripes (L)"><i data-i="line"></i></button>
+      <button class="ib" title="Text / number (T)"><i data-i="text"></i></button>
+      <button class="ib" title="Decal artwork (I)"><i data-i="image"></i></button>
+      <button class="ib" title="Shapes: roundels, boards, chequers"><i data-i="star"></i></button>
+      <hr>
+      <button class="ib" title="Pan (H)"><i data-i="hand"></i></button>
+      <span class="cur" style="background:#f28a35"><span class="cur b" style="background:#8fc3e8"></span></span>
+      <span class="grow"></span>
+      <button class="ib" title="Prepare template"><i data-i="car"></i></button>
+    </aside>
+
+    <aside class="A-layers">
+      <div class="ph"><span class="title">Layers</span><span class="pill">Left view</span><button class="ib" title="Find a layer"><i data-i="search"></i></button></div>
+      <div class="lgroup"><span>Artwork</span><span>5</span></div>
+      <div class="lrow"><i data-i="eye" class="x"></i><span class="sw" style="background:#fff"></span><span class="name">SLOTFORGE sponsor</span></div>
+      <div class="lrow sel-row"><i data-i="eye"></i><i data-i="folder"></i><span class="name">Number roundel</span><span class="faint">2</span></div>
+      <div class="lrow kid"><i data-i="eye" class="x"></i><span class="sw" style="background:#f6f4ef"></span><span class="name">Disc</span></div>
+      <div class="lrow kid"><i data-i="eye" class="x"></i><span class="sw" style="background:#1f2730"></span><span class="name">27</span></div>
+      <div class="lrow"><i data-i="eye" class="x"></i><span class="sw" style="background:#f6f4ef"></span><span class="name">Pinstripe</span></div>
+      <div class="lrow"><i data-i="eye" class="x"></i><span class="sw" style="background:#f28a35"></span><span class="name">Orange band</span></div>
+      <div class="lgroup"><span>Car panels</span><span>4</span></div>
+      <div class="lrow"><i data-i="eye" class="x"></i><span class="sw" style="background:#8fc3e8"></span><span class="name">Bodywork</span><span class="faint">Base</span></div>
+      <div class="lrow"><i data-i="eye" class="x"></i><span class="sw" style="background:#33404d"></span><span class="name">Windows</span><i data-i="lock" class="x"></i></div>
+      <div class="lrow"><i data-i="eye" class="x"></i><span class="sw" style="background:#fff4cf"></span><span class="name">Lights</span><i data-i="lock" class="x"></i></div>
+      <div class="lrow"><i data-i="eye" class="x"></i><span class="sw" style="background:#1f2730"></span><span class="name">Wheels &amp; trim</span><i data-i="lock" class="x"></i></div>
+      <div class="lgroup"><span>Livery colours</span><span>4</span></div>
+      <div class="lrow"><span class="sw" style="background:#8fc3e8"></span><span class="name">Gulf blue</span><span class="faint mono">TS-23</span></div>
+      <div class="lrow"><span class="sw" style="background:#f28a35"></span><span class="name">Gulf orange</span><span class="faint mono">TS-56</span></div>
+      <div class="lrow"><span class="sw" style="background:#f6f4ef"></span><span class="name">Race white</span><span class="faint mono">TS-26</span></div>
+      <div class="lrow"><span class="sw" style="background:#1f2730"></span><span class="name">Graphite</span><span class="faint mono">TS-42</span></div>
+      <div class="lfoot"><button class="btn" style="flex:1"><i data-i="plus"></i>Add</button><button class="ib" title="Group"><i data-i="folder"></i></button><button class="ib" title="Delete"><i data-i="trash"></i></button></div>
+    </aside>
+
+    <main class="A-centre">
+      <div class="vtabs">
+        <button class="vtab on"><svg class="thumb"><use href="#car"/></svg>Left</button>
+        <button class="vtab"><svg class="thumb" style="transform:scaleX(-1)"><use href="#car"/></svg>Right</button>
+        <button class="vtab"><svg class="thumb"><use href="#cartop"/></svg>Top</button>
+        <button class="vtab add"><i data-i="plus"></i>Add view</button>
+      </div>
+      <div class="A-canvas board">
+        <svg class="car"><use href="#car"/></svg>
+        <span class="callout down" style="left:24px;top:18px">Views are tabs, only the ones you have</span>
+        <div id="A-sel"></div>
+      </div>
+      <div class="A-status">
+        <button class="ib on" title="Snap"><i data-i="magnet"></i></button>
+        <button class="ib" title="Grid"><i data-i="grid"></i></button>
+        <button class="ib" title="Rulers"><i data-i="ruler"></i></button>
+        <button class="ib" title="Side by side"><i data-i="split"></i></button>
+        <button class="ib on" title="Finish preview"><i data-i="sparkle"></i></button>
+        <span class="faint" style="margin-left:8px">Roundel · 88 × 88 mm at 1:32 → 2.75 mm</span>
+        <span class="grow"></span>
+        <span class="faint">Right-click for more</span>
+        <span class="zoom"><button class="ib">−</button><span>100%</span><button class="ib">+</button><button class="ib" title="Fit"><i data-i="fit"></i></button></span>
+      </div>
+    </main>
+
+    <aside class="A-insp">
+      <div class="itabs"><button class="itab on" data-p="sel">Selection</button><button class="itab" data-p="proj">Workshop</button></div>
+      <div class="ptab on" data-p="sel">
+        <div class="ihead"><span class="ico"><i data-i="folder"></i></span><span class="t"><strong>Number roundel</strong><small>Group · 2 parts · Left view</small></span><button class="ib" title="Copy appearance"><i data-i="copy"></i></button><button class="ib" title="Paste appearance"><i data-i="paste"></i></button></div>
+        <div class="isec">
+          <h4>Colour</h4>
+          <div class="segs"><span class="on">Solid</span><span>Gradient</span></div>
+          <div class="paintlink"><span class="sw" style="background:#f6f4ef"></span><span style="flex:1"><b>Race white</b><small>Tamiya TS-26 Pure White · gloss</small></span><button class="ib" title="Pick from canvas"><i data-i="drop"></i></button></div>
+          <div class="chips"><span class="chip"><span class="sw" style="width:12px;height:12px;background:#8fc3e8"></span>Gulf blue</span><span class="chip"><span class="sw" style="width:12px;height:12px;background:#f28a35"></span>Gulf orange</span><span class="chip on"><span class="sw" style="width:12px;height:12px;background:#f6f4ef"></span>Race white</span><span class="chip"><span class="sw" style="width:12px;height:12px;background:#1f2730"></span>Graphite</span><span class="chip">+ New colour</span></div>
+        </div>
+        <div class="isec">
+          <h4>Finish</h4>
+          <div class="segs"><span>Matte</span><span>Satin</span><span class="on">Gloss</span><span>Metallic</span><span>Pearl</span></div>
+        </div>
+        <div class="isec">
+          <h4>Size &amp; place</h4>
+          <div class="g4"><div class="field"><label>X</label><div class="inp mono">566</div></div><div class="field"><label>Y</label><div class="inp mono">152</div></div><div class="field"><label>W</label><div class="inp mono">88</div></div><div class="field"><label>H</label><div class="inp mono">88</div></div></div>
+          <div class="g2"><div class="field"><label>Rotation</label><div class="inp mono">0°</div></div><div class="field"><label>Opacity</label><div class="inp mono">100%</div></div></div>
+        </div>
+        <div class="isec closed"><h4>Outline &amp; shadow <button class="ib"><i data-i="chev"></i></button></h4></div>
+        <div class="isec closed"><h4>Fit to the angled view <button class="ib"><i data-i="chev"></i></button></h4></div>
+        <div class="isec closed"><h4>Align <button class="ib"><i data-i="chev"></i></button></h4></div>
+      </div>
+      <div class="ptab" data-p="proj">
+        <div class="ihead"><span class="ico"><i data-i="car"></i></span><span class="t"><strong>Gulf tribute</strong><small>Sample coupe · 1:32 · 3 views</small></span></div>
+        <div class="isec">
+          <h4>Real size</h4>
+          <div class="g2"><div class="field"><label>Real car length</label><div class="inp mono">4 420 mm</div></div><div class="field"><label>Model at 1:32</label><div class="inp mono">138 mm</div></div></div>
+          <span class="pill good" style="align-self:flex-start">Masks and decals print at true size</span>
+        </div>
+        <div class="isec">
+          <h4>Both sides</h4>
+          <div class="wrow"><span class="ico"><i data-i="mirror"></i></span><span class="t"><b>Keep the right side in step</b><small>Changes on the left appear mirrored on the right</small></span><span class="pill good">On</span></div>
+          <div class="wrow"><span class="ico"><i data-i="copy"></i></span><span class="t"><b>Copy artwork to another view</b><small>Once, then edit it there</small></span><i data-i="chev" class="faint"></i></div>
+        </div>
+        <div class="isec">
+          <h4>Paints for this livery <span class="pill">4</span></h4>
+          <div class="wrow"><span class="sw" style="width:26px;height:26px;background:#f6f4ef"></span><span class="t"><b>Race white</b><small>Tamiya TS-26 · 1st, lightest</small></span></div>
+          <div class="wrow"><span class="sw" style="width:26px;height:26px;background:#f28a35"></span><span class="t"><b>Gulf orange</b><small>Tamiya TS-56 · 2nd</small></span></div>
+          <div class="wrow"><span class="sw" style="width:26px;height:26px;background:#8fc3e8"></span><span class="t"><b>Gulf blue</b><small>Tamiya TS-23 · 3rd</small></span></div>
+          <div class="wrow"><span class="sw" style="width:26px;height:26px;background:#1f2730"></span><span class="t"><b>Graphite</b><small>Tamiya TS-42 · details by brush</small></span></div>
+        </div>
+        <div class="isec">
+          <h4>Workshop</h4>
+          <div class="wrow"><span class="ico"><i data-i="note"></i></span><span class="t"><b>Notes</b><small>Mask the windows before the orange</small></span><i data-i="chev" class="faint"></i></div>
+          <div class="wrow"><span class="ico"><i data-i="decal"></i></span><span class="t"><b>Decals</b><small>27 roundel, SLOTFORGE · to SlotForge Decals</small></span><i data-i="chev" class="faint"></i></div>
+        </div>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<!-- ===================================================== B ===================================================== -->
+<section class="opt B" id="B">
+  <header class="B-top">
+    <button class="ib" title="Garage"><i data-i="back"></i></button>
+    <span class="B-name"><span class="eyebrow">Sample coupe · 1:32</span><strong>Gulf tribute</strong></span>
+    <nav class="stages">
+      <button class="stg done"><span class="n"><i data-i="check"></i></span><span class="l"><b>Prepare</b><small>Panels &amp; real size</small></span></button>
+      <span class="stg-arrow"><i data-i="chev"></i></span>
+      <button class="stg on" data-s="paint"><span class="n">2</span><span class="l"><b>Paint</b><small>Colours &amp; artwork</small></span></button>
+      <span class="stg-arrow"><i data-i="chev"></i></span>
+      <button class="stg" data-s="ws"><span class="n">3</span><span class="l"><b>Workshop</b><small>Paints, masks, print</small></span></button>
+    </nav>
+    <span class="saved"><i data-i="check"></i>Saved</span>
+    <button class="ib"><i data-i="undo"></i></button><button class="ib"><i data-i="redo"></i></button>
+    <button class="ib" title="Settings, Help"><i data-i="more"></i></button>
+  </header>
+
+  <div class="B-main B-paintonly">
+    <div class="B-booth board">
+      <svg class="car"><use href="#car"/></svg>
+      <div id="B-sel"></div>
+    </div>
+    <div class="dock B-views">
+      <button class="vchip on"><svg class="thumb"><use href="#car"/></svg>Left</button>
+      <button class="vchip"><svg class="thumb" style="transform:scaleX(-1)"><use href="#car"/></svg>Right <span class="pill" title="Kept in step with the left side">mirrored</span></button>
+      <button class="vchip"><svg class="thumb"><use href="#cartop"/></svg>Top</button>
+      <button class="ib" title="Add a view"><i data-i="plus"></i></button>
+    </div>
+    <div class="dock B-viewtools">
+      <button class="ib on" title="Snap"><i data-i="magnet"></i></button>
+      <button class="ib" title="Grid &amp; rulers"><i data-i="ruler"></i></button>
+      <button class="ib" title="All views at once"><i data-i="split"></i></button>
+      <span class="zoom"><button class="ib">−</button><span>100%</span><button class="ib">+</button></span>
+    </div>
+    <div class="dock B-tools">
+      <button class="ib on" title="Select"><i data-i="select"></i></button>
+      <button class="ib" title="Edit points"><i data-i="nodes"></i></button>
+      <hr>
+      <button class="ib" title="Stripe"><i data-i="line"></i></button>
+      <button class="ib" title="Shape"><i data-i="rect"></i></button>
+      <button class="ib" title="Number &amp; name"><i data-i="text"></i></button>
+      <button class="ib" title="Decal"><i data-i="image"></i></button>
+      <button class="ib" title="Free shape"><i data-i="pen"></i></button>
+      <hr>
+      <button class="ib" title="Layers"><i data-i="layers"></i></button>
+    </div>
+    <div class="hintstrip"><span>Pick a colour below, then click a panel or a shape. <b>Right-click</b> for more.</span><button class="btn">Got it</button></div>
+
+    <div class="dock B-card">
+      <div class="hd"><span class="sw" style="width:30px;height:30px;border-radius:50%;background:#f6f4ef"></span><span class="t"><strong>Number roundel</strong><small>Group · 2 parts</small></span><button class="ib" title="Close"><i data-i="x"></i></button></div>
+      <div class="bd">
+        <div class="field"><label>Colour (from the palette below)</label><div class="paintlink"><span class="sw" style="background:#f6f4ef"></span><span style="flex:1"><b>Race white</b><small>Tamiya TS-26 Pure White</small></span><i data-i="chev" class="faint"></i></div></div>
+        <div class="field"><label>Finish</label>
+          <div class="fin"><span style="--c:#9aa3ad">Matte</span><span style="--c:radial-gradient(circle at 35% 30%,#cfd5db,#8d96a0)">Satin</span><span class="on" style="--c:radial-gradient(circle at 35% 30%,#fff,#8d96a0 70%)">Gloss</span><span style="--c:conic-gradient(#8d96a0,#e3e7ea,#8d96a0,#cfd5db,#8d96a0)">Metallic</span><span style="--c:conic-gradient(#d9d4f0,#f2e9e1,#cfe6ef,#d9d4f0)">Pearl</span></div>
+        </div>
+        <div class="field"><label>Size · 88 mm on the real car, 2.75 mm on your 1:32 model</label><div class="slider" style="--v:42%"></div></div>
+        <div class="chips"><span class="chip"><i data-i="mirror"></i>Mirror</span><span class="chip"><i data-i="copy"></i>Duplicate</span><span class="chip"><i data-i="up"></i>Forward</span><span class="chip">More…</span></div>
+      </div>
+      <div class="ft"><button class="btn" style="flex:1"><i data-i="sliders"></i>All settings</button><button class="ib" title="Delete"><i data-i="trash"></i></button></div>
+    </div>
+
+    <div class="dock B-palette">
+      <span class="plabel"><span class="title">Livery colours</span><span class="faint" style="font-size:11px">Click to paint. Change one and every use follows.</span></span>
+      <span class="pdiv"></span>
+      <button class="pc" style="background:#8fc3e8"><span class="uses">3×</span><b>Gulf blue</b><small>TS-23</small></button>
+      <button class="pc" style="background:#f28a35"><span class="uses">2×</span><b>Gulf orange</b><small>TS-56</small></button>
+      <button class="pc on" style="background:#f6f4ef"><span class="uses">3×</span><b>Race white</b><small>TS-26</small></button>
+      <button class="pc dark" style="background:#1f2730"><span class="uses">4×</span><b>Graphite</b><small>TS-42</small></button>
+      <button class="pc add"><i data-i="plus"></i><span style="font-size:11.5px">New colour</span></button>
+    </div>
+  </div>
+
+  <div class="B-ws B-wsonly">
+    <div class="wsboard">
+      <div class="board">
+        <svg class="car" style="width:min(70%,820px)"><use href="#car"/></svg>
+        <div class="dim" style="left:15%;right:15%;bottom:13%"><span class="ln"></span><span>138 mm · real car 4 420 mm</span><span class="ln"></span></div>
+        <span class="callout down" style="left:24px;top:18px">Workshop: the whole car at a glance, no tools in the way</span>
+      </div>
+      <div class="ws-views">
+        <div><svg><use href="#car"/></svg><small>Left</small></div>
+        <div><svg style="transform:scaleX(-1)"><use href="#car"/></svg><small>Right · mirrored</small></div>
+        <div><svg><use href="#cartop"/></svg><small>Top</small></div>
+        <div class="add">+ Add a view</div>
+      </div>
+    </div>
+    <div class="wsside">
+      <div class="card">
+        <div class="hd"><span class="title">Painting order</span><span class="pill">lightest first</span></div>
+        <div class="bd">
+          <div class="order"><span class="k">1</span><span class="sw" style="background:#f6f4ef"></span><span class="t">Race white<small>Pinstripe, roundel · mask nothing</small></span><span class="tin">TS-26</span></div>
+          <div class="order"><span class="k">2</span><span class="sw" style="background:#f28a35"></span><span class="t">Gulf orange<small>Band · mask the pinstripe</small></span><span class="tin">TS-56</span></div>
+          <div class="order"><span class="k">3</span><span class="sw" style="background:#8fc3e8"></span><span class="t">Gulf blue<small>Bodywork · mask band and roundel</small></span><span class="tin">TS-23</span></div>
+          <div class="order"><span class="k">4</span><span class="sw" style="background:#1f2730"></span><span class="t">Graphite<small>Trim, by brush</small></span><span class="tin">TS-42</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="hd"><span class="title">Shopping list</span><span class="pill warn">1 to buy</span></div>
+        <div class="bd">
+          <div class="order"><span class="sw" style="background:#8fc3e8"></span><span class="t">Tamiya TS-23 Light Blue<small>About 1 can for this body</small></span><span class="pill warn">Buy</span></div>
+          <div class="order"><span class="sw" style="background:#f28a35"></span><span class="t">Tamiya TS-56 Brilliant Orange<small>In My paints</small></span><span class="pill good">Have</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="hd"><span class="title">Take it to the bench</span></div>
+        <div class="bd outs">
+          <div class="out"><i data-i="note"></i><b>Workshop plan</b><small>PDF · order, paints, notes</small></div>
+          <div class="out"><i data-i="scissors"></i><b>Masks at true size</b><small>PDF · 1:32, ruler to check</small></div>
+          <div class="out"><i data-i="decal"></i><b>Decal sheet</b><small>27 roundel, SLOTFORGE</small></div>
+          <div class="out"><i data-i="image"></i><b>Pictures</b><small>PNG · all views</small></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+</div>
+
+<script>
+const P={select:'M5 3l14 8-6 2-2 6z',nodes:'M4 18h4v-4H4z M16 18h4v-4h-4z M10 8h4V4h-4z M8 15l3-7 M16 15l-3-7',rect:'M4 6h16v12H4z',ellipse:'M12 5c4.4 0 8 3.1 8 7s-3.6 7-8 7-8-3.1-8-7 3.6-7 8-7z',pen:'M3 21l3-1 12-12-2-2L4 18z M14 6l2 2',line:'M4 20C8 8 16 16 20 4',text:'M5 5h14 M12 5v14 M9 19h6',image:'M4 5h16v14H4z M4 16l5-5 4 4 3-3 4 4 M15 9h.01',hand:'M8 12V6a1.5 1.5 0 0 1 3 0v5 M11 11V4.5a1.5 1.5 0 0 1 3 0V11 M14 11V6a1.5 1.5 0 0 1 3 0v7c0 4-3 7-6 7s-5-2-7-5l-1.5-3a1.5 1.5 0 0 1 2.5-1.5L8 13',car:'M3 15l2-5h14l2 5v3H3z M7 10l2-4h6l2 4 M6 18v2 M18 18v2',eye:'M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z M12 9a3 3 0 1 0 0 6a3 3 0 1 0 0-6',lock:'M6 11h12v9H6z M8 11V8a4 4 0 0 1 8 0v3',undo:'M9 14L4 9l5-5 M4 9h10a6 6 0 0 1 0 12h-3',redo:'M15 14l5-5-5-5 M20 9H10a6 6 0 0 0 0 12h3',copy:'M8 8h12v12H8z M4 16V4h12',paste:'M8 4h8v3H8z M6 6H5v15h14V6h-1',mirror:'M12 3v18 M9 7L4 17h5z M15 7l5 10h-5z',trash:'M4 7h16 M9 7V4h6v3 M6 7l1 13h10l1-13',up:'M12 19V5 M6 11l6-6 6 6',plus:'M12 5v14 M5 12h14',print:'M7 9V3h10v6 M5 9h14v8H5z M7 14h10v7H7z',ruler:'M3 17L17 3l4 4L7 21z M7 13l2 2 M10 10l2 2 M13 7l2 2',grid:'M4 4h16v16H4z M4 10h16 M4 15h16 M10 4v16 M15 4v16',magnet:'M6 4v8a6 6 0 0 0 12 0V4 M6 8h4 M14 8h4',split:'M3 5h18v14H3z M12 5v14',layers:'M12 3l9 5-9 5-9-5z M3 13l9 5 9-5',menu:'M4 7h16 M4 12h16 M4 17h16',check:'M5 12l5 5 9-10',drop:'M14 4l6 6-3 3-6-6z M11 9l-7 7v4h4l7-7',chev:'M9 6l6 6-6 6',back:'M15 6l-6 6 6 6',decal:'M4 4h11l5 5v11H4z M15 4v5h5',note:'M5 4h14v16H5z M8 9h8 M8 13h8 M8 17h5',search:'M11 4a7 7 0 1 0 0 14a7 7 0 1 0 0-14 M20 20l-4-4',folder:'M3 6h6l2 2h10v11H3z',save:'M5 4h11l3 3v13H5z M8 4v5h7V4 M8 20v-6h8v6',star:'M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6-5.3-3-5.3 3 1.2-6L3.4 9.3l6-.7z',sparkle:'M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z M19 16l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z',fit:'M4 9V4h5 M15 4h5v5 M20 15v5h-5 M9 20H4v-5',x:'M6 6l12 12 M18 6L6 18',more:'M5 12h.01 M12 12h.01 M19 12h.01',sliders:'M4 7h10 M18 7h2 M4 17h4 M12 17h8 M14 5v4 M8 15v4',scissors:'M6 7a2.5 2.5 0 1 0 0 .01 M6 17a2.5 2.5 0 1 0 0 .01 M8 8l12 10 M8 16L20 6',dup:'M8 8h12v12H8z M4 16V4h12'};
+document.querySelectorAll('i[data-i]').forEach(i=>{const s=`<svg class="i ${i.className}" viewBox="0 0 24 24"><path d="${P[i.dataset.i]||''}"/></svg>`;i.outerHTML=s});
+document.querySelectorAll("svg:has(> use)").forEach(s=>{const top=s.querySelector("use").getAttribute("href")==="#cartop";s.setAttribute("viewBox",top?"0 0 400 160":"0 0 920 290");});
+const ICON=n=>`<svg class="i" viewBox="0 0 24 24"><path d="${P[n]}"/></svg>`;
+
+/* Selection frame, floating bar and right-click menu are placed over the car's roundel. */
+function placeOver(boardSel, holder, extra){
+  const board=document.querySelector(boardSel), svg=board.querySelector('svg.car'), h=document.getElementById(holder);
+  const b=board.getBoundingClientRect(), s=svg.getBoundingClientRect(); if(!s.width) return;
+  const k=s.width/920, cx=s.left-b.left+(610-40)*k, cy=s.top-b.top+(196-70)*k, r=46*k;
+  h.innerHTML=`<div class="sel" style="left:${cx-r}px;top:${cy-r}px;width:${2*r}px;height:${2*r}px"><i style="left:-5px;top:-5px"></i><i style="right:-5px;top:-5px"></i><i style="left:-5px;bottom:-5px"></i><i style="right:-5px;bottom:-5px"></i></div>`+extra(cx,cy,r,b);
+}
+function layout(){
+  placeOver('.A-canvas','A-sel',(cx,cy,r)=>`
+    <div class="floatbar" style="left:${cx-150}px;top:${cy-r-52}px"><span class="cname"><span class="sw" style="width:14px;height:14px;background:#f6f4ef"></span>Race white</span><span class="div"></span>${['mirror','dup','up','trash'].map(n=>`<button class="ib">${ICON(n)}</button>`).join('')}<span class="div"></span><button class="ib">${ICON('more')}</button></div>
+    <span class="callout right" style="left:${cx-150-232}px;top:${cy-r-46}px">Quick bar follows the selection</span>
+    <div class="ctx" style="left:${cx-r-40}px;top:${cy+r*3.2}px">
+      <div>${ICON('copy')}Copy appearance<kbd>Ctrl ⇧ C</kbd></div><div>${ICON('paste')}Paste appearance<kbd>Ctrl ⇧ V</kbd></div><hr>
+      <div class="hi">${ICON('mirror')}Mirror to the right side</div><div>${ICON('copy')}Copy to view…</div><div>${ICON('up')}Bring to front<kbd>Ctrl ]</kbd></div><hr>
+      <div>${ICON('save')}Add to library</div><div>${ICON('lock')}Lock</div><hr>
+      <div class="danger">${ICON('trash')}Delete<kbd>Del</kbd></div></div>
+    <span class="callout left" style="left:${cx-r+250}px;top:${cy+r*3.2+6}px">Right-click menu</span>`);
+  placeOver('.B-booth','B-sel',(cx,cy,r)=>`<span class="callout down" style="left:${cx-r}px;top:${cy-r-38}px">Paint card shows only for a selection</span>`);
+}
+
+const SUB={A:[['sel','Selection'],['proj','Workshop tab']],B:[['paint','2 · Paint'],['ws','3 · Workshop']]};
+const SAY={A:'A · Workbench: a pro tool layout. Layers get their own column on the left, the inspector a full column on the right with a Workshop tab for everything about the whole livery. Views are tabs, one slim bar on top, a quick bar and a right-click menu at the selection.',
+           B:'B · Spray Booth: built around the job, not the tools. Three stages on top (Prepare, Paint, Workshop). Painting is canvas-first: floating docks, a livery palette of named colours linked to real paints, and a small paint card only when something is selected. Workshop shows the painting order, shopping list and what to print.'};
+let opt='A',sub={A:'sel',B:'paint'};
+function show(){
+  document.querySelectorAll('.opt').forEach(o=>o.classList.toggle('on',o.id===opt));
+  document.querySelectorAll('#opt button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===opt));
+  document.getElementById('sub').innerHTML=SUB[opt].map(([v,l])=>`<button data-v="${v}" aria-pressed="${sub[opt]===v}">${l}</button>`).join('');
+  document.getElementById('say').textContent=SAY[opt];
+  if(opt==='A'){document.querySelectorAll('.itab').forEach(t=>t.classList.toggle('on',t.dataset.p===sub.A));document.querySelectorAll('.ptab').forEach(t=>t.classList.toggle('on',t.dataset.p===sub.A));}
+  else{const B=document.getElementById('B');B.classList.toggle('ws',sub.B==='ws');document.querySelectorAll('.stg[data-s]').forEach(s=>s.classList.toggle('on',s.dataset.s===sub.B));}
+  requestAnimationFrame(layout);
+}
+document.getElementById('opt').onclick=e=>{const v=e.target.closest('button')?.dataset.v;if(v){opt=v;show();}};
+document.getElementById('sub').onclick=e=>{const v=e.target.closest('button')?.dataset.v;if(v){sub[opt]=v;show();}};
+document.querySelectorAll('.itab').forEach(t=>t.onclick=()=>{sub.A=t.dataset.p;show();});
+document.querySelectorAll('.stg[data-s]').forEach(t=>t.onclick=()=>{sub.B=t.dataset.s;show();});
+document.getElementById('theme').onclick=e=>{const v=e.target.closest('button')?.dataset.v;if(!v)return;document.documentElement.dataset.theme=v;document.querySelectorAll('#theme button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===v));};
+const q=new URLSearchParams(location.search);if(q.get('opt'))opt=q.get('opt');if(q.get('sub'))sub[opt]=q.get('sub');if(q.get('theme')){document.documentElement.dataset.theme=q.get('theme');document.querySelectorAll('#theme button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===q.get('theme')));}
+addEventListener('resize',layout);show();
+</script>
+</body>
+</html>

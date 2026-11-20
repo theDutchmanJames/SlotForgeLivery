@@ -24,9 +24,9 @@ function reordered(action, target = null, side = 'above', scope = orderScope()) 
 }
 function commitOrder(next) {
   if (next.every((l, i) => l.id === layers()[i]?.id)) return;
-  const scroll = $('#inspector .layer-list')?.scrollTop || 0;
+  const scroll = $('#layers-panel .layer-list')?.scrollTop || 0;
   mutate(() => (project.views[currentView] = next));
-  const list = $('#inspector .layer-list');
+  const list = $('#layers-panel .layer-list');
   if (list) list.scrollTop = scroll;
 }
 function reorder(action) {

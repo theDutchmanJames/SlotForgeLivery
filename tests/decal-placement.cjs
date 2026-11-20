@@ -1,6 +1,7 @@
 const fs = require('node:fs/promises'),
   path = require('node:path'),
   assert = require('node:assert/strict');
+const { clickAction } = require('./inspector-helpers.cjs');
 const { _electron: electron } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const D = require('../renderer/decals/model.js');
 const root = path.resolve(__dirname, '..'),
@@ -19,7 +20,7 @@ async function launch() {
   page.on('pageerror', e => errors.push(e.message));
   await page.waitForSelector('#tools button');
 }
-const click = action => page.locator(`[data-action="${action}"]:visible`).first().click();
+const click = action => clickAction(page, action);
 async function place(name) {
   await page.evaluate(() => openLibrary('assets'));
   await page.locator('#library-search').fill(name);

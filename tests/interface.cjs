@@ -4,6 +4,7 @@
 const fs = require('node:fs/promises'),
   path = require('node:path'),
   assert = require('node:assert/strict');
+const { clickAction } = require('./inspector-helpers.cjs');
 const root = path.resolve(__dirname, '..');
 const { _electron: electron } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const runtime = process.env.ELECTRON_BINARY || require('electron');
@@ -25,7 +26,7 @@ async function launch() {
   await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].setSize(1500, 950));
   await page.waitForSelector('#tools button');
 }
-const click = action => page.locator(`[data-action="${action}"]:visible`).first().click();
+const click = action => clickAction(page, action);
 const hintStep = () => page.evaluate(() => ($('#step-hint').hidden ? null : $('#step-hint').dataset.step));
 
 async function run() {
@@ -89,26 +90,8 @@ async function run() {
   await click('close-dialog');
   assert.equal(await page.evaluate(() => store.settings.libraryView), 'list');
 
-  // Resizable Layers panel: drag, keyboard and double-click reset.
-  const handle = page.locator('#inspector .dock-resizer');
-  const box = await handle.boundingBox(),
-    inspector = await page.locator('#inspector').boundingBox();
-  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
-  await page.mouse.down();
-  await page.mouse.move(box.x + box.width / 2, inspector.y + inspector.height * 0.3, { steps: 5 });
-  await page.mouse.up();
-  const dragged = await page.evaluate(() => store.settings.layersDock);
-  assert(dragged > 0.6 && dragged <= 0.8, 'dragging up enlarges Layers: ' + dragged);
-  await handle.focus();
-  await page.keyboard.press('ArrowDown');
-  assert(Math.abs((await page.evaluate(() => store.settings.layersDock)) - (dragged - 0.05)) < 1e-9);
-  const selectedBefore = await page.evaluate(() => JSON.stringify(project.views));
-  assert.equal(await page.evaluate(() => JSON.stringify(project.views)), selectedBefore, 'arrow keys did not nudge');
-  await handle.dblclick();
-  assert.equal(await page.evaluate(() => store.settings.layersDock), undefined, 'double-click resets');
-
   // Help: one section at a time.
-  await page.locator('.help-button').click();
+  await click('help');
   assert.equal(await page.locator('[data-help-panel]:visible').count(), 1);
   await page.locator('[data-help-tab="3"]').click();
   assert.equal(await page.locator('[data-help-panel="3"]').isVisible(), true);

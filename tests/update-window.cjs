@@ -136,7 +136,7 @@ async function run() {
 
   // Settings → Updates: the versions, in the side list too. (A restart forgets the download.)
   await app.evaluate(() => (globalThis.liveryUpdateCheck.download = { state: 'idle' }));
-  await page.locator('[data-action="settings"]:visible').first().click();
+  await require('./inspector-helpers.cjs').clickAction(page, 'settings');
   await page.waitForSelector('#update-settings .ss-pill');
   assert.match(await page.locator('#update-settings').textContent(), /Version 9\.9\.0 is available/);
   assert.match(

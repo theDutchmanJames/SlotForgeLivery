@@ -36,7 +36,7 @@ function zoom(factor, point = { x: viewBox.x + viewBox.w / 2, y: viewBox.y + vie
 document.addEventListener('click', async ev => {
   const b = ev.target.closest('button');
   if (!b || b.disabled) return;
-  if (b.closest('.app-header nav')) hideToast();
+  if (b.closest('.app-menu')) hideToast();
   try {
     if (b.dataset.linePreset) {
       const preset = LINE_PRESETS.find(p => p.id === b.dataset.linePreset);
@@ -620,10 +620,10 @@ $('#home-link').onclick = ev => {
 
 // Right-click a team colour to remove it from the design's palette.
 document.addEventListener('contextmenu', ev => {
-  const b = ev.target.closest('[data-team-colour]');
+  const b = ev.target.closest('[data-team-colour],[data-layer-team]');
   if (!b || !project) return;
   ev.preventDefault();
-  const c = b.dataset.teamColour;
+  const c = b.dataset.teamColour || b.dataset.layerTeam;
   mutate(() => (project.palette = (project.palette || []).filter(x => x !== c)));
   toast('Removed ' + c.toUpperCase() + ' from team colours.');
 });

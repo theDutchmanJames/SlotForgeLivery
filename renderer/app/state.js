@@ -44,7 +44,18 @@ const icons = {
   down: 'M5 9l7 7 7-7',
   check: 'M4 12l5 5L20 6',
   palette: 'M12 3a9 9 0 100 18h2a2 2 0 001-4 2 2 0 012-3h2a3 3 0 003-3 9 9 0 00-10-8 M7 10h.1 M10 6h.1 M16 7h.1',
-  grid: 'M3 3h18v18H3z M3 9h18 M3 15h18 M9 3v18 M15 3v18'
+  grid: 'M3 3h18v18H3z M3 9h18 M3 15h18 M9 3v18 M15 3v18',
+  menu: 'M4 7h16 M4 12h16 M4 17h16',
+  magnet: 'M6 4v8a6 6 0 0 0 12 0V4 M6 8h4 M14 8h4',
+  ruler: 'M3 17L17 3l4 4L7 21z M7 13l2 2 M10 10l2 2 M13 7l2 2',
+  split: 'M3 5h18v14H3z M12 5v14',
+  sparkle: 'M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z M19 16l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z',
+  decal: 'M4 4h11l5 5v11H4z M15 4v5h5',
+  mirror: 'M12 3v18 M9 7L4 17h5z M15 7l5 10h-5z',
+  more: 'M5 12h.01 M12 12h.01 M19 12h.01',
+  note: 'M5 4h14v16H5z M8 9h8 M8 13h8 M8 17h5',
+  paste: 'M8 4h8v3H8z M6 6H5v15h14V6h-1',
+  chev: 'M9 6l6 6-6 6'
 };
 function icon(n) {
   if (n === 'livery')
@@ -92,12 +103,11 @@ function showSettings(open = true) {
   themeSettings.cancel();
   settingsOpen = open;
   $('.workspace').hidden = open;
-  $('.project-bar').hidden = open;
   $('#settings-page').hidden = !open;
-  document.querySelectorAll('.app-header nav button').forEach(b => {
-    const active = b.dataset.action === (open ? 'settings' : 'studio');
-    b.classList.toggle('active', active);
-    if (active) b.setAttribute('aria-current', 'page');
+  document.body.classList.toggle('settings-open', open);
+  $('#settings-crumb').hidden = !open;
+  document.querySelectorAll('#app-menu [data-action="settings"]').forEach(b => {
+    if (open) b.setAttribute('aria-current', 'page');
     else b.removeAttribute('aria-current');
   });
   if (open) {

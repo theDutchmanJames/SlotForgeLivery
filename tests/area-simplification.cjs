@@ -1,11 +1,12 @@
 const fs = require('node:fs/promises'),
   path = require('node:path'),
   assert = require('node:assert/strict');
+const { clickAction } = require('./inspector-helpers.cjs');
 const { _electron: electron } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const root = path.resolve(__dirname, '..'),
   out = path.join(root, 'test-output');
 let app, page;
-const click = action => page.locator(`[data-action="${action}"]:visible`).first().click();
+const click = action => clickAction(page, action);
 (async () => {
   const env = { ...process.env, PAINTSHOP_TEST_DATA: path.join(out, 'simplification-' + Date.now()) };
   delete env.ELECTRON_RUN_AS_NODE;

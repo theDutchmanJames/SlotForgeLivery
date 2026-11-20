@@ -75,14 +75,13 @@ function render() {
 function renderHeader() {
   $('#project-name').textContent = project?.name || 'Your next livery starts here';
   $('#project-meta').textContent = project
-    ? `${project.template.name} · ${project.template.scale || 'Scale not set'}${activeView() ? ' · ' + M.LABELS[currentView] + ' view' : ''}`
-    : 'Your cars. Your colours. Your workshop.';
+    ? `${project.template.name} · ${project.template.scale || 'Scale not set'}`
+    : '';
+  document.body.classList.toggle('no-project', !project);
   document.querySelectorAll('.project-only').forEach(el => (el.hidden = !project));
   document.querySelectorAll('.welcome-only').forEach(el => (el.hidden = !!project));
-  $('#footer-left').textContent = project
-    ? 'User-created template · ' + Object.keys(project.template.views).length + ' views'
-    : 'No pre-installed cars · Your personal library';
   $('#prepare-button').classList.toggle('active', preparing);
+  $('#prepare-button').setAttribute('aria-pressed', String(preparing));
   $('#prepare-button').hidden = !activeView();
 }
 function renderCanvas() {
@@ -97,6 +96,7 @@ function renderCanvas() {
     art.classList.add('panning');
     art.style.transform = `translate3d(${(drag.box.x - viewBox.x) * drag.scale}px,${(drag.box.y - viewBox.y) * drag.scale}px,0)`;
     art.style.cursor = 'grabbing';
+    renderQuickBar();
     return;
   }
   art.classList.remove('panning');
@@ -104,9 +104,7 @@ function renderCanvas() {
   $('#welcome').hidden = !!project;
   renderWelcomeRecent();
   $('#empty-view').hidden = !project || !!activeView();
-  $('#view-badge').hidden = !activeView();
   $('#zoom-controls').hidden = !activeView();
-  $('#view-badge').textContent = (M.LABELS[currentView] || 'View').toUpperCase() + ' VIEW';
   art.setAttribute('viewBox', `${viewBox.x} ${viewBox.y} ${viewBox.w} ${viewBox.h}`);
   $('#zoom-label').textContent = Math.round(100000 / viewBox.w) + '%';
   art.style.cursor =
@@ -125,6 +123,7 @@ function renderCanvas() {
   if (!project) {
     art.innerHTML = '';
     renderRulers();
+    renderQuickBar();
     return;
   }
   const canvasParts = V.renderViewParts(project, currentView, {
@@ -240,29 +239,45 @@ function renderCanvas() {
     drag.scale = Math.min(rect.width / viewBox.w, rect.height / viewBox.h);
   }
   renderRulers();
+  renderQuickBar();
 }
 let thumbnailTimer = 0;
 function renderViews() {
+  // The views as tabs: only the views this car has, then small "Add" buttons for the others.
   const strip = $('#view-strip');
+  strip.hidden = !project;
   if (!project) {
     clearTimeout(thumbnailTimer);
     strip.innerHTML = '';
+    strip._signature = '';
+    renderCompare();
     return;
   }
-  if (strip.children.length !== M.VIEWS.length || [...strip.children].some((n, i) => n.dataset.slot !== M.VIEWS[i]))
-    strip.innerHTML = M.VIEWS.map(k => `<div class="view-slot" data-slot="${k}"></div>`).join('');
+  const have = M.VIEWS.filter(k => project.template.views[k]),
+    missing = M.VIEWS.filter(k => !project.template.views[k]),
+    signature = project.id + '|' + have.join() + '|' + missing.join();
   let stale = false;
-  for (const [i, k] of M.VIEWS.entries()) {
-    const has = !!project.template.views[k],
-      slot = strip.children[i],
-      frame = `<button class="view-tile" data-view="${k}" title="${has ? 'Edit' : 'Add'} ${M.LABELS[k]} view"><span class="thumb ${has ? '' : 'missing'}">${has ? '' : icon('plus')}</span><small>${M.LABELS[k]}${has ? '' : ' +'}</small></button>${has ? `<button class="remove-view" data-remove-view="${k}" title="Remove ${M.LABELS[k]} view from this project" aria-label="Remove ${M.LABELS[k]} view">${icon('close')}</button>` : ''}`;
-    if (slot._frame !== frame || slot._project !== project.id) {
-      slot.innerHTML = frame;
-      slot._frame = frame;
+  if (strip._signature !== signature) {
+    strip._signature = signature;
+    strip.innerHTML =
+      have
+        .map(
+          k =>
+            `<div class="view-slot" data-slot="${k}"><button class="view-tile view-tab" data-view="${k}" title="Edit the ${M.LABELS[k]} view"><span class="thumb"></span><span class="view-name">${M.LABELS[k]}</span></button><button class="remove-view" data-remove-view="${k}" title="Remove the ${M.LABELS[k]} view from this project" aria-label="Remove ${M.LABELS[k]} view">${icon('close')}</button></div>`
+        )
+        .join('') +
+      (missing.length
+        ? `<div class="view-add" role="group" aria-label="Add a view"><span class="view-add-label">${icon('plus')}Add view</span>${missing.map(k => `<button class="view-tile view-ghost" data-view="${k}" title="Add a ${M.LABELS[k]} view">${M.LABELS[k]}</button>`).join('')}</div>`
+        : '');
+    for (const slot of strip.querySelectorAll('.view-slot')) {
       slot._project = project.id;
-      if (has) paintThumbnail(slot, k);
-    } else if (has) stale = true;
-    slot.firstElementChild.classList.toggle('active', k === currentView && has);
+      paintThumbnail(slot, slot.dataset.slot);
+    }
+  } else stale = have.length > 0;
+  for (const tab of strip.querySelectorAll('.view-tab')) {
+    const active = tab.dataset.view === currentView;
+    tab.classList.toggle('active', active);
+    tab.setAttribute('aria-current', active ? 'true' : 'false');
   }
   // Existing pictures are redrawn once editing pauses, so a change only pays
   // for the main canvas; each picture is replaced only if it really changed.
@@ -272,12 +287,12 @@ function renderViews() {
     tool === 'line'
       ? 'Click for corners · Drag for curves · Enter / Esc / right-click to finish'
       : !activeView()
-        ? 'Choose an angle above to add a view to this project.'
+        ? 'Choose a view under Add view, above the canvas.'
         : preparing
           ? 'Define bodywork and protected areas. Finish preparation to paint.'
           : tool === 'polygon'
             ? 'Click for corners · Drag for curves · Click near the first point to close · Enter to finish'
-            : 'Middle-drag or Ctrl + drag to pan · Shift-click to select several · Delete removes selected artwork';
+            : 'Middle-drag or Ctrl + drag to pan · Shift-click to select several · Right-click for more';
   renderCompare();
 }
 function paintThumbnail(slot, key) {
@@ -295,7 +310,7 @@ function paintThumbnail(slot, key) {
 function refreshThumbnails() {
   thumbnailTimer = 0;
   if (!project) return;
-  for (const slot of $('#view-strip').children)
+  for (const slot of $('#view-strip').querySelectorAll('.view-slot'))
     if (slot._project === project.id && project.template.views[slot.dataset.slot])
       paintThumbnail(slot, slot.dataset.slot);
 }

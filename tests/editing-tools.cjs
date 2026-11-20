@@ -3,6 +3,7 @@
 const fs = require('node:fs/promises'),
   path = require('node:path'),
   assert = require('node:assert/strict');
+const { clickAction } = require('./inspector-helpers.cjs');
 const root = path.resolve(__dirname, '..');
 const { _electron: electron } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const runtime = process.env.ELECTRON_BINARY || require('electron');
@@ -24,7 +25,7 @@ async function launch() {
   await page.waitForSelector('#tools button');
   await require('./inspector-helpers.cjs').openPropertyFolders(page);
 }
-const click = action => page.locator(`[data-action="${action}"]:visible`).first().click();
+const click = action => clickAction(page, action);
 const canvasPoint = (x, y) =>
   page.evaluate(
     ([x, y]) => new DOMPoint(x, y).matrixTransform(document.querySelector('#artboard').getScreenCTM()).toJSON(),

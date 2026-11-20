@@ -1,6 +1,7 @@
 const fs = require('node:fs/promises'),
   path = require('node:path'),
   assert = require('node:assert/strict');
+const { clickAction } = require('./inspector-helpers.cjs');
 const { convertVector } = require('../src/vector-converter.cjs');
 const { _electron: electron } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const root = path.resolve(__dirname, '..'),
@@ -76,7 +77,7 @@ async function run() {
   await page.waitForSelector('#tools button');
   const errors = [];
   page.on('pageerror', e => errors.push(e.message));
-  const click = action => page.locator(`[data-action="${action}"]:visible`).first().click();
+  const click = action => clickAction(page, action);
   const upload = async (file, name) => {
     await click('add-car');
     await page.locator('#car-name').fill(name);

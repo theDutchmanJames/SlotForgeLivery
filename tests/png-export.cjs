@@ -1,6 +1,7 @@
 const fs = require('node:fs/promises'),
   path = require('node:path'),
   assert = require('node:assert/strict');
+const { clickAction } = require('./inspector-helpers.cjs');
 const { _electron: electron } = require('playwright');
 const root = path.resolve(__dirname, '..'),
   out = path.join(root, 'test-output'),
@@ -8,7 +9,7 @@ const root = path.resolve(__dirname, '..'),
   runtime = process.env.ELECTRON_BINARY || require('electron');
 let app, page;
 const errors = [];
-const click = a => page.locator(`[data-action="${a}"]:visible`).first().click();
+const click = a => clickAction(page, a);
 async function run() {
   await fs.mkdir(out, { recursive: true });
   const env = { ...process.env, PAINTSHOP_TEST_DATA: profile };

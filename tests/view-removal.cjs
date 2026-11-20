@@ -1,6 +1,7 @@
 const fs = require('node:fs/promises'),
   path = require('node:path'),
   assert = require('node:assert/strict');
+const { clickAction } = require('./inspector-helpers.cjs');
 const { _electron: electron } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const root = path.resolve(__dirname, '..'),
   out = path.join(root, 'test-output'),
@@ -8,7 +9,7 @@ const root = path.resolve(__dirname, '..'),
   runtime = process.env.ELECTRON_BINARY || require('electron');
 let app, page;
 const errors = [];
-const click = action => page.locator(`[data-action="${action}"]:visible`).first().click();
+const click = action => clickAction(page, action);
 async function launch() {
   const env = { ...process.env, PAINTSHOP_TEST_DATA: profile };
   delete env.ELECTRON_RUN_AS_NODE;
@@ -47,7 +48,6 @@ async function run() {
     changed();
     render();
   }, svg);
-  assert.equal(await page.locator('[data-action="help"] svg').count(), 0, 'both Help controls are text only');
   const original = await page.evaluate(() => M.clone(project)),
     library = await page.evaluate(() => M.clone(store.templates)),
     other = await page.evaluate(() => M.clone(store.projects[1]));

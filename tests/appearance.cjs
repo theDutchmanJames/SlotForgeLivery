@@ -1,6 +1,7 @@
 const fs = require('node:fs/promises'),
   path = require('node:path'),
   assert = require('node:assert/strict');
+const { clickAction } = require('./inspector-helpers.cjs');
 const { _electron: electron } = require('playwright');
 const root = path.resolve(__dirname, '..'),
   out = path.join(root, 'test-output'),
@@ -16,7 +17,7 @@ async function launch() {
   page.on('pageerror', e => errors.push(e.message));
   await page.waitForSelector('#tools button');
 }
-const click = a => page.locator(`[data-action="${a}"]:visible`).first().click();
+const click = a => clickAction(page, a);
 async function select(id) {
   await page.evaluate(id => {
     chooseArtwork(id);

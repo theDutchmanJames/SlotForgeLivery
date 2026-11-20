@@ -1,6 +1,7 @@
 const fs = require('node:fs/promises'),
   path = require('node:path'),
   assert = require('node:assert/strict');
+const { clickAction } = require('./inspector-helpers.cjs');
 const { _electron: electron } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const root = path.resolve(__dirname, '..'),
   out = path.join(root, 'test-output'),
@@ -8,7 +9,7 @@ const root = path.resolve(__dirname, '..'),
   runtime = process.env.ELECTRON_BINARY || require('electron');
 let app, page;
 const errors = [];
-const click = action => page.locator(`[data-action="${action}"]:visible`).first().click();
+const click = action => clickAction(page, action);
 async function launch() {
   const env = { ...process.env, PAINTSHOP_TEST_DATA: profile };
   delete env.ELECTRON_RUN_AS_NODE;
@@ -45,11 +46,10 @@ async function run() {
     render();
   }, svg);
   const artworkBefore = await page.evaluate(() => JSON.stringify(project));
-  await page.locator('[data-theme-choice="light"]').click();
+  await require('./inspector-helpers.cjs').chooseTone(page, 'light');
   assert.equal(await page.locator('html').getAttribute('data-theme'), 'light');
   assert.equal(await page.evaluate(() => getComputedStyle(document.body).backgroundColor), 'rgb(241, 239, 234)');
   assert.equal(await page.evaluate(() => JSON.stringify(project)), artworkBefore, 'theme never changes artwork');
-  assert.equal(await page.locator('.help-button').innerText(), 'HELP');
   await click('library');
   assert(await page.locator('#dialog').evaluate(d => d.clientWidth > innerWidth * 0.85));
   await page.locator('[data-library-tab="assets"]').click();
@@ -71,12 +71,12 @@ async function run() {
   assert(await page.locator('.dialog-foot').isVisible());
   await page.screenshot({ path: path.join(out, '15-library-small.png') });
   await click('close-dialog');
-  assert(await page.locator('.help-button').isVisible());
-  await page.locator('.help-button').click();
+  assert(await page.locator('#app-menu-button').isVisible());
+  await click('help');
   assert.equal(await page.locator('#dialog').getAttribute('class'), 'help-dialog');
   await click('close-dialog');
   await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].setSize(1560, 1000));
-  await page.locator('[data-theme-choice="dark"]').click();
+  await require('./inspector-helpers.cjs').chooseTone(page, 'dark');
   await click('sharing');
   assert.equal(await page.locator('.choice-grid [data-action="export-selection"]').count(), 1);
   await click('export-selection');
@@ -138,14 +138,14 @@ async function run() {
     20
   );
   // Theme survives closing; reload a real persisted library and exercise header again.
-  await page.locator('[data-theme-choice="light"]').click();
+  await require('./inspector-helpers.cjs').chooseTone(page, 'light');
   await page.evaluate(() => flushSave());
   await app.close();
   await launch();
   assert.equal(await page.locator('html').getAttribute('data-theme'), 'light');
   await click('library');
   await click('close-dialog');
-  await page.locator('.help-button').click();
+  await click('help');
   await click('close-dialog');
   assert.deepEqual(errors, []);
   await app.close();

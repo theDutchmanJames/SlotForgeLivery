@@ -4,6 +4,7 @@
 const fs = require('node:fs/promises'),
   path = require('node:path'),
   assert = require('node:assert/strict');
+const { clickAction } = require('./inspector-helpers.cjs');
 const root = path.resolve(__dirname, '..');
 const { _electron: electron } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const runtime = process.env.ELECTRON_BINARY || require('electron');
@@ -29,7 +30,7 @@ async function launch() {
   await page.waitForSelector('#tools button');
   await require('./inspector-helpers.cjs').openPropertyFolders(page);
 }
-const click = action => page.locator(`[data-action="${action}"]:visible`).first().click();
+const click = action => clickAction(page, action);
 const select = id =>
   page.evaluate(id => {
     multiSelected.clear();
@@ -61,6 +62,8 @@ async function run() {
   });
 
   // Real size: mm per unit, mm rulers and a mm readout for artwork.
+
+  await page.locator('[data-inspector-tab="workshop"]').click();
   await page.locator('#real-width').fill('142');
   await page.locator('#real-width').dispatchEvent('change');
   const mm = await page.evaluate(() => M.mmPerUnit(activeView()));

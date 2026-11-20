@@ -24,3 +24,36 @@ exports.openPropertyFolders = async page =>
     });
     renderInspector();
   });
+
+// Clicks a [data-action] button. A button in a closed menu or in the Workshop tab
+// is revealed first through the opener its container names (data-opener).
+exports.clickAction = async (page, action) => {
+  const target = `[data-action="${action}"]:visible`;
+  if (!(await page.locator(target).count()))
+    await page.evaluate(a => {
+      const holders = [...document.querySelectorAll(`[data-action="${a}"]`)]
+        .map(b => b.closest('[data-opener]'))
+        .filter(Boolean);
+      // The Workshop tab is drawn only when it opens, so its buttons may not exist yet.
+      const opener = holders[0]
+        ? document.querySelector(holders[0].dataset.opener)
+        : document.querySelector('.inspector-tabs:not([hidden]) #tab-workshop');
+      opener?.click();
+    }, action);
+  try {
+    return await page.locator(target).first().click({ timeout: 15000 });
+  } catch (error) {
+    // A picture of the moment helps to see what covered or hid the button.
+    await page
+      .screenshot({ path: require('node:path').join(__dirname, '..', 'test-output', `click-${action}-failed.png`) })
+      .catch(() => {});
+    throw error;
+  }
+};
+
+// The Light and Dark switch lives in the app menu (the ≡ button in the top bar).
+exports.chooseTone = async (page, tone) => {
+  await page.locator('#app-menu-button').click();
+  await page.locator(`[data-theme-choice="${tone}"]`).click();
+  await page.keyboard.press('Escape');
+};

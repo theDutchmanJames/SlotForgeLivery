@@ -193,7 +193,7 @@ async function run() {
         !makeReport().includes('-shine')
     )
   );
-  await page.locator('[data-action="pdf"]').first().click();
+  await require('./inspector-helpers.cjs').clickAction(page, 'pdf');
   await page.waitForFunction(() => document.querySelector('#toast').textContent === 'Workshop PDF saved.');
   assert.equal((await fs.readFile(path.join(out, 'gradients.pdf'))).subarray(0, 4).toString(), '%PDF');
   const saved = await page.evaluate(() => M.clone(project));

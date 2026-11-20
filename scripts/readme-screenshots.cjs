@@ -12,7 +12,7 @@ const { _electron: electron } = require('playwright');
     const page = await app.firstWindow();
     await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].setSize(1600, 1000));
     await page.waitForSelector('#tools button');
-    await page.locator('[data-action="add-car"]').first().click();
+    await page.locator('[data-action="add-car"]:visible').first().click();
     await page.locator('#car-name').fill('Club GT · Demo car');
     await page.locator('#choose-svg').click({ noWaitAfter: true });
     await page.locator('#car-file').setInputFiles(path.join(root, 'docs/demo-car.svg'));

@@ -1,6 +1,7 @@
 const fs = require('node:fs/promises'),
   path = require('node:path'),
   assert = require('node:assert/strict');
+const { clickAction } = require('./inspector-helpers.cjs');
 const root = path.resolve(__dirname, '..');
 const playwrightPath = process.env.PLAYWRIGHT_MODULE || 'playwright';
 const { _electron: electron } = require(playwrightPath);
@@ -25,7 +26,7 @@ async function launch() {
   if (process.env.PAINTSHOP_PACKAGED)
     assert(/\/resources\/app(?:\.asar)?\/renderer\/index\.html/.test(page.url()), 'testing the packaged files');
 }
-const click = action => page.locator(`[data-action="${action}"]:visible`).first().click();
+const click = action => clickAction(page, action);
 async function addSVG() {
   await click('add-car');
   await page.locator('#car-name').fill('My test coupe');

@@ -1,6 +1,7 @@
 const fs = require('node:fs/promises'),
   path = require('node:path'),
   assert = require('node:assert/strict');
+const { clickAction } = require('./inspector-helpers.cjs');
 const { _electron: electron } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const root = path.resolve(__dirname, '..'),
   out = path.join(root, 'test-output'),
@@ -8,7 +9,7 @@ const root = path.resolve(__dirname, '..'),
   runtime = process.env.ELECTRON_BINARY || require('electron');
 let app, page;
 const errors = [];
-const click = action => page.locator(`[data-action="${action}"]:visible`).first().click();
+const click = action => clickAction(page, action);
 const near = (a, b) => {
   assert(Math.abs(a.x - b.x) < 0.01, `x ${a.x} / ${b.x}`);
   assert(Math.abs(a.y - b.y) < 0.01, `y ${a.y} / ${b.y}`);

@@ -100,7 +100,7 @@ Give shapes and text an **outline** in any colour and width. It sits outside the
 
 Import your graphics as images and position them on the car. **PNG transparency is preserved**, so a logo or decal can sit on the bodywork without a rectangular background.
 
-Use **Import decal artwork** in the toolbar, **User Library → Import artwork**, or **Import & Export → Import decal artwork or Decals sheet**. SVG, EPS and PDF decals retain supported gradients, masks, clipping, symbols and embedded images. Imported artwork keeps its own colours and can be positioned, resized, rotated and fitted to an angled panel.
+Use **Import decal artwork** in the toolbar, **User Library → Import artwork**, or **Import & Export → Import decal artwork or Decals sheet** (Projects, User Library, Import & Export, Settings and Help are in the ≡ menu at the top left). SVG, EPS and PDF decals retain supported gradients, masks, clipping, symbols and embedded images. Imported artwork keeps its own colours and can be positioned, resized, rotated and fitted to an angled panel.
 
 ### Bring a sheet from SlotForge Decals
 
@@ -153,7 +153,7 @@ Prepare a car, design a livery, export both, and let a friend make their own ver
 
 ### Plan the real paint job
 
-- **Real size:** enter how wide a view is on the real shell (Workshop & reuse → Real size). Sizes then read in millimetres, and the rulers measure from the car's own edge.
+- **Real size:** enter how wide a view is on the real shell (the **Workshop** tab beside Selection). Sizes then read in millimetres, and the rulers measure from the car's own edge.
 - **Paint catalogue:** choose the actual paint for the base, a panel or a shape. Tamiya (TS sprays, X/XF acrylics) and Humbrol are built in. Add your own Revell, Zero Paints or any other products under **My paints**. Screen colours are approximations; the product name is what matters.
 - **Painting order:** the workshop PDF lists one step per paint, lightest first, with a picture of what each step sprays and a reminder to mask the earlier colours.
 - **Print at true size:** masking templates (one per colour) and the full design at the real size of your car, with a 50 mm bar to check the print scale.
@@ -175,10 +175,11 @@ The workshop PDF is a **visual painting reference**, not a colour proof. For pri
 
 Choose from **eight SlotForge themes**, or create a custom palette in **Settings**. Set your background, panel, text, border and accent colours, preview the result, then save or cancel. Interface themes do not change your car's paint or exported designs.
 
-Use pan, zoom, Snap, Grid and undo/redo while editing. Click empty canvas to clear the selection and look at the design without selection boxes. **HELP** explains the tools and shortcuts inside the app, one topic at a time.
+Use pan, zoom, Snap, Grid and undo/redo while editing. Click empty canvas to clear the selection and look at the design without selection boxes. **Help & shortcuts** in the ≡ menu explains the tools and shortcuts, one topic at a time.
 
 - **Step-by-step tips** in the corner of the canvas show the next step: prepare, paint, add artwork, then save or export. Dismiss a tip with **Got it**, or turn them off in Settings.
-- Drag the divider above **Layers** to give the layer list more or less room; double-click it to reset.
+- The Paint Studio is laid out like a workbench: **Layers** on the left, the canvas with a tab for each view in the middle, and on the right the **Selection** tab (what you selected) and the **Workshop** tab (real size, mirroring, the paints in this livery and printing). Snap, Grid, Rulers, Side by side and Finish preview are the small switches under the canvas.
+- A **quick bar** above the selected artwork duplicates, reorders, copies to another view or deletes it; **right-click** the artwork or its row in Layers for more. **Print & export** at the top right holds the workshop plan, true-size prints, the PNG picture, decals and sharing the project.
 - **Settings → Studio** sets the scale for new cars, the number of undo steps, the finish preview, and whether Snap and Grid start switched on.
 - The **User Library** has a compact **List** view that shows how many projects use each car.
 - New projects are numbered per car (for example *Club GT · Livery 2*), and the welcome screen lists your recent projects.

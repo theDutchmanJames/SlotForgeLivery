@@ -41,9 +41,9 @@ async function run() {
     render();
   }, svg);
   const before = await page.evaluate(() => JSON.stringify(project));
-  await page.locator('[data-action="settings"]').click();
+  await require('./inspector-helpers.cjs').clickAction(page, 'settings');
   assert.equal(await page.locator('.workspace').isVisible(), false);
-  assert.equal(await page.locator('.app-header nav button').last().innerText(), 'Settings');
+  assert.equal(await page.locator('#settings-crumb').isVisible(), true);
   for (const theme of ['dark', 'light', 'midnight', 'forest', 'sunset', 'violet', 'carbon', 'ocean']) {
     await page.locator(`[data-theme-pick="${theme}"]`).click();
     assert.equal(await page.locator('html').getAttribute('data-theme'), theme);
@@ -78,7 +78,7 @@ async function run() {
   await page.screenshot({ path: path.join(out, 'settings-custom.png') });
   await click('edit-theme-colors');
   await color('accent', '#112233');
-  await page.locator('[data-action="studio"]').click();
+  await page.locator('#settings-back').click();
   assert.equal(
     await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()),
     '#ffaa00',
@@ -86,10 +86,10 @@ async function run() {
   );
   assert(await page.locator('.workspace').isVisible());
   assert.equal(await page.evaluate(() => JSON.stringify(project)), before);
-  await page.locator('[data-action="settings"]').click();
+  await require('./inspector-helpers.cjs').clickAction(page, 'settings');
   await click('edit-theme-colors');
   await color('accent', '#abcdef');
-  await page.locator('[data-theme-choice="light"]').click();
+  await require('./inspector-helpers.cjs').chooseTone(page, 'light');
   assert.equal(await page.locator('#custom-theme-editor').isVisible(), false);
   await page.locator('[data-theme-pick="custom"]').click();
   assert.equal(
@@ -97,7 +97,7 @@ async function run() {
     '#ffaa00'
   );
   await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].setSize(1050, 720));
-  for (const selector of ['[data-action="settings"]', '.help-button', '[data-theme-choice="light"]'])
+  for (const selector of ['#app-menu-button', '#settings-crumb'])
     assert(
       await page.locator(selector).evaluate(el => {
         const r = el.getBoundingClientRect();

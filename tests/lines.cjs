@@ -1,6 +1,7 @@
 const fs = require('node:fs/promises'),
   path = require('node:path'),
   assert = require('node:assert/strict');
+const { clickAction } = require('./inspector-helpers.cjs');
 const { _electron: electron } = require('playwright');
 const root = path.resolve(__dirname, '..'),
   out = path.join(root, 'test-output'),
@@ -42,7 +43,7 @@ async function change(selector, value) {
     el.dispatchEvent(new Event('change', { bubbles: true }));
   }, value);
 }
-const click = action => page.locator(`[data-action="${action}"]:visible`).first().click();
+const click = action => clickAction(page, action);
 async function run() {
   await fs.mkdir(out, { recursive: true });
   await launch();

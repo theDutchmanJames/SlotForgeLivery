@@ -1,6 +1,7 @@
 const fs = require('node:fs/promises'),
   path = require('node:path'),
   assert = require('node:assert/strict');
+const { clickAction } = require('./inspector-helpers.cjs');
 const { _electron: electron } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const { convertVector } = require('../src/vector-converter.cjs');
 const root = path.resolve(__dirname, '..'),
@@ -8,7 +9,7 @@ const root = path.resolve(__dirname, '..'),
   profile = path.join(out, 'decal-import-' + Date.now());
 let app, page;
 const errors = [];
-const click = action => page.locator(`[data-action="${action}"]:visible`).first().click();
+const click = action => clickAction(page, action);
 const upload = (name, source) =>
   page.locator('#image-file').setInputFiles({
     name,
