@@ -20,7 +20,7 @@ Tests that look for old class names or texts are updated; the new look is not re
 - [x] **Pit Buttons:** one flat family, 32 px: secondary (default), `.primary`, `.ghost`, `.quiet`, `.danger`, `.icon-button`, `.sm`. The secondary tint mixes into `transparent`, not `--panel`, so buttons stay visible on the page background in light themes
 - [x] Pressed toggles and selected list rows: quiet grey, no red underline. The selected drawing tool keeps a soft accent tint (as Timing's Pit Board toggles); header menu icons grey, accent only on the open page
 - [x] **Gear Selector:** `.segmented` groups, Cards/List, the Light/Dark switch, library tabs and Help tabs
-- [x] **Toggle Chips:** the canvas options (Snap, Grid, Rulers, Side by side, Finish preview) and every `.checkbox-line` option in dialogs. Livery has no many-choice checkbox sets; the paint brand stays a list
+- [x] **Toggle Chips:** the canvas options (Snap, Grid, Rulers, Finish preview; Side by side later moved above the canvas as the pair switch) and every `.checkbox-line` option in dialogs. Livery has no many-choice checkbox sets; the paint brand stays a list
 - [x] Fields: 34 px inputs and selects, one style everywhere
 
 ## Phase 3 · Windows and folders

@@ -133,8 +133,8 @@ The layer list keeps the design organised:
 - **Lock** a layer so it can't be moved by accident on the canvas. You can still select it in Layers to change its properties.
 - Nudge selected artwork with the **arrow keys**; hold **Shift** for larger steps.
 - Switch on **Rulers** and drag **guides** out of them. With **Snap** on, moved artwork snaps to guides, the car's centre line and panel edges, and a red line shows what it snapped to.
-- **Mirror whole side** copies every layer from the left view to the right (or back), mirrored and fitted to that side. Groups stay groups.
-- **Side by side** shows another view of the car next to the canvas, so stripes and numbers line up across sides.
+- **Two sides next to each other:** choose **Left + Right**, **Front + Rear** or any two above the canvas. Both sides are drawn at the same size; click the other side to work on it (Left always stays on the left). A guide runs across both at the height of what you selected.
+- **Layers on both sides stay in step.** Click the dot between the sides (or ⇄ in Layers, or **On another side…**) and choose: **mirrored, in step** (placement and shapes mirror, text and decals stay readable), **the same, in step**, **a copy, then on its own**, or **this side only**. Change a linked layer on either side and the other follows, in one undo step. **Everything on both sides** does this for every layer at once. Groups stay groups.
 - Open or collapse the property folders to reach the controls you need.
 
 Livery is a **2D editor**. Fitting controls help match a drawing's perspective; they do not create a 3D model or automatically wrap a design across different views.

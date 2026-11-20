@@ -371,6 +371,11 @@
         return n;
       });
     }
+    // Kept in step with the same layer on another side (the pair).
+    if (typeof item.pairLink === 'string' && /^[a-zA-Z0-9_-]{1,100}$/.test(item.pairLink)) {
+      out.pairLink = item.pairLink;
+      out.pairMode = item.pairMode === 'same' ? 'same' : 'mirror';
+    }
     if (typeof item.groupId === 'string' && /^[a-zA-Z0-9_-]{1,100}$/.test(item.groupId)) {
       out.groupId = item.groupId;
       out.groupName = name(item.groupName, 'Grouped artwork');
@@ -785,14 +790,15 @@
   const ALIGN_MODES = ['left', 'centre', 'right', 'top', 'middle', 'bottom', 'across', 'down'];
   // Mirror every layer of one side onto the opposite side, fitted from the
   // source car bounds to the destination car bounds. Groups stay groups.
-  function mirrorView(list, from, to = from) {
+  // With mirror false the layers keep their placement and shape (only fitted).
+  function mirrorView(list, from, to = from, mirror = true) {
     const sx = to.w / Math.max(1, from.w),
       sy = to.h / Math.max(1, from.h),
       groups = new Map(),
       shift = 2 * (from.x + from.w / 2) - 1000;
     return list.map(l => {
-      const n = mirrorLayer(l);
-      n.x += shift;
+      const n = mirror ? mirrorLayer(l) : { ...bakeGroupPose(clone(l)), id: uid() };
+      if (mirror) n.x += shift;
       const cx = to.x + (n.x + n.w / 2 - from.x) * sx,
         cy = to.y + (n.y + n.h / 2 - from.y) * sy,
         preserve = ['text', 'image', 'vector', 'ellipse'].includes(n.kind);
@@ -805,7 +811,7 @@
         n.lineStripes = n.lineStripes.map(s => ({ ...s, width: s.width * scale }));
         n.lineGap *= scale;
       }
-      if (n.shadowX) n.shadowX = -n.shadowX;
+      if (n.shadowX && mirror) n.shadowX = -n.shadowX;
       if (n.groupId) {
         if (!groups.has(n.groupId)) groups.set(n.groupId, uid());
         n.groupId = groups.get(n.groupId);

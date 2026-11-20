@@ -187,35 +187,9 @@ const actions = {
   'layer-down': () => reorder('backward'),
   'layer-front': () => reorder('front'),
   'layer-back': () => reorder('back'),
-  'copy-view': () => {
-    const l = selection();
-    if (!l) return;
-    openDialog(
-      'Copy artwork to another view',
-      'Placement is a starting point. Check it against the destination body.',
-      `<div class="field"><label for="copy-target">Destination view</label><select id="copy-target">${M.VIEWS.filter(
-        k => k !== currentView
-      )
-        .map(
-          k =>
-            `<option value="${k}" ${(currentView === 'left' && k === 'right') || (currentView === 'right' && k === 'left') ? 'selected' : ''}>${M.LABELS[k]}${project.template.views[k] ? '' : ' (no template yet)'}</option>`
-        )
-        .join(
-          ''
-        )}</select></div><label class="checkbox-line"><input id="copy-mirror" type="checkbox" checked>Mirror placement for the opposite side</label><p class="note">Text and images remain readable. Shapes can mirror; no automatic wrapping between views is performed.</p>`,
-      `<button data-action="close-dialog">Cancel</button><button class="primary" id="copy-apply">Copy artwork</button>`
-    );
-    $('#copy-apply').onclick = () => {
-      const k = $('#copy-target').value,
-        mirror = $('#copy-mirror').checked;
-      mutate(() => {
-        const n = stripGroup(mirror ? M.mirrorLayer(l) : { ...M.clone(l), id: M.uid() });
-        project.views[k].push(n);
-      });
-      closeDialog();
-      toast('Artwork copied to ' + M.LABELS[k] + '.');
-    };
-  },
+  'copy-view': () => copyToViewDialog(),
+  pair: () => choosePair(true),
+
   fit,
   'zoom-in': () => zoom(1.2),
   'zoom-out': () => zoom(1 / 1.2)

@@ -244,6 +244,7 @@ function renderCanvas() {
   }
   renderRulers();
   renderQuickBar();
+  if (pairOn()) queuePairMarks();
 }
 let thumbnailTimer = 0;
 function renderViews() {

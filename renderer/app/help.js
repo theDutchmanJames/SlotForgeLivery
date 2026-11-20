@@ -286,7 +286,7 @@ function helpContext() {
         { label: 'Choose a stripe pattern', point: '[data-line-preset]' },
         { label: 'Add a stripe to it', point: '[data-line-add]' },
         { label: 'Change its curve', run: () => actions['edit-curve']() },
-        { label: 'Copy it to the other side', point: '[data-action="copy-view"]' }
+        { label: 'Put it on another side too', run: () => actions['copy-view']() }
       ],
       know: [
         'Each stripe has its own colour and width.',
@@ -318,7 +318,7 @@ function helpContext() {
         },
         { label: 'Give it a gradient', point: '[data-fill-type]' },
         { label: 'Give it a finish', point: '[data-finish]', tip: 'Gloss, satin, matte, metallic or pearl.' },
-        { label: 'Copy it to another view', point: '[data-action="copy-view"]' }
+        { label: 'Put it on another side too', run: () => actions['copy-view']() }
       ],
       know: ['Shapes are clipped to the bodywork. Windows stay clear.', 'Drag the corner handle to resize it.'],
       keys: ['Nudge', 'Duplicate', 'Delete', 'More for the selection']
@@ -352,6 +352,11 @@ function helpContext() {
       { label: 'Add stripes', run: () => setTool('line') },
       { label: 'Add a shape or a number board', run: () => actions.shapes() },
       { label: 'Add a race number', run: () => setTool('text') },
+      {
+        label: 'Work on two sides next to each other',
+        point: '#pair-switch',
+        tip: 'Left + Right: a layer on both sides stays in step.'
+      },
       { label: 'Plan the paints and the order', run: () => showInspectorTab('workshop') },
       { label: 'Make the Print pack', run: () => actions['print-pack']() }
     ],
@@ -429,6 +434,11 @@ const HELP_TOURS = {
         text: 'Click a panel or a shape to select it. Wheel to zoom, middle-drag to pan, right-click for more.'
       },
       { at: '#view-strip', title: 'Views', text: 'Each side of the car is its own view. Switch between them here.' },
+      {
+        at: '#pair-switch',
+        title: 'Two sides',
+        text: 'Work on Left and Right next to each other. A layer on both sides stays in step: change one and the other follows.'
+      },
       {
         at: '#entry-switch',
         title: 'Entries',

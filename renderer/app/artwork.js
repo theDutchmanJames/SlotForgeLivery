@@ -47,7 +47,7 @@ function artworkRows() {
   const chosen = new Set(artworkSelection().map(l => l.id)),
     seen = new Set();
   const row = (l, child = false) =>
-    `<div class="layer-row ${child ? 'artwork-child' : ''} ${chosen.has(l.id) ? 'active' : ''}" draggable="true" data-sort-key="${l.id}" data-sort-parent="${child ? l.groupId : ''}"><span class="layer-grip" aria-hidden="true">⠿</span><button data-visible="${l.id}" aria-label="Toggle ${e(l.name)}" style="opacity:${l.visible !== false ? 1 : 0.35}">${icon('eye')}</button><button class="layer-name" data-select-layer="${l.id}">${e(l.name)}</button><button class="layer-lock ${l.locked ? 'on' : ''}" data-lock-layer="${l.id}" aria-pressed="${!!l.locked}" aria-label="${l.locked ? 'Unlock' : 'Lock'} ${e(l.name)}" title="${l.locked ? 'Locked: click to unlock' : 'Lock so it cannot be moved on the canvas'}">${icon('lock')}</button></div>`;
+    `<div class="layer-row ${child ? 'artwork-child' : ''} ${chosen.has(l.id) ? 'active' : ''}" draggable="true" data-sort-key="${l.id}" data-sort-parent="${child ? l.groupId : ''}"><span class="layer-grip" aria-hidden="true">⠿</span><button data-visible="${l.id}" aria-label="Toggle ${e(l.name)}" style="opacity:${l.visible !== false ? 1 : 0.35}">${icon('eye')}</button><button class="layer-name" data-select-layer="${l.id}">${e(l.name)}</button>${l.pairLink ? `<button class="layer-pair" data-pair-open="${l.id}" title="On another side too, kept in step: choose how" aria-label="${e(l.name)} on both sides">⇄</button>` : ''}<button class="layer-lock ${l.locked ? 'on' : ''}" data-lock-layer="${l.id}" aria-pressed="${!!l.locked}" aria-label="${l.locked ? 'Unlock' : 'Lock'} ${e(l.name)}" title="${l.locked ? 'Locked: click to unlock' : 'Lock so it cannot be moved on the canvas'}">${icon('lock')}</button></div>`;
   return [...layers()]
     .reverse()
     .map(l => {
@@ -66,36 +66,6 @@ function artworkRows() {
       }`;
     })
     .join('');
-}
-// Copy every layer of this side onto the opposite side, mirrored and fitted
-// to that side's bodywork. Groups stay groups.
-const OPPOSITE_SIDE = { left: 'right', right: 'left' };
-function mirrorWholeSide() {
-  const target = OPPOSITE_SIDE[currentView],
-    source = layers();
-  if (!target) return toast('Mirroring works between the left and right views.');
-  if (!project.template.views[target])
-    return toast(`Add the ${M.LABELS[target]} view first, then mirror this side onto it.`);
-  if (!source.length) return toast('This side has no artwork to mirror yet.');
-  const existing = project.views[target]?.length || 0;
-  openDialog(
-    `Mirror to the ${M.LABELS[target]} view`,
-    'Every layer is mirrored and fitted to the other side. Check the result against its panels.',
-    `<p>${source.length} layer${source.length === 1 ? '' : 's'} from the ${M.LABELS[currentView]} view.</p>${existing ? `<label class="checkbox-line"><input id="mirror-replace" type="checkbox" checked>Replace the ${existing} existing layer${existing === 1 ? '' : 's'} on the ${M.LABELS[target]} view</label>` : ''}<p class="note">Text, images and decals stay readable; shapes, stripes and fitting are mirrored.</p>`,
-    `<button data-action="close-dialog">Cancel</button><button class="primary" id="mirror-apply">Mirror artwork</button>`
-  );
-  $('#mirror-apply').onclick = () => {
-    const replace = $('#mirror-replace')?.checked !== false,
-      mirrored = M.mirrorView(source, activeView().bounds, project.template.views[target].bounds);
-    closeDialog();
-    mutate(() => {
-      project.views[target] = replace ? mirrored : [...(project.views[target] || []), ...mirrored];
-      currentView = target;
-      selected = null;
-      multiSelected.clear();
-    });
-    toast(`Mirrored ${mirrored.length} layer${mirrored.length === 1 ? '' : 's'} to the ${M.LABELS[target]} view.`);
-  };
 }
 // Alignment works on units: a fully selected group moves as one block.
 function alignmentUnits() {
@@ -163,7 +133,7 @@ function saveArtworkAsset() {
   const items = artworkSelection();
   if (!items.length) return;
   const grouped = items.length > 1 || selected?.startsWith('group:'),
-    copies = M.clone(items);
+    copies = M.clone(items).map(c => (delete c.pairLink, delete c.pairMode, c));
   askName('Add to Library', grouped ? items[0].groupName || 'Grouped artwork' : items[0].name, n => {
     store.assets.push(
       grouped ? M.groupAsset(copies, n) : { id: M.uid(), name: n, type: 'shape', layer: stripGroup(copies[0]) }

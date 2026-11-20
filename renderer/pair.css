@@ -1,0 +1,298 @@
+/* The pair: two sides next to each other, the spine of linked layers, the guide and the choices. */
+
+/* ---------------------------------------------------------------- Switch above the canvas */
+.pair-switch {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  margin-bottom: 4px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--subpanel, var(--panel));
+}
+.pair-switch[hidden] {
+  display: none;
+}
+.pair-switch > button {
+  height: 26px;
+  min-height: 0;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.pair-switch > button[aria-pressed='true'],
+.pair-with.on {
+  background: var(--accent);
+  color: #fff;
+}
+.pair-with {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 26px;
+  padding: 0 4px 0 9px;
+  border-radius: 6px;
+  font-size: 12px;
+}
+.pair-with select {
+  height: 22px;
+  min-height: 0;
+  padding: 0 4px;
+  font-size: 12px;
+  background: transparent;
+  border: 0;
+  color: inherit;
+}
+.pair-with.on select option {
+  color: var(--ink);
+  background: var(--panel);
+}
+
+/* ---------------------------------------------------------------- Two sides */
+.canvas-row {
+  position: relative;
+}
+.canvas-row.comparing {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 30px minmax(0, 1fr);
+  gap: 0;
+}
+.canvas-row.comparing > .canvas-wrap {
+  order: 1;
+  box-shadow: 0 0 0 2px var(--accent);
+}
+.canvas-row.comparing > .pair-spine {
+  order: 2;
+}
+.canvas-row.comparing > .compare-pane {
+  order: 3;
+}
+.canvas-row.comparing.pair-after > .canvas-wrap {
+  order: 3;
+}
+.canvas-row.comparing.pair-after > .compare-pane {
+  order: 1;
+}
+.canvas-row.comparing .canvas-wrap,
+.canvas-row.comparing .compare-pane {
+  border-radius: 9px;
+}
+.canvas-row.comparing > .compare-pane {
+  flex: none;
+  background: #e9edf1;
+  border: 1px solid #cdd7df;
+}
+.canvas-row.comparing > .compare-pane {
+  position: relative;
+}
+/* Floats over the drawing, so both sides draw at the same size and height. */
+.compare-head {
+  position: absolute;
+  z-index: 3;
+  top: 8px;
+  left: 10px;
+  right: 10px;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 6px 4px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  pointer-events: none;
+}
+.compare-head button {
+  pointer-events: auto;
+}
+.compare-head b {
+  font: italic 700 16px/1 var(--font-title);
+  text-transform: uppercase;
+}
+.compare-head small,
+.pair-label small {
+  font: 11px var(--font-mono);
+  color: var(--muted);
+}
+.compare-head .grow {
+  flex: 1;
+}
+.compare-head button {
+  height: 28px;
+  min-height: 0;
+  padding: 0 10px;
+  font-size: 12px;
+}
+.compare-art {
+  padding: 0;
+  cursor: pointer;
+}
+.compare-art:hover {
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--accent) 45%, transparent);
+}
+/* The side you work on says so. */
+.pair-label {
+  position: absolute;
+  z-index: 3;
+  top: 8px;
+  left: 10px;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 4px 10px;
+  border-radius: 8px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  pointer-events: none;
+}
+.pair-label[hidden] {
+  display: none;
+}
+.pair-label b {
+  font: italic 700 16px/1 var(--font-title);
+  text-transform: uppercase;
+}
+.pair-label span {
+  font-size: 11.5px;
+  color: var(--accent-text, var(--accent));
+}
+
+/* ---------------------------------------------------------------- Spine */
+.pair-spine {
+  position: relative;
+  min-width: 0;
+}
+.pair-spine[hidden] {
+  display: none;
+}
+.pair-spine-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  border-left: 1px dashed var(--line);
+}
+.pair-dot {
+  position: absolute;
+  left: 50%;
+  width: 24px;
+  height: 24px;
+  min-height: 0;
+  padding: 0;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--muted);
+  font-size: 12px;
+  z-index: 2;
+}
+.pair-dot.on {
+  border-color: #4c9aff;
+  color: #4c9aff;
+  background: color-mix(in srgb, #4c9aff 18%, var(--panel));
+}
+.pair-dot.picked {
+  box-shadow: 0 0 0 2px var(--accent);
+}
+
+/* ---------------------------------------------------------------- Guide */
+.pair-marks {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 4;
+}
+.canvas-row:not(.comparing) > .pair-marks {
+  display: none;
+}
+.pair-guide {
+  position: absolute;
+  border-top: 1.5px dashed #4c9aff;
+}
+.pair-guide span {
+  position: absolute;
+  right: 8px;
+  top: -19px;
+  padding: 0 5px;
+  border-radius: 4px;
+  background: #e9edf1;
+  color: #2f6fca;
+  font: 11px var(--font-mono);
+}
+
+/* ---------------------------------------------------------------- Layers and choices */
+.layer-pair {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  min-height: 0;
+  padding: 0;
+  border-color: transparent;
+  background: transparent;
+  color: #4c9aff;
+  font-size: 12px;
+}
+.pair-pop {
+  position: fixed;
+  z-index: 50;
+  width: 310px;
+  padding: 14px;
+  border-radius: 12px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.pair-pop > p {
+  margin: 0;
+}
+.pair-modes {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.pair-modes label {
+  display: flex;
+  gap: 9px;
+  align-items: flex-start;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  font-size: 12.5px;
+  cursor: pointer;
+}
+.pair-modes label:has(input:checked) {
+  border-color: #4c9aff;
+  background: color-mix(in srgb, #4c9aff 10%, var(--panel));
+}
+.pair-modes input {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  min-height: 0;
+  margin: 3px 0 0;
+  padding: 0;
+  accent-color: #4c9aff;
+}
+.pair-modes label > span {
+  flex: 1;
+  text-align: left;
+}
+.pair-modes b {
+  display: block;
+  font-weight: 600;
+}
+.pair-modes small {
+  display: block;
+  color: var(--muted);
+}
+.pair-pop-foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+}

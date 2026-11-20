@@ -176,29 +176,27 @@ async function run() {
   await page.locator('#mirror-apply').click();
   const mirrored = await page.evaluate(() => ({
     view: currentView,
-    count: layers().length,
-    groups: new Set(
-      layers()
-        .filter(l => l.groupId)
-        .map(l => l.groupId)
-    ).size,
-    text: layers().find(l => l.name === 'Sponsor')
+    count: project.views.right.length,
+    groups: new Set(project.views.right.filter(l => l.groupId).map(l => l.groupId)).size,
+    linked: project.views.right.every(l => l.pairLink && l.pairMode === 'mirror'),
+    text: project.views.right.find(l => l.name === 'Sponsor')
   }));
-  assert.deepEqual([mirrored.view, mirrored.count, mirrored.groups], ['right', leftLayers, 3]);
+  assert.deepEqual([mirrored.view, mirrored.count, mirrored.groups], ['left', leftLayers, 3]);
+  assert(mirrored.linked, 'every layer is on both sides, kept in step');
   assert.equal(mirrored.text.shadowX, -3, 'shadow mirrored');
   assert.equal(mirrored.text.textBend, 0.4, 'text stays readable and keeps its bend');
   await page.evaluate(() => actions.undo());
   assert.equal(await page.evaluate(() => project.views.right.length), 0, 'undo removes the mirrored copy');
   await page.evaluate(() => actions.redo());
 
-  // Side by side: the other view, live, next to the canvas.
-  await page.locator('#compare').check();
+  // The pair: the other side, live, next to the canvas; clicking it works on that side.
+  await page.locator('#pair-switch [data-pair="left:right"]').click();
   assert(await page.locator('#compare-pane').isVisible());
-  assert.equal(await page.locator('#compare-view').inputValue(), 'left');
   assert(await page.locator('#compare-pane .compare-art svg').count());
-  await page.locator('#compare-pane [data-view="left"]').click();
-  assert.equal(await page.evaluate(() => currentView), 'left', 'Edit switches to the shown view');
-  assert.equal(await page.locator('#compare-view').inputValue(), 'right');
+  await page.locator('#compare-pane .compare-art').click({ position: { x: 20, y: 60 } });
+  assert.equal(await page.evaluate(() => currentView), 'right', 'a click works on the other side');
+  await page.locator('#compare-pane .compare-art').click({ position: { x: 20, y: 60 } });
+  assert.equal(await page.evaluate(() => currentView), 'left');
 
   // Guides travel in packages and survive a restart, as do the new text fields.
   await page.evaluate(() => {

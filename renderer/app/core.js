@@ -44,6 +44,7 @@ function record() {
 }
 function changed() {
   if (project) {
+    syncPairs();
     project.updated = new Date().toISOString();
     const i = store.projects.findIndex(p => p.id === project.id);
     if (i >= 0) store.projects[i] = project;

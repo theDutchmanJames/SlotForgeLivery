@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Side by side remake</title>
+<style>
+@font-face{font-family:'SF Cond';src:url('../../../renderer/fonts/barlowcondensed/BarlowCondensed-BoldItalic.ttf') format('truetype');font-weight:700;font-style:italic}
+@font-face{font-family:'SF Mono';src:url('../../../renderer/fonts/robotomono/RobotoMono[wght].ttf') format('truetype');font-weight:100 700}
+:root{--bg:#171b21;--panel:#222831;--panel2:#1c2129;--ink:#e8e6e1;--ink2:#c4c8ce;--muted:#98a0ab;--faint:#6b7380;--line:#343b47;--line2:#2b313b;
+  --accent:#e5484d;--accent-text:#f06b6f;--ok:#3ecf8e;--warn:#f2b705;--blue:#4c9aff;--board:#e9ecf0;--cond:'SF Cond','Bahnschrift',sans-serif;--mono:'SF Mono',Consolas,monospace}
+[data-theme=light]{--bg:#eef0f3;--panel:#fff;--panel2:#f6f7f9;--ink:#1c2129;--ink2:#3a414c;--muted:#5f6875;--faint:#8a929d;--line:#d5d9df;--line2:#e3e6ea;--accent-text:#c9363b;--board:#f3f5f7}
+*{box-sizing:border-box}html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:13px/1.5 'Segoe UI',system-ui,sans-serif;display:flex;flex-direction:column}
+button{font:inherit;color:inherit;cursor:pointer}
+.grow{flex:1}.muted{color:var(--muted)}.mono{font-family:var(--mono)}
+.eyebrow{font:600 10px/1 'Segoe UI';letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
+.switch{flex:none;display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;padding:9px 18px;background:#0d1014;color:#e8e6e1;border-bottom:1px solid #2b313b}
+.switch b{font:600 10.5px 'Segoe UI';letter-spacing:.14em;text-transform:uppercase;color:#98a0ab}
+.switch p{margin:0 0 0 auto;font-size:12px;color:#8a929d;max-width:640px}
+.seg{display:inline-flex;gap:2px;padding:3px;border:1px solid #343b47;border-radius:9px;background:#171b21}
+.seg button{height:26px;padding:0 11px;border:0;border-radius:6px;background:none;color:#c4c8ce;font-size:12.5px}
+.seg button[aria-pressed=true]{background:#e5484d;color:#fff}
+.seg.in{border-color:var(--line);background:var(--panel2)}.seg.in button{color:var(--ink2)}
+.stage{flex:1;min-height:800px;display:flex}
+.opt{flex:1;display:none;min-width:0;flex-direction:column}.opt.on{display:flex}
+.state{display:none;flex:1;min-height:0}.state.on{display:flex}
+.btn{height:30px;display:inline-flex;align-items:center;gap:7px;padding:0 11px;border:1px solid var(--line);border-radius:8px;background:var(--panel);font-size:12.5px;white-space:nowrap}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+.btn.sm{height:26px;padding:0 9px;font-size:12px}
+.callout{position:absolute;font:600 10.5px 'Segoe UI';letter-spacing:.06em;text-transform:uppercase;color:#fff;background:#4c9aff;border-radius:999px;padding:3px 9px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.25);z-index:9}
+.topbar{height:52px;flex:none;display:flex;align-items:center;gap:10px;padding:0 12px;border-bottom:1px solid var(--line2);background:var(--panel2)}
+.logo{width:28px;height:28px;border-radius:7px;background:var(--accent);display:grid;place-items:center;color:#fff;font:italic 700 15px var(--cond)}
+.crumbs{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--muted)}
+.crumbs strong{font:italic 700 19px/1 var(--cond);text-transform:uppercase;color:var(--ink)}
+.studio{flex:1;display:grid;grid-template-columns:48px 1fr 300px;min-height:0}
+.tools{border-right:1px solid var(--line2);background:var(--panel2);display:flex;flex-direction:column;align-items:center;gap:6px;padding-top:12px}
+.tools span{width:30px;height:30px;border-radius:7px;background:var(--panel)}
+.insp{border-left:1px solid var(--line2);background:var(--panel);padding:14px;display:flex;flex-direction:column;gap:10px}
+.insp h3{margin:4px 0 0;font:italic 700 17px var(--cond);text-transform:uppercase}
+.area{display:flex;flex-direction:column;min-width:0;padding:10px 12px 12px;gap:10px;position:relative}
+.viewrow{display:flex;align-items:center;gap:8px}
+.board{background:var(--board);border-radius:12px;position:relative}
+svg.car{display:block;width:100%;height:100%}
+/* A grid */
+.sheet{flex:1;display:grid;grid-template-columns:1.25fr 1fr 1fr;grid-template-rows:1fr 1fr;gap:10px;min-height:0}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;display:flex;flex-direction:column;overflow:hidden;position:relative}
+.card.on{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.card .hd{display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid var(--line2)}
+.card .hd b{font:italic 700 15px var(--cond);text-transform:uppercase}
+.card .pic{flex:1;background:var(--board);position:relative;min-height:0;display:grid;place-items:center}
+.card .pic svg{width:88%;height:auto}
+.card .ft{display:flex;gap:6px;flex-wrap:wrap;padding:7px 10px;border-top:1px solid var(--line2);font-size:11.5px;color:var(--muted)}
+.chip{display:inline-flex;align-items:center;gap:5px;padding:1px 7px;border-radius:999px;border:1px solid var(--line);font-size:11px;color:var(--ink2);background:var(--panel2)}
+.chip.warn{border-color:color-mix(in srgb,var(--warn) 55%,var(--line));color:var(--warn)}
+.chip.ok{border-color:color-mix(in srgb,var(--ok) 55%,var(--line));color:var(--ok)}
+.dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+.card.add{border-style:dashed;display:grid;place-items:center;color:var(--muted);background:transparent}
+.check{display:flex;flex-direction:column;gap:6px}
+.ck{display:flex;gap:9px;align-items:flex-start;padding:8px 10px;border:1px solid var(--line);border-radius:9px;background:var(--panel2);font-size:12.5px}
+.ck i{font-style:normal;width:18px;height:18px;border-radius:50%;display:grid;place-items:center;font-size:11px;flex:none;margin-top:1px}
+.ck.w i{background:color-mix(in srgb,var(--warn) 25%,transparent);color:var(--warn)}
+.ck.g i{background:color-mix(in srgb,var(--ok) 25%,transparent);color:var(--ok)}
+.ck small{display:block;color:var(--muted)}
+.hl{outline:2px dashed #4c9aff;outline-offset:3px;border-radius:4px}
+/* B pair */
+.pair{flex:1;display:grid;grid-template-columns:1fr 34px 1fr;min-height:0}
+.side{display:flex;flex-direction:column;gap:6px;min-width:0}
+.side .lab{display:flex;align-items:center;gap:8px}
+.side .lab b{font:italic 700 16px var(--cond);text-transform:uppercase}
+.side .board{flex:1;display:grid;place-items:center}
+.side.on .board{box-shadow:0 0 0 2px var(--accent)}
+.side:not(.on) .board{opacity:.97}
+.spine{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;position:relative}
+.spine:before{content:'';position:absolute;top:30px;bottom:0;left:50%;border-left:1px dashed var(--line)}
+.link{position:relative;z-index:1;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--panel);border:1px solid var(--line);font-size:13px}
+.link.on{background:color-mix(in srgb,var(--blue) 22%,var(--panel));border-color:var(--blue);color:var(--blue)}
+.guide{position:absolute;left:0;right:0;border-top:1.5px dashed #4c9aff;pointer-events:none}
+.guide span{position:absolute;right:8px;top:-18px;font:11px var(--mono);color:#4c9aff;background:var(--board);padding:0 4px;border-radius:4px}
+.lay{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:8px;font-size:12.5px}
+.lay.on{background:color-mix(in srgb,var(--accent) 14%,var(--panel))}
+.lay .tag{margin-left:auto;font-size:11px;color:var(--blue)}
+.pop{position:absolute;z-index:8;width:300px;padding:14px;border-radius:12px;background:var(--panel);border:1px solid var(--line);box-shadow:0 18px 40px rgba(0,0,0,.4);display:flex;flex-direction:column;gap:10px}
+.radio{display:flex;flex-direction:column;gap:6px}
+.radio label{display:flex;gap:9px;align-items:flex-start;padding:8px 10px;border:1px solid var(--line);border-radius:9px;font-size:12.5px}
+.radio label.on{border-color:var(--blue);background:color-mix(in srgb,var(--blue) 10%,var(--panel))}
+.radio small{display:block;color:var(--muted)}
+.o{width:14px;height:14px;border-radius:50%;border:2px solid var(--line);flex:none;margin-top:2px}.radio label.on .o{border:4px solid var(--blue)}
+</style>
+</head>
+<body>
+<div class="switch">
+  <b>Side by side remake</b>
+  <span class="seg" id="opt"><button data-v="A" aria-pressed="true">A · Every side</button><button data-v="B">B · The pair</button></span>
+  <span class="seg" id="sub"></span>
+  <span class="seg" id="theme"><button data-v="dark" aria-pressed="true">Dark</button><button data-v="light">Light</button></span>
+  <p id="say"></p>
+</div>
+<svg width="0" height="0" style="position:absolute"><defs>
+  <path id="sil" d="M62 268 L70 226 Q78 204 122 196 L292 176 Q336 146 392 112 Q424 94 476 92 L632 94 Q684 96 724 126 L796 178 Q894 188 926 212 Q944 232 938 268 L868 270 A72 72 0 0 0 724 270 L334 270 A72 72 0 0 0 190 270 Z"/>
+  <clipPath id="clip"><use href="#sil"/></clipPath>
+  <symbol id="side" viewBox="40 70 920 290"><use href="#sil" fill="#7fb7e2"/><g clip-path="url(#clip)"><rect x="40" y="206" width="920" height="34" fill="#f28a35"/><rect x="40" y="244" width="920" height="8" fill="#1f2730"/></g><path d="M318 176 L398 120 Q426 104 470 104 L500 104 L500 176 Z" fill="#33404d"/><path d="M516 104 L628 106 Q670 108 702 132 L758 176 L516 176 Z" fill="#33404d"/><use href="#sil" fill="none" stroke="#1f2730" stroke-width="3.5"/><g fill="#1f2730"><circle cx="262" cy="272" r="60"/><circle cx="796" cy="272" r="60"/></g><g fill="#c4c8ce"><circle cx="262" cy="272" r="34"/><circle cx="796" cy="272" r="34"/></g></symbol>
+  <symbol id="num" viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" fill="#f6f4ef" stroke="#1f2730" stroke-width="3"/><text x="50" y="66" text-anchor="middle" font-family="Arial Black,Arial" font-weight="900" font-size="46" fill="#1f2730">27</text></symbol>
+  <symbol id="front" viewBox="0 0 400 260"><path d="M60 230 L70 140 Q80 110 120 104 L150 60 Q200 48 250 60 L280 104 Q320 110 330 140 L340 230 Z" fill="#7fb7e2" stroke="#1f2730" stroke-width="3"/><path d="M160 66 Q200 58 240 66 L262 102 L138 102 Z" fill="#33404d"/><rect x="185" y="104" width="30" height="126" fill="#f28a35"/><rect x="110" y="170" width="180" height="30" rx="8" fill="#1f2730"/><circle cx="105" cy="140" r="14" fill="#f6f4ef" stroke="#1f2730" stroke-width="2"/><circle cx="295" cy="140" r="14" fill="#f6f4ef" stroke="#1f2730" stroke-width="2"/></symbol>
+  <symbol id="rear" viewBox="0 0 400 260"><path d="M60 230 L70 140 Q80 110 120 104 L150 60 Q200 48 250 60 L280 104 Q320 110 330 140 L340 230 Z" fill="#7fb7e2" stroke="#1f2730" stroke-width="3"/><path d="M160 66 Q200 58 240 66 L262 102 L138 102 Z" fill="#33404d"/><rect x="185" y="104" width="30" height="126" fill="#f28a35"/><rect x="95" y="132" width="44" height="18" rx="4" fill="#e5484d"/><rect x="261" y="132" width="44" height="18" rx="4" fill="#e5484d"/></symbol>
+  <symbol id="top" viewBox="0 0 600 260"><rect x="40" y="40" width="520" height="180" rx="80" fill="#7fb7e2" stroke="#1f2730" stroke-width="3"/><rect x="200" y="62" width="200" height="136" rx="30" fill="#33404d"/><rect x="40" y="114" width="520" height="32" fill="#f28a35"/><circle cx="300" cy="130" r="36" fill="#f6f4ef" stroke="#1f2730" stroke-width="2"/><text x="300" y="144" text-anchor="middle" font-family="Arial Black,Arial" font-weight="900" font-size="34" fill="#1f2730">27</text></symbol>
+</defs></svg>
+<div class="stage">
+<!-- =================== A =================== -->
+<section class="opt on" id="A">
+  <header class="topbar"><span class="logo">L</span><nav class="crumbs"><span>Garage</span><span>/</span><span>Sample coupe · 1:32</span><span>/</span><strong>Gulf tribute</strong></nav><span class="grow"></span><button class="btn primary">Print &amp; export</button></header>
+  <div class="state on" data-s="sheet">
+  <div class="studio"><aside class="tools"><span></span><span></span><span></span><span></span><span></span></aside>
+  <main class="area">
+    <div class="viewrow"><span class="seg in"><button>One side</button><button aria-pressed="true">Every side</button></span><span class="grow"></span><span class="muted" style="font-size:12px">Live: change one side and see all of them. Click a side to work on it.</span></div>
+    <div class="sheet">
+      <div class="card on" style="grid-row:span 2"><div class="hd"><b>Left</b><span class="chip">editing</span><span class="grow"></span><span class="muted mono" style="font-size:11px">138 mm</span></div><div class="pic"><svg viewBox="40 70 920 290" class="car"><use href="#side"/><use href="#num" x="560" y="140" width="96" height="96"/></svg></div><div class="ft"><span class="chip"><span class="dot" style="background:#7fb7e2"></span>Gulf blue</span><span class="chip"><span class="dot" style="background:#f28a35"></span>Gulf orange</span><span class="chip">#27</span><span>6 layers</span></div></div>
+      <div class="card"><div class="hd"><b>Right</b><span class="grow"></span><span class="muted mono" style="font-size:11px">138 mm</span></div><div class="pic"><svg viewBox="40 70 920 290" style="transform:scaleX(-1)"><use href="#side"/></svg></div><div class="ft"><span class="chip warn">no race number</span><span>4 layers</span></div></div>
+      <div class="card"><div class="hd"><b>Top</b></div><div class="pic"><svg viewBox="0 0 600 260"><use href="#top"/></svg></div><div class="ft"><span class="chip">#27</span><span>3 layers</span></div></div>
+      <div class="card"><div class="hd"><b>Front</b></div><div class="pic"><svg viewBox="0 0 400 260" style="width:52%"><use href="#front"/></svg></div><div class="ft"><span>2 layers</span></div></div>
+      <div class="card add"><span>+ Add the Rear view</span></div>
+    </div>
+  </main>
+  <aside class="insp"><span class="eyebrow">Across the sides</span><h3>Check</h3>
+    <div class="check">
+      <div class="ck w"><i>!</i><span><b>Race number on Left and Top, not Right</b><small>Copy it over, mirrored and readable.</small><button class="btn sm" style="margin-top:6px">Put #27 on the Right</button></span></div>
+      <div class="ck w"><i>!</i><span><b>Black pinstripe only on Left</b><small>The Right has the orange stripe without it.</small><button class="btn sm" style="margin-top:6px">Copy to the Right</button></span></div>
+      <div class="ck g"><i>✓</i><span><b>Orange stripe at the same height</b><small>Left and Right: 31 mm from the sill.</small></span></div>
+      <div class="ck g"><i>✓</i><span><b>Same livery colours on every side</b></span></div>
+    </div>
+    <span class="eyebrow" style="margin-top:6px">Everything at once</span>
+    <button class="btn">Mirror the Left onto the Right</button>
+    <button class="btn">Picture of every side (PNG)</button>
+  </aside>
+  </div>
+  <span class="callout" style="left:420px;bottom:20px">Every side live on one sheet, and a check of what differs</span>
+  </div>
+  <div class="state" data-s="follow">
+  <div class="studio"><aside class="tools"><span></span><span></span><span></span><span></span><span></span></aside>
+  <main class="area">
+    <div class="viewrow"><span class="seg in"><button>One side</button><button aria-pressed="true">Every side</button></span><span class="grow"></span><span class="chip" style="color:#4c9aff;border-color:#4c9aff">Orange stripe selected · shown on 3 sides</span></div>
+    <div class="sheet">
+      <div class="card on" style="grid-row:span 2"><div class="hd"><b>Left</b><span class="chip">editing</span></div><div class="pic"><svg viewBox="40 70 920 290"><use href="#side"/><rect x="60" y="204" width="880" height="38" fill="none" stroke="#4c9aff" stroke-width="5" stroke-dasharray="14 8"/><use href="#num" x="560" y="140" width="96" height="96"/></svg><div class="guide" style="top:62%"><span>31 mm</span></div></div><div class="ft"><span class="chip ok">orange stripe: same on Right</span></div></div>
+      <div class="card"><div class="hd"><b>Right</b><span class="chip ok">31 mm</span></div><div class="pic"><svg viewBox="40 70 920 290" style="transform:scaleX(-1)"><use href="#side"/><rect x="60" y="204" width="880" height="38" fill="none" stroke="#4c9aff" stroke-width="7" stroke-dasharray="14 8"/></svg></div><div class="ft"><span>the copy follows: mirrored</span></div></div>
+      <div class="card"><div class="hd"><b>Top</b><span class="chip ok">same colour</span></div><div class="pic"><svg viewBox="0 0 600 260"><use href="#top"/><rect x="40" y="112" width="520" height="36" fill="none" stroke="#4c9aff" stroke-width="4" stroke-dasharray="12 7"/></svg></div><div class="ft"><span>its own stripe, same colour</span></div></div>
+      <div class="card"><div class="hd"><b>Front</b><span class="chip ok">same colour</span></div><div class="pic"><svg viewBox="0 0 400 260" style="width:52%"><use href="#front"/><rect x="182" y="102" width="36" height="130" fill="none" stroke="#4c9aff" stroke-width="4" stroke-dasharray="10 6"/></svg></div><div class="ft"><span>2 layers</span></div></div>
+      <div class="card add"><span>+ Add the Rear view</span></div>
+    </div>
+  </main>
+  <aside class="insp"><span class="eyebrow">Orange stripe</span><h3>On other sides</h3>
+    <div class="check">
+      <div class="ck g"><i>✓</i><span><b>Right · a mirrored copy</b><small>Moves when this one moves.</small></span></div>
+      <div class="ck g"><i>✓</i><span><b>Top and Front · Gulf orange</b><small>Their own shapes, painted in the same livery colour.</small></span></div>
+      <div class="ck w"><i>!</i><span><b>Not on the Rear</b><small>The Rear view is not added yet.</small></span></div>
+    </div>
+    <button class="btn">Copy to another side…</button><button class="btn">Stop the Right following</button>
+  </aside>
+  </div>
+  <span class="callout" style="left:420px;bottom:20px">Select something: every side shows where it is too</span>
+  </div>
+</section>
+<!-- =================== B =================== -->
+<section class="opt" id="B">
+  <header class="topbar"><span class="logo">L</span><nav class="crumbs"><span>Garage</span><span>/</span><span>Sample coupe · 1:32</span><span>/</span><strong>Gulf tribute</strong></nav><span class="grow"></span><button class="btn primary">Print &amp; export</button></header>
+  <div class="state on" data-s="pair">
+  <div class="studio"><aside class="tools"><span></span><span></span><span></span><span></span><span></span></aside>
+  <main class="area">
+    <div class="viewrow"><span class="seg in"><button>One side</button><button aria-pressed="true">Left + Right</button><button>Front + Rear</button><button>Choose two…</button></span><span class="grow"></span><span class="muted" style="font-size:12px">Both sides are real canvases: work on either one.</span></div>
+    <div class="pair">
+      <div class="side on"><div class="lab"><b>Left</b><span class="chip">editing</span><span class="grow"></span><span class="muted mono" style="font-size:11px">138 mm</span></div><div class="board"><svg viewBox="40 70 920 290" style="width:94%"><use href="#side"/><use href="#num" x="560" y="140" width="96" height="96" class="hl"/><rect x="556" y="136" width="104" height="104" fill="none" stroke="#e5484d" stroke-width="4"/></svg><div class="guide" style="top:47%"><span>y 21 mm</span></div></div></div>
+      <div class="spine"><span class="link on" title="Race number: in step">⇄</span><span class="link on" title="Orange stripe: in step">⇄</span><span class="link" title="Pinstripe: not linked">·</span></div>
+      <div class="side"><div class="lab"><b>Right</b><span class="grow"></span><span class="muted mono" style="font-size:11px">138 mm</span></div><div class="board"><svg viewBox="40 70 920 290" style="width:94%"><g transform="translate(1000,0) scale(-1,1)"><use href="#side"/></g><use href="#num" x="344" y="140" width="96" height="96"/><rect x="340" y="136" width="104" height="104" fill="none" stroke="#4c9aff" stroke-width="4" stroke-dasharray="10 6"/></svg><div class="guide" style="top:47%"><span>y 21 mm</span></div></div></div>
+    </div>
+  </main>
+  <aside class="insp"><span class="eyebrow">Layers · Left</span><h3>Both sides</h3>
+    <div class="lay on"><span class="dot" style="background:#f6f4ef;border:1px solid #888"></span>Race number<span class="tag">⇄ in step</span></div>
+    <div class="lay"><span class="dot" style="background:#f28a35"></span>Orange stripe<span class="tag">⇄ in step</span></div>
+    <div class="lay"><span class="dot" style="background:#1f2730"></span>Pinstripe<span class="tag" style="color:var(--muted)">Left only</span></div>
+    <div class="lay"><span class="dot" style="background:#7fb7e2"></span>Base paint</div>
+    <span class="eyebrow" style="margin-top:8px">The pair</span>
+    <button class="btn">Put everything on both sides</button>
+    <p class="muted" style="margin:0;font-size:12px">Mirrors every layer onto the Right and keeps them in step. Text and decals stay readable.</p>
+  </aside>
+  </div>
+  <span class="callout" style="left:380px;bottom:20px">Two real canvases, a guide across both, linked layers in the spine</span>
+  </div>
+  <div class="state" data-s="step">
+  <div class="studio"><aside class="tools"><span></span><span></span><span></span><span></span><span></span></aside>
+  <main class="area">
+    <div class="viewrow"><span class="seg in"><button>One side</button><button aria-pressed="true">Left + Right</button><button>Front + Rear</button><button>Choose two…</button></span></div>
+    <div class="pair">
+      <div class="side on"><div class="lab"><b>Left</b><span class="chip">editing</span></div><div class="board"><svg viewBox="40 70 920 290" style="width:94%"><use href="#side"/><rect x="40" y="244" width="920" height="8" fill="none" stroke="#e5484d" stroke-width="4"/></svg></div></div>
+      <div class="spine"><span class="link on">⇄</span><span class="link on">⇄</span><span class="link">·</span></div>
+      <div class="side"><div class="lab"><b>Right</b></div><div class="board"><svg viewBox="40 70 920 290" style="width:94%;transform:scaleX(-1)"><use href="#side"/></svg></div></div>
+    </div>
+    <div class="pop" style="right:40px;top:150px"><b>Pinstripe on the Right</b>
+      <div class="radio">
+        <label class="on"><span class="o"></span><span>Mirrored, in step<small>The Right gets a mirrored copy that follows every change.</small></span></label>
+        <label><span class="o"></span><span>Same, in step<small>Not mirrored: for decals and text that must read the same.</small></span></label>
+        <label><span class="o"></span><span>A copy, then on its own<small>Copied once; change it freely afterwards.</small></span></label>
+        <label><span class="o"></span><span>Left only</span></label>
+      </div>
+      <div style="display:flex;gap:6px;justify-content:flex-end"><button class="btn sm">Cancel</button><button class="btn sm primary">Put it on the Right</button></div>
+    </div>
+  </main>
+  <aside class="insp"><span class="eyebrow">Layers · Left</span><h3>Both sides</h3>
+    <div class="lay"><span class="dot" style="background:#f6f4ef;border:1px solid #888"></span>Race number<span class="tag">⇄ in step</span></div>
+    <div class="lay"><span class="dot" style="background:#f28a35"></span>Orange stripe<span class="tag">⇄ in step</span></div>
+    <div class="lay on"><span class="dot" style="background:#1f2730"></span>Pinstripe<span class="tag" style="color:var(--muted)">Left only</span></div>
+  </aside>
+  </div>
+  <span class="callout" style="left:380px;bottom:20px">Click a link in the spine: how this layer goes onto the other side</span>
+  </div>
+</section>
+</div>
+<script>
+const SUB={A:[['sheet','Every side'],['follow','Something selected']],B:[['pair','The pair'],['step','Keep in step']]};
+const SAY={A:'A · Every side: the canvas can show all sides of the car at once, live, like a contact sheet. A Check panel lists what differs between the sides (a number missing, a stripe at another height) with a button to fix it. Select something and every side shows where it is.',
+           B:'B · The pair: two sides as two real canvases next to each other, both editable. A guide runs across both. Layers can be linked across the pair: mirrored and in step, the same, or copied once. This takes over Copy to another view and Mirror whole side.'};
+let opt='A',sub={A:'sheet',B:'pair'};
+function show(){document.querySelectorAll('.opt').forEach(o=>o.classList.toggle('on',o.id===opt));document.querySelectorAll('#opt button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===opt));document.getElementById('sub').innerHTML=SUB[opt].map(([v,l])=>`<button data-v="${v}" aria-pressed="${sub[opt]===v}">${l}</button>`).join('');document.getElementById('say').textContent=SAY[opt];document.getElementById(opt).querySelectorAll('.state').forEach(s=>s.classList.toggle('on',s.dataset.s===sub[opt]));}
+document.getElementById('opt').onclick=e=>{const v=e.target.closest('button')?.dataset.v;if(v){opt=v;show();}};
+document.getElementById('sub').onclick=e=>{const v=e.target.closest('button')?.dataset.v;if(v){sub[opt]=v;show();}};
+document.getElementById('theme').onclick=e=>{const v=e.target.closest('button')?.dataset.v;if(!v)return;document.documentElement.dataset.theme=v;document.querySelectorAll('#theme button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===v));};
+const q=new URLSearchParams(location.search);if(q.get('opt'))opt=q.get('opt');if(q.get('sub'))sub[opt]=q.get('sub');if(q.get('theme'))document.documentElement.dataset.theme=q.get('theme');
+show();
+</script>
+</body>
+</html>
