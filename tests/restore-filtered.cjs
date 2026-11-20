@@ -17,7 +17,7 @@ async function launch() {
     env
   });
   page = await app.firstWindow();
-  await page.waitForSelector('#tools button');
+  await page.waitForSelector('#tools button', { state: 'attached' });
 }
 (async () => {
   await launch();

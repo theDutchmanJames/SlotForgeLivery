@@ -15,7 +15,7 @@ async function measure(old) {
   });
   try {
     const p = await app.firstWindow();
-    await p.waitForSelector('#tools button');
+    await p.waitForSelector('#tools button', { state: 'attached' });
     const errors = [];
     p.on('pageerror', e => errors.push(e.message));
     let copy;

@@ -12,7 +12,7 @@ async function launch(profile) {
   app = await electron.launch({ executablePath: require('electron'), args: [root], env });
   page = await app.firstWindow();
   page.setDefaultTimeout(10000);
-  await page.waitForSelector('#tools button');
+  await page.waitForSelector('#tools button', { state: 'attached' });
 }
 async function seed() {
   await page.evaluate(() => {

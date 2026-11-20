@@ -92,7 +92,7 @@ async function run() {
   page = await app.firstWindow();
   page.on('pageerror', error => errors.push(error.message));
   page.on('console', m => m.type() === 'error' && errors.push(m.text()));
-  await page.waitForSelector('#tools button');
+  await page.waitForSelector('#tools button', { state: 'attached' });
   await page.waitForFunction(() => window.UpdateUI && performance.getEntriesByName('livery:rendered').length);
   await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].setContentSize(1600, 1000));
 

@@ -14,7 +14,7 @@ const root = path.resolve(__dirname, '..');
     const page = await app.firstWindow(),
       errors = [];
     page.on('pageerror', e => errors.push(e.message));
-    await page.waitForSelector('#tools button');
+    await page.waitForSelector('#tools button', { state: 'attached' });
     await page.evaluate(() => {
       const v = V.importSVG(
         '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 600">' +

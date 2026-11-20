@@ -17,7 +17,7 @@ async function run() {
   delete env.ELECTRON_RUN_AS_NODE;
   app = await electron.launch({ executablePath: runtime, args: process.env.PAINTSHOP_PACKAGED ? [] : [root], env });
   page = await app.firstWindow();
-  await page.waitForSelector('#tools button');
+  await page.waitForSelector('#tools button', { state: 'attached' });
   const errors = [];
   page.on('pageerror', e => errors.push(e.message));
   const click = action => clickAction(page, action);

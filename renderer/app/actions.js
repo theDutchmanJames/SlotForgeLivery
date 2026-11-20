@@ -8,6 +8,7 @@ const actions = {
   keys: () => toggleKeys(true),
   studio: () => showSettings(false),
   settings: () => showSettings(),
+  'start-page': () => goToStart().catch(reportError),
   projects: () => {
     if (settingsOpen) showSettings(false);
     openProjects();

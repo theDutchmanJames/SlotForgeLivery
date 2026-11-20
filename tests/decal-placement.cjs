@@ -18,7 +18,7 @@ async function launch() {
   });
   page = await app.firstWindow();
   page.on('pageerror', e => errors.push(e.message));
-  await page.waitForSelector('#tools button');
+  await page.waitForSelector('#tools button', { state: 'attached' });
 }
 const click = action => clickAction(page, action);
 async function place(name) {

@@ -11,7 +11,7 @@ async function launch() {
   delete env.ELECTRON_RUN_AS_NODE;
   app = await electron.launch({ executablePath: require('electron'), args: [root], env });
   page = await app.firstWindow();
-  await page.waitForSelector('#tools button');
+  await page.waitForSelector('#tools button', { state: 'attached' });
 }
 (async () => {
   await launch();

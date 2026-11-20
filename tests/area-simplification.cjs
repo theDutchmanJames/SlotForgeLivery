@@ -16,7 +16,7 @@ const click = action => clickAction(page, action);
     env
   });
   page = await app.firstWindow();
-  await page.waitForSelector('#tools button');
+  await page.waitForSelector('#tools button', { state: 'attached' });
   const errors = [];
   page.on('pageerror', e => errors.push(e.message));
   const stats = await page.evaluate(() => {

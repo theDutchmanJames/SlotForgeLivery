@@ -122,12 +122,6 @@ async function init() {
   performance.mark('livery:init');
   fillIcons();
   document.body.inert = true;
-  const welcomeTitle = $('#welcome h1'),
-    welcomeText = $('#welcome p'),
-    title = welcomeTitle.textContent,
-    text = welcomeText.innerHTML;
-  welcomeTitle.textContent = 'Opening your library…';
-  welcomeText.textContent = 'Preparing your saved designs. Existing libraries are verified before migration.';
   try {
     const result = window.desktop
       ? await window.desktop.load()
@@ -170,8 +164,6 @@ async function init() {
     render();
     reportError(error);
   }
-  welcomeTitle.textContent = title;
-  welcomeText.innerHTML = text;
   document.body.inert = false;
   if (loadBlocked) {
     saveStatus('paused', 'Recovery required — saving paused');

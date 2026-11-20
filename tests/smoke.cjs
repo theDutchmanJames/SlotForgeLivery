@@ -21,7 +21,7 @@ async function launch() {
   });
   page = await app.firstWindow();
   page.on('pageerror', error => errors.push(error.message));
-  await page.waitForSelector('#tools button');
+  await page.waitForSelector('#tools button', { state: 'attached' });
   await require('./inspector-helpers.cjs').openPropertyFolders(page);
   if (process.env.PAINTSHOP_PACKAGED)
     assert(/\/resources\/app(?:\.asar)?\/renderer\/index\.html/.test(page.url()), 'testing the packaged files');

@@ -191,8 +191,8 @@ function helpContext() {
     };
   if (!project)
     return {
-      where: 'Welcome',
-      sub: 'No livery open yet',
+      where: 'Start',
+      sub: 'No livery open',
       can: [
         { label: 'Try the sample car', run: () => actions['sample-car']() },
         { label: 'Add your own car', run: () => actions['add-car']() },

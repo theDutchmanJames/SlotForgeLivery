@@ -16,7 +16,7 @@ const root = path.resolve(__dirname, '..');
     const page = await app.firstWindow(),
       errors = [];
     page.on('pageerror', e => errors.push(e.message));
-    await page.waitForSelector('#tools button');
+    await page.waitForSelector('#tools button', { state: 'attached' });
     await page.evaluate(() => {
       window.eventTrace = [];
       for (const name of ['pointerdown', 'pointerup', 'gotpointercapture', 'lostpointercapture'])

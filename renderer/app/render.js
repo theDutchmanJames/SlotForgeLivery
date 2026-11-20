@@ -42,30 +42,6 @@ function renderTools() {
   $('#quick-colour').value = colour;
   $('#base-swatch').style.background = project ? paintChip(M.paintOf(project)) : '#fff';
 }
-// Recent projects on the welcome screen, newest first.
-function renderWelcomeRecent() {
-  const box = $('#welcome-recent'),
-    recent = project
-      ? []
-      : store.projects
-          .filter(p => !p.trashedAt)
-          .sort((a, b) => String(b.updated || '').localeCompare(String(a.updated || '')))
-          .slice(0, 4);
-  box.hidden = !recent.length;
-  $('#welcome').classList.toggle('returning', store.templates.length + store.projects.length > 0);
-  if (!recent.length) return;
-  // Showroom cards with the real preview; rebuilt only when the list changes (render() runs often).
-  const signature = recent.map(p => p.id + p.updated + p.name).join('|');
-  if (box._signature === signature) return;
-  box._signature = signature;
-  box.innerHTML = `<span class="eyebrow">Continue where you left off</span><div class="welcome-recent-list">${recent
-    .map(
-      p =>
-        `<button class="welcome-card" data-project-open="${e(p.id)}">${cardPreview(p, 'projects')}<span class="wc-body"><strong>${e(p.name)}</strong><small>${e(p.template?.name || p.storageSummary?.templateName || '')}${p.updated ? ' · ' + new Date(p.updated).toLocaleDateString() : ''}</small></span></button>`
-    )
-    .join('')}</div>`;
-  loadCardPreviews().catch(reportError);
-}
 function render() {
   renderTools();
   renderHeader();
@@ -74,10 +50,11 @@ function render() {
   renderInspector();
   renderStepHint();
   renderEntrySwitch();
+  renderStart();
   fillIcons();
 }
 function renderHeader() {
-  $('#project-name').textContent = project?.name || 'Your next livery starts here';
+  $('#project-name').textContent = project?.name || 'Start';
   $('#project-meta').textContent = project
     ? `${project.template.name} · ${project.template.scale || 'Scale not set'}`
     : '';
@@ -105,8 +82,6 @@ function renderCanvas() {
   }
   art.classList.remove('panning');
   art.style.transform = '';
-  $('#welcome').hidden = !!project;
-  renderWelcomeRecent();
   $('#empty-view').hidden = !project || !!activeView();
   $('#zoom-controls').hidden = !activeView();
   art.setAttribute('viewBox', `${viewBox.x} ${viewBox.y} ${viewBox.w} ${viewBox.h}`);

@@ -30,7 +30,7 @@ async function launch() {
   });
   page = await app.firstWindow();
   page.on('pageerror', e => errors.push(e.message));
-  await page.waitForSelector('#tools button');
+  await page.waitForSelector('#tools button', { state: 'attached' });
 }
 async function run() {
   await fs.mkdir(out, { recursive: true });

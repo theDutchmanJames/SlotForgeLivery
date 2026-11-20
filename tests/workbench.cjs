@@ -27,7 +27,7 @@ async function run() {
   page = await app.firstWindow();
   page.on('pageerror', error => errors.push(error.message));
   await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].setContentSize(1440, 900));
-  await page.waitForSelector('#tools button');
+  await page.waitForSelector('#tools button', { state: 'attached' });
 
   // Welcome: no project parts, no Layers column, no tabs.
   assert.equal(await visible('#layers-panel'), false);
@@ -39,6 +39,7 @@ async function run() {
   await page.locator('#app-menu-button').click();
   assert.equal(await page.locator('#app-menu-button').getAttribute('aria-expanded'), 'true');
   assert.deepEqual(await page.locator('#app-menu > button').allInnerTexts(), [
+    'Start page',
     'Garage',
     'Add a car',
     'Import & Export',
@@ -46,9 +47,9 @@ async function run() {
     'Help here\nF1',
     'Keyboard\n?'
   ]);
-  assert.equal(await page.evaluate(() => document.activeElement.dataset.action), 'projects');
+  assert.equal(await page.evaluate(() => document.activeElement.dataset.action), 'start-page');
   await page.keyboard.press('ArrowDown');
-  assert.equal(await page.evaluate(() => document.activeElement.dataset.action), 'add-car');
+  assert.equal(await page.evaluate(() => document.activeElement.dataset.action), 'projects');
   await page.keyboard.press('Escape');
   assert.equal(await visible('#app-menu'), false);
   assert.equal(await page.evaluate(() => document.activeElement.id), 'app-menu-button');
@@ -96,7 +97,11 @@ async function run() {
   await page.locator('[data-inspector-tab="workshop"]').click();
   assert(await visible('#workshop-panel #real-width'));
   assert.equal(await visible('#inspector'), false);
-  assert(await visible('#workshop-panel [data-action="mirror-view"]'));
+  assert.match(
+    await page.locator('#workshop-panel').innerText(),
+    /Add another view to work on two sides/,
+    'one view: the pair is offered once there are two'
+  );
   assert((await page.locator('#workshop-panel .ws-paint:not(.ws-colour)').count()) >= 1);
   assert.match(await page.locator('#workshop-panel .ws-paint:not(.ws-colour)').first().innerText(), /#F28A35|lightest/);
   await page.locator('#real-width').fill('142');

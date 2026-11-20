@@ -15,7 +15,7 @@ async function run() {
   delete env.ELECTRON_RUN_AS_NODE;
   app = await electron.launch({ executablePath: runtime, args: process.env.PAINTSHOP_PACKAGED ? [] : [root], env });
   page = await app.firstWindow();
-  await page.waitForSelector('#tools button');
+  await page.waitForSelector('#tools button', { state: 'attached' });
   const source = await fs.readFile(path.join(__dirname, 'fixtures/car.svg'), 'utf8');
   await page.evaluate(source => {
     const src = V.importSVG(source);

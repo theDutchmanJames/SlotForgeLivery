@@ -14,7 +14,7 @@ let app;
     env
   });
   const page = await app.firstWindow();
-  await page.waitForSelector('#tools button');
+  await page.waitForSelector('#tools button', { state: 'attached' });
   await page.evaluate(() => flushSave());
   const before = await fs.readFile(path.join(profile, 'paintshop-library.sqlite'), 'utf8');
   // Replace only the native dialog response; cause a real renderer failure.

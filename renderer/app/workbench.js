@@ -174,7 +174,7 @@ function renderWorkshop() {
     focusId = document.activeElement?.id;
   box.innerHTML = `<div class="heading"><span class="section-icon">${icon('car')}</span><div><strong>${e(project.name)}</strong><small>${e(project.template.name)} · ${e(project.template.scale || 'Scale not set')} · ${views} ${views === 1 ? 'view' : 'views'}</small></div></div>
 <section class="ws-section"><h4>Real size · ${M.LABELS[currentView]} view</h4>${realSizeFields()}<span class="ws-pill ${v.realWidthMm ? 'good' : ''}">${v.realWidthMm ? 'Sizes, rulers and true-size prints use millimetres' : 'Not set yet: true-size printing and decals need it'}</span></section>
-<section class="ws-section"><h4>Both sides</h4>${other ? workshopRow('mirror-view', 'mirror', `Everything on the ${M.LABELS[other]} too`, `Every layer of the ${M.LABELS[currentView]}, mirrored and kept in step`) : ''}${compareChoices().length ? workshopRow('pair', 'split', 'Two sides next to each other', 'Work on either side; layers on both stay in step') : `<p class="note">Add another view to work on two sides next to each other.</p>`}</section>
+<section class="ws-section"><h4>Both sides</h4>${other && project.template.views[other] ? workshopRow('mirror-view', 'mirror', `Everything on the ${M.LABELS[other]} too`, `Every layer of the ${M.LABELS[currentView]}, mirrored and kept in step`) : ''}${compareChoices().length ? workshopRow('pair', 'split', 'Two sides next to each other', 'Work on either side; layers on both stay in step') : `<p class="note">Add another view to work on two sides next to each other.</p>`}</section>
 ${liveryColoursSection()}<section class="ws-section"><h4>Painting order <span class="ws-count">${steps.length}</span></h4>${steps
     .map(
       (s, i) =>

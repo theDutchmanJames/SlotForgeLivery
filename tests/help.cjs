@@ -28,7 +28,7 @@ async function launch() {
   page = await app.firstWindow();
   page.on('pageerror', error => errors.push(error.message));
   await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].setContentSize(1440, 900));
-  await page.waitForSelector('#tools button');
+  await page.waitForSelector('#tools button', { state: 'attached' });
 }
 
 async function run() {
@@ -40,7 +40,7 @@ async function run() {
   // F1 on the welcome screen: what to do first. The version comes from the app.
   await page.keyboard.press('F1');
   await page.waitForSelector('#help-drawer:not([hidden])');
-  assert.match(await sub(), /Welcome/);
+  assert.match(await sub(), /^Start/);
   assert((await items()).includes('Try the sample car'));
   await page.waitForFunction(v => document.querySelector('#help-drawer .hp-foot').textContent.includes(v), version);
   assert.equal(await page.locator('#app-menu .version').textContent(), 'v' + version);

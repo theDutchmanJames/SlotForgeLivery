@@ -73,6 +73,7 @@ function confirmAction(title, description, fn, label = 'Continue', kind = 'confi
   };
 }
 function addCarDialog(view = null, replace = false) {
+  startDropped = null;
   pendingAdd = { view, replace, owner: project?.id };
   openDialog(
     view ? `${replace ? 'Replace' : 'Add'} ${M.LABELS[view]} view` : 'Add a car',
@@ -89,6 +90,12 @@ function addCarDialog(view = null, replace = false) {
       return toast('Give your car a name first.');
     }
     pendingAdd = { ...pendingAdd, name: n, scale: $('#car-scale').value, key: $('#car-view').value, kind };
+    // A drawing dropped on the Start page is used as it is.
+    if (startDropped) {
+      const file = startDropped;
+      startDropped = null;
+      return importCar(file).catch(reportError);
+    }
     $('#car-file').accept =
       kind === 'svg'
         ? '.svg,.eps,.pdf,image/svg+xml,application/pdf,application/postscript'

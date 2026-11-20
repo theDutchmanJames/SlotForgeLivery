@@ -34,10 +34,10 @@ async function run() {
   page = await app.firstWindow();
   page.on('pageerror', error => errors.push(error.message));
   await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].setContentSize(1440, 900));
-  await page.waitForSelector('#tools button');
+  await page.waitForSelector('#tools button', { state: 'attached' });
 
   // Steps 1–2: the Add a car window shows the steps.
-  await page.locator('#welcome [data-action="add-car"]').click();
+  await page.locator('#start-page .st-hero-text [data-action="add-car"]').click();
   assert.deepEqual(await page.locator('#dialog .setup-st b').allInnerTexts(), [
     'The car',
     'Drawing',

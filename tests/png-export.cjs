@@ -18,7 +18,7 @@ async function run() {
   page = await app.firstWindow();
   page.setDefaultTimeout(10000);
   page.on('pageerror', e => errors.push(e.message));
-  await page.waitForSelector('#tools button');
+  await page.waitForSelector('#tools button', { state: 'attached' });
   await page.evaluate(() => {
     const body = (x, y, w, h) => ({
         id: M.uid(),

@@ -44,8 +44,8 @@ Visit each app's repository for its features, downloads and getting-started guid
 <table>
   <tr><th width="50%">Light workspace</th><th width="50%">Dark workspace</th></tr>
   <tr>
-    <td><a href="docs/screenshots/welcome-light.png"><img src="docs/screenshots/welcome-light.png" alt="Livery's light starting workspace, ready to add a car or import a shared package" width="100%"></a></td>
-    <td><a href="docs/screenshots/welcome-dark.png"><img src="docs/screenshots/welcome-dark.png" alt="Livery's dark starting workspace with a spacious canvas and compact drawing toolbox" width="100%"></a></td>
+    <td><a href="docs/screenshots/welcome-light.png"><img src="docs/screenshots/welcome-light.png" alt="The Start page in light: drop a drawing of your car, or start with your own car, the sample car or something shared" width="100%"></a></td>
+    <td><a href="docs/screenshots/welcome-dark.png"><img src="docs/screenshots/welcome-dark.png" alt="The Start page in dark: make it your own, three ways to start and how it goes" width="100%"></a></td>
   </tr>
 </table>
 
@@ -194,7 +194,8 @@ Use pan, zoom, Snap, Grid and undo/redo while editing. Click empty canvas to cle
 - A **quick bar** above the selected artwork duplicates, reorders, copies to another view or deletes it; **right-click** the artwork or its row in Layers for more. **Print & export** at the top right holds the workshop plan, true-size prints, the PNG picture, decals and sharing the project.
 - **Settings → Studio** sets the scale for new cars, the number of undo steps, the finish preview, and whether Snap and Grid start switched on.
 - The library sections of the Garage have a compact **List** view; **All cars** shows how many liveries use each car.
-- New projects are numbered per car (for example *Club GT · Livery 2*), and the welcome screen lists your recent projects.
+- New projects are numbered per car (for example *Club GT · Livery 2*).
+- The **Start page** is shown whenever no livery is open (**≡ → Start page** saves and closes the open one). The first time it shows how to start; drop a drawing of your car anywhere on it to begin **Add a car** with that file. Coming back, it shows your last livery large with **Next on this livery** (real paints still to choose, a view without a real size, the Print pack), a new livery on one of your cars, and your other recent liveries.
 
 | Action | Control |
 | --- | --- |
@@ -272,7 +273,7 @@ AppImage permission labels vary between Linux desktops. Some distributions need 
 
 ### Your first livery
 
-No artwork yet? Choose **Try a sample car** on the welcome screen (or in **Add car**) to walk through every step with a ready-made car.
+No artwork yet? Choose **Try the sample car** on the Start page (or in **Add car**) to walk through every step with a ready-made car.
 
 1. Choose **Add car**, name the car and select a view.
 2. Import vector artwork, or choose a photograph and trace the areas you need.

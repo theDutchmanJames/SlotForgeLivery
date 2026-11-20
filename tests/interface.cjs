@@ -24,7 +24,7 @@ async function launch() {
   page = await app.firstWindow();
   page.on('pageerror', error => errors.push(error.message));
   await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].setSize(1500, 950));
-  await page.waitForSelector('#tools button');
+  await page.waitForSelector('#tools button', { state: 'attached' });
 }
 const click = action => clickAction(page, action);
 const hintStep = () => page.evaluate(() => ($('#step-hint').hidden ? null : $('#step-hint').dataset.step));
@@ -33,9 +33,9 @@ async function run() {
   await fs.mkdir(out, { recursive: true });
   await launch();
 
-  // Welcome: a first-time user sees the first-car wording and no recent list.
-  assert(await page.locator('#welcome .label-first').isVisible());
-  assert(await page.locator('#welcome-recent').isHidden());
+  // Start page: a first-time user sees how to start, not a list of liveries.
+  assert(await page.locator('#start-page .st-hero').isVisible());
+  assert.equal(await page.locator('#start-page .st-cont').count(), 0);
 
   // Studio preferences: default scale and undo depth.
   await click('settings');
@@ -110,9 +110,8 @@ async function run() {
     project = null;
     render();
   });
-  assert(await page.locator('#welcome .label-again').isVisible());
-  assert.equal(await page.locator('#welcome-recent [data-project-open]').count(), 1);
-  await page.locator('#welcome-recent [data-project-open]').click();
+  assert(await page.locator('#start-page .st-cont').isVisible());
+  await page.locator('#start-page .st-cont-body [data-project-open]').click();
   await page.waitForFunction(() => project?.name === 'Sample coupe · Livery 1');
 
   // A second sample car gets its own name; preferences survive a restart.

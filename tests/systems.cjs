@@ -29,7 +29,7 @@ async function launch() {
   });
   page = await app.firstWindow();
   page.on('pageerror', error => errors.push(error.message));
-  await page.waitForSelector('#tools button');
+  await page.waitForSelector('#tools button', { state: 'attached' });
 }
 const click = action => clickAction(page, action);
 const status = () => page.locator('#save-status').innerText();

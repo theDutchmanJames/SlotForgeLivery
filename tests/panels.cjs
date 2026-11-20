@@ -15,7 +15,7 @@ async function launch() {
   app = await electron.launch({ executablePath: runtime, args: process.env.PAINTSHOP_PACKAGED ? [] : [root], env });
   page = await app.firstWindow();
   page.on('pageerror', e => errors.push(e.message));
-  await page.waitForSelector('#tools button');
+  await page.waitForSelector('#tools button', { state: 'attached' });
 }
 const click = action => clickAction(page, action);
 async function add(file, name) {

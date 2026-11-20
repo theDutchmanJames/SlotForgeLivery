@@ -15,7 +15,7 @@ async function launch() {
   delete env.ELECTRON_RUN_AS_NODE;
   app = await electron.launch({ executablePath: runtime, args: process.env.PAINTSHOP_PACKAGED ? [] : [root], env });
   page = await app.firstWindow();
-  await page.waitForSelector('#tools button');
+  await page.waitForSelector('#tools button', { state: 'attached' });
   await require('./inspector-helpers.cjs').openPropertyFolders(page);
 }
 async function run() {

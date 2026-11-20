@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Welcome remake</title>
+<style>
+@font-face{font-family:'SF Cond';src:url('../../../renderer/fonts/barlowcondensed/BarlowCondensed-BoldItalic.ttf') format('truetype');font-weight:700;font-style:italic}
+@font-face{font-family:'SF Mono';src:url('../../../renderer/fonts/robotomono/RobotoMono[wght].ttf') format('truetype');font-weight:100 700}
+:root{--bg:#171b21;--panel:#222831;--panel2:#1c2129;--ink:#e8e6e1;--ink2:#c4c8ce;--muted:#98a0ab;--faint:#6b7380;--line:#343b47;--line2:#2b313b;
+  --accent:#e5484d;--accent-text:#f06b6f;--ok:#3ecf8e;--warn:#f2b705;--blue:#4c9aff;--board:#e9ecf0;--cond:'SF Cond','Bahnschrift',sans-serif;--mono:'SF Mono',Consolas,monospace}
+[data-theme=light]{--bg:#eef0f3;--panel:#fff;--panel2:#f6f7f9;--ink:#1c2129;--ink2:#3a414c;--muted:#5f6875;--faint:#8a929d;--line:#d5d9df;--line2:#e3e6ea;--accent-text:#c9363b;--board:#f3f5f7}
+*{box-sizing:border-box}html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:13px/1.5 'Segoe UI',system-ui,sans-serif;display:flex;flex-direction:column}
+button{font:inherit;color:inherit;cursor:pointer}
+.grow{flex:1}.muted{color:var(--muted)}.mono{font-family:var(--mono)}
+.eyebrow{font:600 10px/1 'Segoe UI';letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
+.switch{flex:none;display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;padding:9px 18px;background:#0d1014;color:#e8e6e1;border-bottom:1px solid #2b313b}
+.switch b{font:600 10.5px 'Segoe UI';letter-spacing:.14em;text-transform:uppercase;color:#98a0ab}
+.switch p{margin:0 0 0 auto;font-size:12px;color:#8a929d;max-width:640px}
+.seg{display:inline-flex;gap:2px;padding:3px;border:1px solid #343b47;border-radius:9px;background:#171b21}
+.seg button{height:26px;padding:0 11px;border:0;border-radius:6px;background:none;color:#c4c8ce;font-size:12.5px}
+.seg button[aria-pressed=true]{background:#e5484d;color:#fff}
+.stage{flex:1;min-height:800px;display:flex}
+.opt{flex:1;display:none;min-width:0;flex-direction:column}.opt.on{display:flex}
+.state{display:none;flex:1;min-height:0;flex-direction:column}.state.on{display:flex}
+.btn{height:34px;display:inline-flex;align-items:center;gap:8px;padding:0 14px;border:1px solid var(--line);border-radius:9px;background:var(--panel);font-size:13px;white-space:nowrap}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+.btn.sm{height:28px;padding:0 10px;font-size:12px}
+.btn.big{height:42px;padding:0 18px;font-size:14px}
+.callout{position:absolute;font:600 10.5px 'Segoe UI';letter-spacing:.06em;text-transform:uppercase;color:#fff;background:#4c9aff;border-radius:999px;padding:3px 9px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.25);z-index:9}
+.topbar{height:52px;flex:none;display:flex;align-items:center;gap:10px;padding:0 12px;border-bottom:1px solid var(--line2);background:var(--panel2)}
+.logo{width:28px;height:28px;border-radius:7px;background:var(--accent);display:grid;place-items:center;color:#fff;font:italic 700 15px var(--cond)}
+.crumbs strong{font:italic 700 19px/1 var(--cond);text-transform:uppercase}
+h1,h2{font-family:var(--cond);font-style:italic;font-weight:700;text-transform:uppercase;margin:0}
+svg.car{display:block;width:100%;height:auto}
+/* A */
+.home{flex:1;overflow:auto;padding:34px 48px 40px;display:flex;flex-direction:column;gap:26px;position:relative}
+.hero{display:grid;grid-template-columns:1fr 1.1fr;gap:34px;align-items:center}
+.hero h1{font-size:64px;line-height:.92}
+.hero p{font-size:15px;color:var(--ink2);max-width:460px}
+.drop{border:2px dashed color-mix(in srgb,var(--accent) 55%,var(--line));border-radius:18px;padding:26px;display:flex;flex-direction:column;align-items:center;gap:12px;background:color-mix(in srgb,var(--accent) 5%,var(--panel));text-align:center}
+.drop b{font-size:16px}
+.fmt{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.fmt span{font:11px var(--mono);padding:2px 7px;border-radius:6px;border:1px solid var(--line);color:var(--muted)}
+.starts{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.start{border:1px solid var(--line);border-radius:14px;background:var(--panel);overflow:hidden;display:flex;flex-direction:column}
+.start .pic{height:150px;background:var(--board);display:grid;place-items:center;padding:14px}
+.start .bd{padding:14px 16px;display:flex;flex-direction:column;gap:6px;flex:1}
+.start .bd b{font-size:15px}
+.start .bd p{margin:0;color:var(--muted);font-size:12.5px;flex:1}
+.how{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.how div{padding:12px 14px;border-left:3px solid var(--accent);background:var(--panel2);border-radius:0 10px 10px 0}
+.how b{display:block;font:italic 700 18px var(--cond);text-transform:uppercase}
+.how small{color:var(--muted)}
+.n{font:700 11px var(--mono);color:var(--accent-text)}
+.back{display:grid;grid-template-columns:1.4fr 1fr;gap:18px}
+.cont{border:1px solid var(--line);border-radius:16px;overflow:hidden;background:var(--panel);display:flex;flex-direction:column}
+.cont .pic{background:var(--board);padding:22px 40px;position:relative}
+.cont .bd{padding:16px 18px;display:flex;align-items:center;gap:14px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:999px;border:1px solid var(--line);font-size:11.5px;color:var(--ink2);background:var(--panel2)}
+.chip.warn{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 50%,var(--line))}
+.dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+.side{display:flex;flex-direction:column;gap:12px}
+.box{border:1px solid var(--line);border-radius:14px;background:var(--panel);padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.row{display:flex;align-items:center;gap:10px}
+.mini{width:84px;height:44px;border-radius:8px;background:var(--board);display:grid;place-items:center;padding:4px;flex:none}
+.recent{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.rc{border:1px solid var(--line);border-radius:12px;background:var(--panel);overflow:hidden}
+.rc .pic{height:86px;background:var(--board);display:grid;place-items:center;padding:8px 18px}
+.rc .bd{padding:8px 10px}.rc b{display:block;font-size:12.5px}.rc small{color:var(--muted);font-size:11.5px}
+/* B */
+.garage{flex:1;display:grid;grid-template-columns:230px 1fr 300px;min-height:0;position:relative}
+.rail{border-right:1px solid var(--line2);background:var(--panel2);padding:12px 10px;display:flex;flex-direction:column;gap:2px}
+.ri{display:flex;align-items:center;gap:9px;min-height:32px;padding:4px 9px;border-radius:8px;color:var(--ink2)}
+.ri.on{background:color-mix(in srgb,var(--accent) 14%,var(--panel));box-shadow:inset 3px 0 0 var(--accent);color:var(--ink)}
+.ri small{margin-left:auto;font:11px var(--mono);color:var(--faint)}
+.rail .eyebrow{padding:12px 9px 6px}
+.main{padding:22px 26px;display:flex;flex-direction:column;gap:18px;overflow:auto}
+.main h2{font-size:34px}
+.bays{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.bay{border:2px dashed var(--line);border-radius:14px;min-height:240px;display:flex;flex-direction:column;overflow:hidden;background:transparent}
+.bay.filled{border-style:solid;background:var(--panel)}
+.bay .pic{flex:1;display:grid;place-items:center;padding:18px;background:color-mix(in srgb,var(--board) 8%,transparent)}
+.bay.filled .pic{background:var(--board)}
+.bay .bd{padding:12px 14px;border-top:1px dashed var(--line);display:flex;flex-direction:column;gap:6px}
+.bay.filled .bd{border-top-style:solid}
+.bay .bd b{font-size:14px}.bay .bd small{color:var(--muted)}
+.plate{position:absolute;left:12px;top:12px;font:italic 700 13px var(--cond);text-transform:uppercase;letter-spacing:.04em;color:var(--faint)}
+.detail{border-left:1px solid var(--line2);background:var(--panel);padding:18px;display:flex;flex-direction:column;gap:12px}
+.detail h3{margin:0;font:italic 700 20px var(--cond);text-transform:uppercase}
+.step{display:flex;gap:10px;align-items:flex-start}.step .n2{width:22px;height:22px;border-radius:50%;background:color-mix(in srgb,var(--accent) 16%,var(--panel));color:var(--accent-text);display:grid;place-items:center;font:700 11px var(--mono);flex:none}
+.radio{display:flex;flex-direction:column;gap:6px}
+.radio label{display:flex;gap:9px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;font-size:12.5px}
+.radio label.on{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 8%,var(--panel))}
+.o{width:14px;height:14px;border-radius:50%;border:2px solid var(--line);flex:none;margin-top:2px}.radio label.on .o{border:4px solid var(--accent)}
+.radio small{display:block;color:var(--muted)}
+.strip{display:flex;align-items:center;gap:14px;padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:var(--panel)}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.card{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--panel)}
+.card .pic{height:120px;background:var(--board);display:grid;place-items:center;padding:12px 24px}
+.card .bd{padding:10px 12px}.card b{display:block}.card small{color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="switch">
+  <b>Welcome remake</b>
+  <span class="seg" id="opt"><button data-v="A" aria-pressed="true">A · Start page</button><button data-v="B">B · The Garage is home</button></span>
+  <span class="seg" id="sub"></span>
+  <span class="seg" id="theme"><button data-v="dark" aria-pressed="true">Dark</button><button data-v="light">Light</button></span>
+  <p id="say"></p>
+</div>
+<svg width="0" height="0" style="position:absolute"><defs>
+  <path id="sil" d="M62 268 L70 226 Q78 204 122 196 L292 176 Q336 146 392 112 Q424 94 476 92 L632 94 Q684 96 724 126 L796 178 Q894 188 926 212 Q944 232 938 268 L868 270 A72 72 0 0 0 724 270 L334 270 A72 72 0 0 0 190 270 Z"/>
+  <clipPath id="clip"><use href="#sil"/></clipPath>
+  <symbol id="white" viewBox="40 70 920 290"><use href="#sil" fill="#f6f4ef" stroke="#1f2730" stroke-width="3.5"/><path d="M318 176 L398 120 Q426 104 470 104 L500 104 L500 176 Z" fill="#cfd6dd"/><path d="M516 104 L628 106 Q670 108 702 132 L758 176 L516 176 Z" fill="#cfd6dd"/><g fill="#1f2730"><circle cx="262" cy="272" r="60"/><circle cx="796" cy="272" r="60"/></g><g fill="#c4c8ce"><circle cx="262" cy="272" r="34"/><circle cx="796" cy="272" r="34"/></g></symbol>
+  <symbol id="gulf" viewBox="40 70 920 290"><use href="#sil" fill="#7fb7e2"/><g clip-path="url(#clip)"><rect x="40" y="206" width="920" height="34" fill="#f28a35"/></g><path d="M318 176 L398 120 Q426 104 470 104 L500 104 L500 176 Z" fill="#33404d"/><path d="M516 104 L628 106 Q670 108 702 132 L758 176 L516 176 Z" fill="#33404d"/><use href="#sil" fill="none" stroke="#1f2730" stroke-width="3.5"/><circle cx="610" cy="196" r="40" fill="#f6f4ef" stroke="#1f2730" stroke-width="2"/><text x="610" y="212" text-anchor="middle" font-family="Arial Black,Arial" font-weight="900" font-size="42" fill="#1f2730">27</text><g fill="#1f2730"><circle cx="262" cy="272" r="60"/><circle cx="796" cy="272" r="60"/></g><g fill="#c4c8ce"><circle cx="262" cy="272" r="34"/><circle cx="796" cy="272" r="34"/></g></symbol>
+  <symbol id="red" viewBox="40 70 920 290"><use href="#sil" fill="#e5484d"/><g clip-path="url(#clip)"><rect x="40" y="150" width="920" height="16" fill="#f6f4ef"/></g><path d="M318 176 L398 120 Q426 104 470 104 L500 104 L500 176 Z" fill="#33404d"/><path d="M516 104 L628 106 Q670 108 702 132 L758 176 L516 176 Z" fill="#33404d"/><use href="#sil" fill="none" stroke="#1f2730" stroke-width="3.5"/><g fill="#1f2730"><circle cx="262" cy="272" r="60"/><circle cx="796" cy="272" r="60"/></g><g fill="#c4c8ce"><circle cx="262" cy="272" r="34"/><circle cx="796" cy="272" r="34"/></g></symbol>
+  <symbol id="green" viewBox="40 70 920 290"><use href="#sil" fill="#1f6b4a"/><g clip-path="url(#clip)"><rect x="40" y="206" width="920" height="12" fill="#f2b705"/></g><path d="M318 176 L398 120 Q426 104 470 104 L500 104 L500 176 Z" fill="#33404d"/><path d="M516 104 L628 106 Q670 108 702 132 L758 176 L516 176 Z" fill="#33404d"/><use href="#sil" fill="none" stroke="#1f2730" stroke-width="3.5"/><g fill="#1f2730"><circle cx="262" cy="272" r="60"/><circle cx="796" cy="272" r="60"/></g><g fill="#c4c8ce"><circle cx="262" cy="272" r="34"/><circle cx="796" cy="272" r="34"/></g></symbol>
+  <symbol id="pkg" viewBox="0 0 120 80"><rect x="20" y="10" width="80" height="60" rx="8" fill="#33404d"/><path d="M20 30h80" stroke="#98a0ab" stroke-width="2"/><rect x="48" y="4" width="24" height="18" rx="3" fill="#f28a35"/></symbol>
+</defs></svg>
+<div class="stage">
+<!-- ===================== A ===================== -->
+<section class="opt on" id="A">
+  <header class="topbar"><span class="logo">L</span><span class="crumbs"><strong>SlotForge Livery</strong></span><span class="grow"></span><button class="btn sm">Help</button></header>
+  <div class="state on" data-s="first">
+  <div class="home">
+    <div class="hero">
+      <div><span class="eyebrow">From white kit to your colours</span><h1 style="margin-top:10px">Make it<br>your own.</h1><p>Start from a drawing of your car: Livery turns its panels into parts you can paint, then plans the paints, masks and decals for your workbench.</p><div class="row" style="gap:8px"><button class="btn primary big">Add your car</button><button class="btn big">Try the sample car</button></div></div>
+      <div class="drop"><svg viewBox="40 70 920 290" class="car" style="width:70%"><use href="#white"/></svg><b>Drop a drawing of your car here</b><div class="fmt"><span>SVG</span><span>EPS</span><span>PDF</span><span>PNG · JPG photo</span></div><span class="muted" style="font-size:12px">A side view works best. A photo is traced by hand.</span></div>
+    </div>
+    <div><span class="eyebrow">Three ways to start</span>
+    <div class="starts" style="margin-top:10px">
+      <div class="start"><div class="pic"><svg viewBox="40 70 920 290" class="car" style="width:80%"><use href="#white"/></svg></div><div class="bd"><b>Your own car</b><p>A drawing or a photo. Five guided steps: name, drawing, panels, parts, real size.</p><button class="btn primary sm" style="align-self:flex-start">Add your car</button></div></div>
+      <div class="start"><div class="pic"><svg viewBox="40 70 920 290" class="car" style="width:80%"><use href="#gulf"/></svg></div><div class="bd"><b>The sample car</b><p>A ready coupé at 1:32 to try everything first: colours, stripes, numbers, the Print pack.</p><button class="btn sm" style="align-self:flex-start">Try it</button></div></div>
+      <div class="start"><div class="pic"><svg viewBox="0 0 120 80" style="width:34%"><use href="#pkg"/></svg></div><div class="bd"><b>Something shared</b><p>A .sfpaint package from someone else, a backup, or a decal sheet from SlotForge Decals.</p><button class="btn sm" style="align-self:flex-start">Open a file</button></div></div>
+    </div></div>
+    <div><span class="eyebrow">How it goes</span>
+    <div class="how" style="margin-top:10px"><div><span class="n">01</span><b>Add a car</b><small>Choose the panels that get paint</small></div><div><span class="n">02</span><b>Paint</b><small>Livery colours, stripes, numbers, decals</small></div><div><span class="n">03</span><b>Plan</b><small>Real paints, the order, many entries</small></div><div><span class="n">04</span><b>Print</b><small>The plan, masks at true size, decals</small></div></div></div>
+    <p class="muted" style="margin:0;font-size:12px">Everything stays on this computer. No account is needed.</p>
+    <span class="callout" style="right:60px;top:14px">A page of its own: no empty tools, one place to start</span>
+  </div>
+  </div>
+  <div class="state" data-s="back">
+  <div class="home">
+    <div class="row"><div><span class="eyebrow">Welcome back</span><h1 style="font-size:42px;margin-top:6px">Pick up where you left off</h1></div><span class="grow"></span><button class="btn">Garage</button><button class="btn primary">Add a car</button></div>
+    <div class="back">
+      <div class="cont"><div class="pic"><svg viewBox="40 70 920 290" class="car"><use href="#gulf"/></svg><span class="chip" style="position:absolute;left:14px;top:14px">Being painted</span></div><div class="bd"><div class="grow"><b style="font-size:17px">Gulf tribute</b><div class="muted" style="font-size:12.5px">Sample coupé · 1:32 · edited today at 21:14</div><div class="chips" style="margin-top:8px"><span class="chip"><span class="dot" style="background:#7fb7e2"></span>Gulf blue</span><span class="chip"><span class="dot" style="background:#f28a35"></span>Gulf orange</span><span class="chip">4 entries</span><span class="chip warn">2 colours without a paint</span></div></div><button class="btn primary big">Continue</button></div></div>
+      <div class="side">
+        <div class="box"><span class="eyebrow">Next on this livery</span>
+          <div class="row"><span class="n">1</span><span class="grow">Choose real paints for Gulf orange and black</span><button class="btn sm">Paints</button></div>
+          <div class="row"><span class="n">2</span><span class="grow">Set the real size of the Right view</span><button class="btn sm">Size</button></div>
+          <div class="row"><span class="n">3</span><span class="grow">Make the Print pack</span><button class="btn sm">Print pack</button></div>
+        </div>
+        <div class="box"><span class="eyebrow">A new livery on one of your cars</span>
+          <div class="row"><span class="mini"><svg viewBox="40 70 920 290" class="car"><use href="#white"/></svg></span><span class="grow"><b>Sample coupé</b><br><small class="muted">3 liveries</small></span><button class="btn sm">New livery</button></div>
+          <div class="row"><span class="mini"><svg viewBox="40 70 920 290" class="car"><use href="#white"/></svg></span><span class="grow"><b>Porsche 917K</b><br><small class="muted">1 livery</small></span><button class="btn sm">New livery</button></div>
+        </div>
+      </div>
+    </div>
+    <div><span class="eyebrow">Recent</span>
+    <div class="recent" style="margin-top:10px">
+      <div class="rc"><div class="pic"><svg viewBox="40 70 920 290" class="car"><use href="#red"/></svg></div><div class="bd"><b>Martini red</b><small>Sample coupé · yesterday</small></div></div>
+      <div class="rc"><div class="pic"><svg viewBox="40 70 920 290" class="car"><use href="#green"/></svg></div><div class="bd"><b>BRG 1971</b><small>Porsche 917K · 12 Nov</small></div></div>
+      <div class="rc"><div class="pic"><svg viewBox="40 70 920 290" class="car"><use href="#white"/></svg></div><div class="bd"><b>Livery 3</b><small>Sample coupé · 9 Nov</small></div></div>
+      <div class="rc" style="display:grid;place-items:center;border-style:dashed;background:transparent"><span class="muted">All 7 in the Garage →</span></div>
+    </div></div>
+    <span class="callout" style="right:60px;top:14px">Back again: your last livery first, with what is left to do</span>
+  </div>
+  </div>
+</section>
+<!-- ===================== B ===================== -->
+<section class="opt" id="B">
+  <header class="topbar"><span class="logo">L</span><span class="crumbs"><strong>Garage</strong></span><span class="grow"></span><button class="btn sm">Help</button></header>
+  <div class="state on" data-s="empty">
+  <div class="garage">
+    <aside class="rail"><span class="ri on">Recent<small>0</small></span><span class="eyebrow">Cars</span><span class="ri">All cars<small>0</small></span><span class="ri" style="color:var(--accent-text)">+ Add a car</span><span class="eyebrow">Reuse</span><span class="ri">Saved designs<small>0</small></span><span class="ri">Artwork &amp; shapes<small>0</small></span><span class="ri">Fonts<small>0</small></span><span class="eyebrow">Safe keeping</span><span class="ri">Backups</span><span class="ri">Trash<small>0</small></span></aside>
+    <main class="main">
+      <div><span class="eyebrow">Your garage</span><h2>Empty bays</h2><p class="muted" style="margin:4px 0 0">Park your first car. Every car you add gets a bay here, with its liveries.</p></div>
+      <div class="bays">
+        <div class="bay" style="position:relative;border-color:color-mix(in srgb,var(--accent) 55%,var(--line))"><span class="plate">Bay 1</span><div class="pic"><svg viewBox="40 70 920 290" class="car" style="width:80%;opacity:.5"><use href="#white"/></svg></div><div class="bd"><b>Your own car</b><small>Drop a drawing here, or choose one: SVG, EPS, PDF or a photo.</small><button class="btn primary sm" style="align-self:flex-start">Add your car</button></div></div>
+        <div class="bay filled" style="position:relative"><span class="plate" style="color:#5f6875">Bay 2 · on loan</span><div class="pic"><svg viewBox="40 70 920 290" class="car" style="width:80%"><use href="#gulf"/></svg></div><div class="bd"><b>The sample car</b><small>A ready coupé at 1:32 to try everything first.</small><button class="btn sm" style="align-self:flex-start">Take it for a spin</button></div></div>
+        <div class="bay" style="position:relative"><span class="plate">Bay 3</span><div class="pic"><svg viewBox="0 0 120 80" style="width:30%;opacity:.7"><use href="#pkg"/></svg></div><div class="bd"><b>Something shared</b><small>A .sfpaint package, a backup or a decal sheet.</small><button class="btn sm" style="align-self:flex-start">Open a file</button></div></div>
+      </div>
+    </main>
+    <aside class="detail"><span class="eyebrow">First time here</span><h3>How it goes</h3>
+      <div class="step"><span class="n2">1</span><span><b>Add a car</b><br><small class="muted">Choose the panels that get paint.</small></span></div>
+      <div class="step"><span class="n2">2</span><span><b>Paint</b><br><small class="muted">Livery colours, stripes, numbers, decals.</small></span></div>
+      <div class="step"><span class="n2">3</span><span><b>Plan and print</b><br><small class="muted">Real paints, masks at true size, the Print pack.</small></span></div>
+      <p class="muted" style="font-size:12px;margin:6px 0 0">Everything stays on this computer. No account is needed.</p>
+    </aside>
+    <span class="callout" style="left:260px;bottom:20px">No separate welcome: the empty Garage is the start</span>
+  </div>
+  </div>
+  <div class="state" data-s="start">
+  <div class="garage">
+    <aside class="rail"><span class="ri on">Recent<small>7</small></span><span class="eyebrow">Cars</span><span class="ri">Sample coupé<small>3</small></span><span class="ri">Porsche 917K<small>1</small></span><span class="ri">All cars<small>2</small></span><span class="eyebrow">Reuse</span><span class="ri">Saved designs<small>2</small></span><span class="ri">Artwork &amp; shapes<small>5</small></span><span class="ri">Fonts<small>1</small></span><span class="eyebrow">Safe keeping</span><span class="ri">Backups</span><span class="ri">Trash<small>1</small></span></aside>
+    <main class="main">
+      <div class="strip"><span class="mini" style="width:120px;height:58px"><svg viewBox="40 70 920 290" class="car"><use href="#gulf"/></svg></span><span class="grow"><span class="eyebrow">Last open</span><br><b style="font-size:15px">Gulf tribute</b> <span class="muted">· edited today at 21:14</span></span><button class="btn primary">Continue</button></div>
+      <div><span class="eyebrow">Your liveries</span><h2>Recent</h2></div>
+      <div class="cards">
+        <div class="card"><div class="pic"><svg viewBox="40 70 920 290" class="car"><use href="#gulf"/></svg></div><div class="bd"><b>Gulf tribute</b><small>Sample coupé · today</small></div></div>
+        <div class="card"><div class="pic"><svg viewBox="40 70 920 290" class="car"><use href="#red"/></svg></div><div class="bd"><b>Martini red</b><small>Sample coupé · yesterday</small></div></div>
+        <div class="card"><div class="pic"><svg viewBox="40 70 920 290" class="car"><use href="#green"/></svg></div><div class="bd"><b>BRG 1971</b><small>Porsche 917K · 12 Nov</small></div></div>
+      </div>
+    </main>
+    <aside class="detail"><span class="eyebrow">Settings · Start</span><h3>When Livery opens</h3>
+      <div class="radio">
+        <label><span class="o"></span><span>Open the last livery<small>Straight back to the canvas.</small></span></label>
+        <label class="on"><span class="o"></span><span>Open the Garage<small>With the last livery on top, as here.</small></span></label>
+      </div>
+      <p class="muted" style="font-size:12px;margin:0">Also in Settings. Closing a livery always brings you to the Garage.</p>
+    </aside>
+    <span class="callout" style="left:260px;bottom:20px">With cars: Livery opens in the Garage, or straight in your last livery</span>
+  </div>
+  </div>
+</section>
+</div>
+<script>
+const SUB={A:[['first','First time'],['back','Coming back']],B:[['empty','First time'],['start','Coming back']]};
+const SAY={A:'A · Start page: a page of its own instead of the empty Paint Studio. First time: drop a drawing, three ways to start, how it goes. Coming back: your last livery big with what is left to do on it (paints, real size, Print pack), new liveries on your cars, recent ones.',
+           B:'B · The Garage is home: no separate welcome. The first time, the empty Garage shows three empty bays: your own car, the sample car, something shared. Coming back, Livery opens in the Garage with the last livery on top, or straight in that livery: your choice in Settings.'};
+let opt='A',sub={A:'first',B:'empty'};
+function show(){document.querySelectorAll('.opt').forEach(o=>o.classList.toggle('on',o.id===opt));document.querySelectorAll('#opt button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===opt));document.getElementById('sub').innerHTML=SUB[opt].map(([v,l])=>`<button data-v="${v}" aria-pressed="${sub[opt]===v}">${l}</button>`).join('');document.getElementById('say').textContent=SAY[opt];document.getElementById(opt).querySelectorAll('.state').forEach(s=>s.classList.toggle('on',s.dataset.s===sub[opt]));}
+document.getElementById('opt').onclick=e=>{const v=e.target.closest('button')?.dataset.v;if(v){opt=v;show();}};
+document.getElementById('sub').onclick=e=>{const v=e.target.closest('button')?.dataset.v;if(v){sub[opt]=v;show();}};
+document.getElementById('theme').onclick=e=>{const v=e.target.closest('button')?.dataset.v;if(!v)return;document.documentElement.dataset.theme=v;document.querySelectorAll('#theme button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===v));};
+const q=new URLSearchParams(location.search);if(q.get('opt'))opt=q.get('opt');if(q.get('sub'))sub[opt]=q.get('sub');if(q.get('theme'))document.documentElement.dataset.theme=q.get('theme');
+show();
+</script>
+</body>
+</html>

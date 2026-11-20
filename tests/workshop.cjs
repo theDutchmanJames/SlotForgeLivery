@@ -27,7 +27,7 @@ async function launch() {
   page = await app.firstWindow();
   page.on('pageerror', error => errors.push(error.message));
   await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].setSize(1500, 950));
-  await page.waitForSelector('#tools button');
+  await page.waitForSelector('#tools button', { state: 'attached' });
   await require('./inspector-helpers.cjs').openPropertyFolders(page);
 }
 const click = action => clickAction(page, action);
