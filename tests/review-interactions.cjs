@@ -125,11 +125,11 @@ const root = path.resolve(__dirname, '..');
           FontLibrary.importFile = () => new Promise(r => (release = r));
           const task = importFonts([{}]);
           closeDialog();
-          if (next === 'help') helpDialog();
+          if (next === 'help') openDialog('Another window', '', '<p>Another window.</p>');
           release(data);
           await task;
           if (next === 'closed' && $('#dialog').open) return false;
-          if (next === 'help' && $('#dialog h2').textContent !== 'A quick tour') return false;
+          if (next === 'help' && $('#dialog h2').textContent !== 'Another window') return false;
           closeDialog();
         }
         return store.fonts.length === 1;
@@ -161,11 +161,11 @@ const root = path.resolve(__dirname, '..');
           job = button.onclick();
         await button.onclick();
         closeDialog();
-        helpDialog();
+        openDialog('Another window', '', '<p>Another window.</p>');
         const canvas = document.createElement('canvas');
         release(canvas);
         await job;
-        return calls === 1 && $('#dialog h2').textContent === 'A quick tour';
+        return calls === 1 && $('#dialog h2').textContent === 'Another window';
       } finally {
         renderPNG = original;
         closeDialog();

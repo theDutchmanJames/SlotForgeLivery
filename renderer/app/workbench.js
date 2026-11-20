@@ -123,6 +123,7 @@ function afterInspector() {
   }
   syncInspectorTabs();
   renderWorkshop();
+  queueHelp();
 }
 
 // ---------------------------------------------------------- Layers column

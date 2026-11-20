@@ -139,7 +139,7 @@ paint quantities, sharing a paint shelf between computers, and Notes' free-text 
 | Side by side | Read-only; it needs a toggle *and* a drop-down | All views at once as a contact sheet |
 | Backups and recovery | No list of backups and no Restore (maintenance.js:14-28); restoring means importing, which *adds* copies (sharing.js:290, 325); "Library recovery required" has no buttons (main.js:173-182) | **Partly done** with #3: Backups list and "bring back what's missing" in the Garage. Open: "Library recovery required" still has no buttons; Replace my library |
 | Import confirm | Shows "2 templates · 1 assets" (sharing.js:291-293), no preview | Cards of what comes in, duplicate check |
-| Help | A one-paragraph tab on a huge page; the tab names keep "1." because of a broken pattern (`/^d+.s*/`, dialogs-import.js:288); the version is typed in by hand (dialogs-import.js:272, index.html:24) | A Help reader like Settings; a "?" per panel |
+| Help | A one-paragraph tab on a huge page; the tab names keep "1." because of a broken pattern (`/^d+.s*/`, dialogs-import.js:288); the version is typed in by hand (dialogs-import.js:272, index.html:24) | **Done** ("Help on the spot", option B of `ui-reference/help-2026-11`): the Help here drawer (F1 or the Help button) shows what you can do on the page you are on, for what you selected, and each item does it or points at the control; tours of the Paint Studio and the Garage over the real controls; the keyboard sheet (?); the version comes from the app. The old tour window is gone. Code: `renderer/app/help.js`; test: `tests/help.cjs` |
 | Welcome | The left and right columns repeat the same steps | A start page that is also the Garage when you have cars (#3) |
 
 ## Fine as they are

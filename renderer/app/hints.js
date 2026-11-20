@@ -6,14 +6,14 @@
 const HINT_STEPS = [
   {
     id: 'prepare',
-    title: 'Prepare your car',
-    text: 'Choose <b>Prepare areas &amp; labels</b>, click the panels you want to paint and give them a label.',
+    title: 'Choose the panels',
+    text: 'Click the panels you want to paint and give them a name. <b>Add a car</b> does this in guided steps.',
     when: () => preparing
   },
   {
     id: 'paint',
     title: 'Choose your colours',
-    text: 'Select <b>Base paint</b> or a label group in Layers, then pick a colour on the right.',
+    text: 'Click a panel on the car, or <b>Base paint</b> in Layers, then click a livery colour on the right.',
     when: () =>
       !preparing &&
       (project.base || '#ffffff').toLowerCase() === '#ffffff' &&
@@ -28,7 +28,7 @@ const HINT_STEPS = [
   {
     id: 'share',
     title: 'Take it to the workshop',
-    text: '<b>Save livery</b> to reuse it on another car, or <b>Export PDF</b> for a printed painting guide.',
+    text: '<b>Print &amp; export → Print pack</b> makes the plan, masks and pictures. <b>F1</b> shows help for what you are doing.',
     when: () => !preparing && !(pref('hintsDone', []) || []).includes('share')
   }
 ];
@@ -57,7 +57,7 @@ document.addEventListener('click', ev => {
     setPreference('showHints', false);
     renderStepHint();
     toast('Tips hidden. Turn them back on in Settings.');
-  } else if (['save-livery', 'pdf', 'png'].includes(b.dataset.action) && project) {
+  } else if (['save-livery', 'pdf', 'png', 'print-pack'].includes(b.dataset.action) && project) {
     // Reaching the last step completes the tour.
     if (!(pref('hintsDone', []) || []).includes('share'))
       setPreference('hintsDone', [...(pref('hintsDone', []) || []), 'share']);

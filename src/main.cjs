@@ -101,6 +101,7 @@ const libraryStorage = new SQLiteService(dataPath());
 // the first load request picks up that result. Later loads (after a
 // recovery reload) read the database again.
 let earlyLoad = null;
+ipcMain.handle('app:version', () => app.getVersion());
 ipcMain.handle('library:load', async () => {
   // Verified first-run migration may legitimately take longer than normal UI
   // startup. The worker remains off the main thread and originals stay intact.

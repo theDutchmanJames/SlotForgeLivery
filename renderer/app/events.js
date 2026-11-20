@@ -150,10 +150,6 @@ document.addEventListener('click', async ev => {
       await pickColour(b.dataset.eyedropper);
       return;
     }
-    if (b.dataset.helpTab) {
-      showHelpTab(Number(b.dataset.helpTab));
-      return;
-    }
     if (b.dataset.libraryView) {
       setPreference('libraryView', b.dataset.libraryView);
       document

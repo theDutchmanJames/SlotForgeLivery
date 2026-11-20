@@ -4,7 +4,8 @@
 'use strict';
 const actions = {
   'close-dialog': closeDialog,
-  help: helpDialog,
+  help: () => toggleHelp(),
+  keys: () => toggleKeys(true),
   studio: () => showSettings(false),
   settings: () => showSettings(),
   projects: () => {

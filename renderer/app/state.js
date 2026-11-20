@@ -58,7 +58,10 @@ const icons = {
   chev: 'M9 6l6 6-6 6',
   clock: 'M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18 M12 7v5l3 3',
   print: 'M7 9V3h10v6 M5 9h14v8H5z M7 14h10v7H7z',
-  list: 'M8 6h12 M8 12h12 M8 18h12 M4 6h.01 M4 12h.01 M4 18h.01'
+  list: 'M8 6h12 M8 12h12 M8 18h12 M4 6h.01 M4 12h.01 M4 18h.01',
+  play: 'M8 5v14l11-7z',
+  target: 'M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18 M12 8a4 4 0 1 0 0 8a4 4 0 1 0 0-8',
+  keyboard: 'M3 6h18v12H3z M7 10h.01 M11 10h.01 M15 10h.01 M7 14h10'
 };
 function icon(n) {
   if (n === 'livery')

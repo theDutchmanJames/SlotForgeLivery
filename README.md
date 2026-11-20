@@ -104,7 +104,7 @@ Give shapes and text an **outline** in any colour and width. It sits outside the
 
 Import your graphics as images and position them on the car. **PNG transparency is preserved**, so a logo or decal can sit on the bodywork without a rectangular background.
 
-Use **Import decal artwork** in the toolbar, **Garage → Artwork & shapes → Import artwork**, or **Import & Export → Import decal artwork or Decals sheet** (the Garage, Import & Export, Settings and Help are in the ≡ menu at the top left). SVG, EPS and PDF decals retain supported gradients, masks, clipping, symbols and embedded images. Imported artwork keeps its own colours and can be positioned, resized, rotated and fitted to an angled panel.
+Use **Import decal artwork** in the toolbar, **Garage → Artwork & shapes → Import artwork**, or **Import & Export → Import decal artwork or Decals sheet** (the Garage, Import & Export and Settings are in the ≡ menu at the top left). SVG, EPS and PDF decals retain supported gradients, masks, clipping, symbols and embedded images. Imported artwork keeps its own colours and can be positioned, resized, rotated and fitted to an angled panel.
 
 ### Bring a sheet from SlotForge Decals
 
@@ -187,7 +187,7 @@ The workshop PDF is a **visual painting reference**, not a colour proof. For pri
 
 Choose from **eight SlotForge themes**, or create a custom palette in **Settings**. Set your background, panel, text, border and accent colours, preview the result, then save or cancel. Interface themes do not change your car's paint or exported designs.
 
-Use pan, zoom, Snap, Grid and undo/redo while editing. Click empty canvas to clear the selection and look at the design without selection boxes. **Help & shortcuts** in the ≡ menu explains the tools and shortcuts, one topic at a time.
+Use pan, zoom, Snap, Grid and undo/redo while editing. Click empty canvas to clear the selection and look at the design without selection boxes. **Help** at the top right (or **F1**) opens **Help here** beside the page: what you can do on that screen, for what you selected. Each item either does it or points at the control. It also has a short tour of the Paint Studio or the Garage over the real controls. Press **?** for every key on one sheet.
 
 - **Step-by-step tips** in the corner of the canvas show the next step: prepare, paint, add artwork, then save or export. Dismiss a tip with **Got it**, or turn them off in Settings.
 - The Paint Studio is laid out like a workbench: **Layers** on the left, the canvas with a tab for each view in the middle, and on the right the **Selection** tab (what you selected) and the **Workshop** tab (real size, mirroring, the paints in this livery and printing). Snap, Grid, Rulers, Side by side and Finish preview are the small switches under the canvas.

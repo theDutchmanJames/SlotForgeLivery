@@ -135,7 +135,7 @@ function buildInspector() {
   rememberInspectorFolders(box);
   box.classList.remove('docked');
   if (!project) {
-    box.innerHTML = `<div class="inspector-empty">${icon('palette')}<h3>Your workshop, in colour.</h3><p class="note">Prepare a simple car template, then keep every stripe, shape and decal editable.</p><ol><li>Import vector artwork or a photo</li><li>Define the paintable body</li><li>Add colours and graphics</li><li>Save, share and print</li></ol><div class="separator"></div><h3>Made to be reused</h3><p class="note">Your car templates, liveries and artwork belong in your own library. Share them as a single package.</p><button data-action="help" class="wide">A quick tour ${icon('help')}</button></div>`;
+    box.innerHTML = `<div class="inspector-empty">${icon('palette')}<h3>Your workshop, in colour.</h3><p class="note">Prepare a simple car template, then keep every stripe, shape and decal editable.</p><ol><li>Import vector artwork or a photo</li><li>Define the paintable body</li><li>Add colours and graphics</li><li>Save, share and print</li></ol><div class="separator"></div><h3>Made to be reused</h3><p class="note">Your car templates, liveries and artwork belong in your own library. Share them as a single package.</p><button data-action="help" class="wide">${icon('help')}Help here <kbd>F1</kbd></button></div>`;
     return;
   }
   if (!activeView()) {

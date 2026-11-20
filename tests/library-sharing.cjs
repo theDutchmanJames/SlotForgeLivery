@@ -73,8 +73,8 @@ async function run() {
   await click('close-dialog');
   assert(await page.locator('#app-menu-button').isVisible());
   await click('help');
-  assert.equal(await page.locator('#dialog').getAttribute('class'), 'help-dialog');
-  await click('close-dialog');
+  assert(await page.locator('#help-drawer').isVisible());
+  await click('help');
   await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].setSize(1560, 1000));
   await require('./inspector-helpers.cjs').chooseTone(page, 'dark');
   await click('sharing');
@@ -146,7 +146,7 @@ async function run() {
   await click('library');
   await click('close-dialog');
   await click('help');
-  await click('close-dialog');
+  await click('help');
   assert.deepEqual(errors, []);
   await app.close();
   app = null;

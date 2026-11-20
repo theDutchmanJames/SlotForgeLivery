@@ -90,13 +90,11 @@ async function run() {
   await click('close-dialog');
   assert.equal(await page.evaluate(() => store.settings.libraryView), 'list');
 
-  // Help: one section at a time.
+  // Help here opens beside the page and closes again.
   await click('help');
-  assert.equal(await page.locator('[data-help-panel]:visible').count(), 1);
-  await page.locator('[data-help-tab="3"]').click();
-  assert.equal(await page.locator('[data-help-panel="3"]').isVisible(), true);
-  assert.equal(await page.locator('[data-help-panel="0"]').isVisible(), false);
-  await click('close-dialog');
+  assert.equal(await page.locator('#help-drawer').isVisible(), true);
+  await page.locator('#help-drawer [data-help-close]').click();
+  assert.equal(await page.locator('#help-drawer').isVisible(), false);
 
   // Tips can be switched off and on again from Settings.
   await click('settings');

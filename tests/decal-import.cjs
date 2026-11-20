@@ -238,7 +238,7 @@ async function run() {
   assert.deepEqual(pixels.black, [0, 0, 0, 255]);
   assert.deepEqual(pixels.crop, [0, 128, 0, 255]);
   assert(pixels.gradient[0] > 40 && pixels.gradient[2] > 40 && pixels.gradient[3] === 255);
-  await click('help');
+  await page.evaluate(() => openDialog('Another window', '', '<p>Another window.</p>'));
   assert.equal(
     await page.locator('#dialog.decal-import-dialog').count(),
     0,

@@ -43,7 +43,8 @@ async function run() {
     'Add a car',
     'Import & Export',
     'Settings',
-    'Help & shortcuts'
+    'Help here\nF1',
+    'Keyboard\n?'
   ]);
   assert.equal(await page.evaluate(() => document.activeElement.dataset.action), 'projects');
   await page.keyboard.press('ArrowDown');
@@ -57,9 +58,9 @@ async function run() {
   // A menu item runs its action and closes the menu.
   await page.locator('#app-menu-button').click();
   await page.locator('#app-menu [data-action="help"]').click();
-  assert.equal(await page.locator('#dialog').getAttribute('class'), 'help-dialog');
+  assert.equal(await visible('#help-drawer'), true);
   assert.equal(await visible('#app-menu'), false);
-  await click('close-dialog');
+  await page.locator('#help-drawer [data-help-close]').click();
 
   // A prepared car: Layers on the left, view tabs above the canvas, both inspector tabs.
   await click('sample-car');

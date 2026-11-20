@@ -1,0 +1,302 @@
+/* Help on the spot: the Help here drawer, the tour marks and the keyboard sheet. */
+:root {
+  --help-w: 316px;
+}
+
+/* ---------------------------------------------------------------- Top bar */
+.topbar .tb-start {
+  margin-right: auto;
+}
+.tb-help {
+  flex: none;
+  height: 34px;
+  min-height: 0;
+  padding: 0 12px;
+  gap: 7px;
+}
+.tb-help[aria-pressed='true'] {
+  background: color-mix(in srgb, var(--accent) 14%, var(--panel));
+  border-color: color-mix(in srgb, var(--accent) 40%, var(--line));
+}
+.menu-key {
+  margin-left: auto;
+}
+.app-menu kbd,
+.help-drawer kbd,
+.help-keys kbd,
+.help-tour kbd {
+  display: inline-block;
+  min-width: 20px;
+  padding: 1px 6px;
+  border: 1px solid var(--line);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  background: var(--subpanel, var(--panel));
+  color: var(--ink);
+  font: 11px/1.5 var(--font-mono);
+  text-align: center;
+}
+
+/* ---------------------------------------------------------------- Help here */
+body.help-open > main {
+  margin-right: var(--help-w);
+}
+.help-drawer {
+  position: fixed;
+  top: 52px;
+  right: 0;
+  bottom: 0;
+  width: var(--help-w);
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+  border-left: 1px solid var(--line);
+}
+.help-drawer[hidden] {
+  display: none;
+}
+.hp-head {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 12px 12px 16px;
+  border-bottom: 1px solid var(--line);
+}
+.hp-head > .icon {
+  color: var(--accent-text, var(--accent));
+}
+.hp-title {
+  flex: 1;
+  min-width: 0;
+}
+.hp-title b {
+  display: block;
+  font-size: 13.5px;
+}
+.hp-title small {
+  display: block;
+  color: var(--muted);
+  font-size: 11.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.hp-close {
+  width: 30px;
+  height: 30px;
+  min-height: 0;
+  padding: 0;
+  border-color: transparent;
+  background: transparent;
+}
+.hp-body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 6px 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.hp-body h3 {
+  margin: 14px 0 2px;
+  font: italic 700 17px/1.1 var(--font-title);
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+}
+.hp-can {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.hp-can button {
+  justify-content: flex-start;
+  text-align: left;
+  min-height: 38px;
+  padding: 7px 11px;
+  gap: 10px;
+  background: var(--subpanel, var(--panel));
+  font-size: 12.5px;
+}
+.hp-can button .icon {
+  color: var(--accent-text, var(--accent));
+  flex: none;
+}
+.hp-can button:hover {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
+}
+.hp-know {
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  color: var(--ink2, var(--ink));
+  font-size: 12.5px;
+}
+.hp-note {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12.5px;
+}
+.hp-body > .primary {
+  align-self: flex-start;
+}
+.hp-keylist {
+  display: flex;
+  flex-direction: column;
+}
+.hp-key {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 12.5px;
+}
+.hp-keys {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  flex: none;
+  color: var(--muted);
+}
+.hp-mouse {
+  font-size: 12px;
+}
+.hp-all {
+  align-self: flex-start;
+  margin-top: 4px;
+}
+.hp-foot {
+  flex: none;
+  padding: 10px 16px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 11.5px;
+}
+
+/* ---------------------------------------------------------------- Tour */
+.help-tour {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+}
+.help-tour[hidden] {
+  display: none;
+}
+.ht-ring {
+  position: fixed;
+  border: 2px solid #4c9aff;
+  border-radius: 10px;
+  box-shadow: 0 0 0 9999px rgba(8, 10, 14, 0.64);
+  pointer-events: none;
+}
+.ht-coach {
+  position: fixed;
+  width: 290px;
+  padding: 14px;
+  border-radius: 12px;
+  background: #1c2129;
+  color: #e8e6e1;
+  border: 1px solid #343b47;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.45);
+}
+.ht-count {
+  font: 600 10px/1 var(--ui, 'Segoe UI', sans-serif);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #98a0ab;
+}
+.ht-coach b {
+  display: block;
+  margin: 7px 0 4px;
+  font-size: 14px;
+}
+.ht-coach p {
+  margin: 0 0 12px;
+  font-size: 12.5px;
+  color: #c4c8ce;
+}
+.ht-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.ht-row button {
+  height: 30px;
+  min-height: 0;
+  padding: 0 12px;
+}
+.ht-row button:not(.primary) {
+  background: #2a313b;
+  border-color: #343b47;
+  color: #e8e6e1;
+}
+.ht-grow {
+  flex: 1;
+}
+.ht-esc {
+  font-size: 11.5px;
+  color: #8a929d;
+}
+
+/* ---------------------------------------------------------------- Keyboard sheet */
+.help-keys {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  background: rgba(8, 10, 14, 0.6);
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+.help-keys[hidden] {
+  display: none;
+}
+.hk-sheet {
+  width: min(1040px, 100%);
+  max-height: 100%;
+  overflow: auto;
+  padding: 20px 24px 18px;
+  border-radius: 16px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+}
+.hk-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+.hk-head h2 {
+  flex: 1;
+  margin: 0;
+  font: italic 700 26px/1 var(--font-title);
+  text-transform: uppercase;
+}
+.hk-hint {
+  color: var(--muted);
+  font-size: 12px;
+}
+.hk-cols {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 8px 26px;
+}
+.hk-cols h4 {
+  margin: 8px 0 6px;
+  font: 600 10.5px/1 var(--ui, 'Segoe UI', sans-serif);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.hk-note {
+  margin: 14px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+}

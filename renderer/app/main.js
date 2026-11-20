@@ -188,5 +188,6 @@ init()
   .then(() => {
     window.desktop?.ready?.();
     startMaintenance();
+    startHelp();
   })
   .catch(reportError);
