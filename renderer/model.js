@@ -103,6 +103,22 @@
     if (!Array.isArray(list)) return [];
     return [...new Set(list.filter(c => /^#[0-9a-f]{6}$/i.test(c)).map(c => c.toLowerCase()))].slice(0, PALETTE_SIZE);
   }
+  // Livery colours: the named colours of a design (Gulf blue, Race white…), each with an
+  // optional real paint. Everything painted in a colour's exact hex uses it. Up to PALETTE_SIZE.
+  function validateLiveryColours(list) {
+    if (!Array.isArray(list)) return [];
+    const seen = new Set(),
+      out = [];
+    for (const c of list) {
+      const hex = typeof c?.hex === 'string' && /^#[0-9a-f]{6}$/i.test(c.hex) ? c.hex.toLowerCase() : null;
+      if (!hex || seen.has(hex) || out.length >= PALETTE_SIZE) continue;
+      seen.add(hex);
+      const entry = { name: name(String(c.name || '').trim(), 'Colour ' + (out.length + 1)).slice(0, 40), hex };
+      if (paintRef(c.ref)) entry.ref = paintRef(c.ref);
+      out.push(entry);
+    }
+    return out;
+  }
   function outlineValues(item) {
     const width = OUTLINE_KINDS.includes(item?.kind) ? number(item.outlineWidth, 0, 0, 500) : 0;
     return width > 0 ? { outlineWidth: width, outlineColour: colour(item.outlineColour, '#ffffff') } : {};
@@ -550,6 +566,7 @@
       effect: p.effect,
       ...fillSettings(p),
       palette: validatePalette(p.palette),
+      ...(p.liveryColours ? { liveryColours: validateLiveryColours(p.liveryColours) } : {}),
       views: clone(p.views),
       panelPaints: Object.fromEntries(
         Object.entries(p.template.views).map(([k, v]) => [
@@ -582,6 +599,7 @@
     result.notes = livery.notes || '';
     result.paints = livery.paints || '';
     if (livery.palette?.length) result.palette = validatePalette(livery.palette);
+    if (livery.liveryColours?.length) result.liveryColours = validateLiveryColours(livery.liveryColours);
     delete result.fillType;
     delete result.gradient;
     Object.assign(result, fillSettings(livery));
@@ -1097,6 +1115,7 @@
     validateGuides,
     nextLiveryName,
     PALETTE_SIZE,
+    validateLiveryColours,
     validatePalette,
     ALIGN_MODES,
     alignmentMoves,

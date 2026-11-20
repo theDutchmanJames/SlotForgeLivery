@@ -96,8 +96,8 @@ async function run() {
   assert(await visible('#workshop-panel #real-width'));
   assert.equal(await visible('#inspector'), false);
   assert(await visible('#workshop-panel [data-action="mirror-view"]'));
-  assert((await page.locator('#workshop-panel .ws-paint').count()) >= 1);
-  assert.match(await page.locator('#workshop-panel .ws-paint').first().innerText(), /#F28A35|lightest/);
+  assert((await page.locator('#workshop-panel .ws-paint:not(.ws-colour)').count()) >= 1);
+  assert.match(await page.locator('#workshop-panel .ws-paint:not(.ws-colour)').first().innerText(), /#F28A35|lightest/);
   await page.locator('#real-width').fill('142');
   await page.locator('#real-width').dispatchEvent('change');
   assert(await page.evaluate(() => M.mmPerUnit(activeView()) > 0));

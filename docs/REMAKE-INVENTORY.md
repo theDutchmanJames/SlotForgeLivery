@@ -103,7 +103,13 @@ dragging a file in to add a car, and Import & Export remains a dialog. The Welco
     white layer underneath, and a ruler to check the print scale (today decals only go out to SlotForge Decals,
     workshop.js:357)
 
-### 5. Colours and paints · Remake
+### 5. Colours and paints · Remake · **Done ("Livery colours", option A of `ui-reference/colours-2026-11`)**
+Each livery has up to 12 named colours (`project.liveryColours`, `palette` kept in step), shown as cards under Colour, in
+Layers and in the Workshop tab. Everything painted in a colour's exact hex uses it: editing repaints every use (one undo),
+linking a paint sets `paintRef` on every use, merge and remove. Choose the real paint is a large window sorted by closeness
+(CIE Lab), with "Have it?" (`settings.ownedPaints`) and the shopping list, also in the workshop PDF. Code:
+`renderer/app/colours.js`, `renderer/colours.css`, the catalogue in `workshop.js`; test: `tests/colours.cjs`. Still open:
+paint quantities, sharing a paint shelf between computers, and Notes' free-text paint references (kept as they were).
 - **What's wrong today:**
   - paint references exist three times: free text in Notes (export.js:10), the catalogue's paint per colour
     (workshop.js:51-54) and the Library's Edit details (library.js:285-287)

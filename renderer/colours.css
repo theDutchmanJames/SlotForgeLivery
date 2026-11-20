@@ -1,0 +1,465 @@
+/* Livery colours (remake 2026-11, option A in docs/ui-reference/colours-2026-11): the colour cards
+   in the Colour folder, the colour editor and the Choose the real paint window. */
+
+/* ------------------------------------------------------------ Colour cards */
+.lc-rack {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+.lc-card {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--bg);
+  overflow: hidden;
+}
+.lc-card.on {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+.lc-paint {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  text-align: left;
+  min-height: 0;
+  box-shadow: none;
+}
+.lc-top {
+  height: 30px;
+  position: relative;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+}
+.lc-top small {
+  position: absolute;
+  left: 7px;
+  top: 6px;
+  font: 600 10px var(--font-mono);
+  color: rgba(0, 0, 0, 0.6);
+}
+.lc-top.dark small {
+  color: rgba(255, 255, 255, 0.78);
+}
+.lc-body {
+  display: flex;
+  flex-direction: column;
+  padding: 5px 8px 6px;
+  min-width: 0;
+}
+.lc-body b {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.lc-body small {
+  font: 10.5px var(--font-mono);
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.lc-edit {
+  position: absolute;
+  right: 4px;
+  top: 4px;
+  width: 22px;
+  height: 22px;
+  min-height: 0;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.82);
+  color: #1c2129;
+}
+.lc-edit .icon {
+  width: 12px;
+  height: 12px;
+}
+.lc-add {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  min-height: 66px;
+  border-style: dashed;
+  background: transparent;
+  color: var(--muted);
+  font-size: 12px;
+}
+.lc-add .icon {
+  width: 16px;
+  height: 16px;
+}
+.palette-label.lc-other {
+  display: block;
+  margin: 12px 0 6px;
+}
+
+/* ----------------------------------------------------------- Colour editor */
+.lc-edit-grid {
+  display: grid;
+  grid-template-columns: 1fr 190px;
+  gap: 10px;
+}
+.lc-edit-grid .row {
+  gap: 6px;
+}
+.lc-edit-grid input[type='color'] {
+  width: 40px;
+  flex: none;
+}
+.lc-uses {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.lc-uses span {
+  font-size: 11.5px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--ink) 8%, var(--panel));
+}
+.lc-match {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 6px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: transparent;
+  text-align: left;
+  justify-content: flex-start;
+  min-height: 0;
+}
+.lc-match.on {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 8%, var(--panel));
+}
+.lc-match b {
+  display: block;
+  font-size: 12.5px;
+}
+.lc-match small {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+}
+.lc-match > button {
+  margin-left: auto;
+}
+.lc-sw,
+.pc-sw {
+  width: 28px;
+  height: 28px;
+  flex: none;
+  border-radius: 6px;
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.15);
+}
+.lc-close,
+.pc-close {
+  margin-left: auto;
+  font: 11px var(--font-mono);
+  color: var(--muted);
+  white-space: nowrap;
+}
+.lc-browse {
+  align-self: flex-start;
+}
+dialog.colour-dialog .dialog-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* ------------------------------------------------- Choose the real paint */
+dialog.paint-dialog {
+  width: min(1180px, calc(100vw - 48px));
+  max-width: none;
+}
+.pc-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 18px;
+  min-height: 0;
+}
+.pc-main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.pc-head {
+  display: flex;
+  align-items: flex-end;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.pc-target {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 220px;
+}
+.pc-target .pc-sw {
+  width: 40px;
+  height: 40px;
+  border-radius: 9px;
+}
+.pc-target small {
+  display: block;
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.pc-target b {
+  display: block;
+  font: italic 700 24px/1.05 var(--font-title);
+  text-transform: uppercase;
+}
+.pc-head .paint-filter {
+  flex: 0 1 460px;
+}
+.pc-use {
+  font-size: 12.5px;
+}
+.paint-list.pc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 10px;
+  max-height: min(52vh, 520px);
+  overflow: auto;
+  padding: 2px;
+}
+.pc-tin {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--panel);
+  overflow: hidden;
+}
+.pc-tin.on {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+.pc-tin .paint-pick {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  text-align: left;
+  min-height: 0;
+}
+.pc-lid {
+  height: 58px;
+  position: relative;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+}
+.pc-tin .paint-text {
+  display: flex;
+  flex-direction: column;
+  padding: 7px 10px 2px;
+  min-width: 0;
+}
+.pc-tin .paint-text strong {
+  font-size: 12.5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pc-tin .paint-text small {
+  color: var(--muted);
+  font-size: 11px;
+}
+.pc-tin .pc-close {
+  position: absolute;
+  left: 8px;
+  top: 6px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.45);
+  color: #fff;
+  font-size: 10px;
+}
+.pc-own {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 26px;
+  min-height: 0;
+  margin: 4px 10px 8px;
+  padding: 0 9px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: transparent;
+  font-size: 11.5px;
+  color: var(--muted);
+}
+.pc-own .icon {
+  width: 12px;
+  height: 12px;
+}
+.pc-own.on {
+  color: var(--green, #3ecf8e);
+  border-color: color-mix(in srgb, var(--green, #3ecf8e) 50%, var(--line));
+  background: color-mix(in srgb, var(--green, #3ecf8e) 12%, var(--panel));
+}
+.pc-tin .paint-remove {
+  position: absolute;
+  right: 6px;
+  top: 6px;
+  width: 22px;
+  height: 22px;
+  min-height: 0;
+  padding: 0;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.45);
+  color: #fff;
+  border: 0;
+}
+.pc-side {
+  border-left: 1px solid var(--line);
+  padding-left: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: min(64vh, 640px);
+  overflow: auto;
+}
+.pc-side h4 {
+  margin: 4px 0 0;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.pc-list {
+  display: flex;
+  flex-direction: column;
+}
+.pc-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 12.5px;
+}
+.pc-row:last-child {
+  border-bottom: 0;
+}
+.pc-row .pc-sw {
+  width: 22px;
+  height: 22px;
+}
+.pc-row b {
+  display: block;
+  font-weight: 600;
+}
+.pc-row small {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+}
+.pc-row .pc-own {
+  margin: 0 0 0 auto;
+}
+.pc-pill {
+  margin-left: auto;
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--amber, #f2b705) 16%, var(--panel));
+  color: color-mix(in srgb, var(--amber, #f2b705) 85%, var(--ink));
+}
+.pc-pill.good {
+  background: color-mix(in srgb, var(--green, #3ecf8e) 16%, var(--panel));
+  color: var(--green, #3ecf8e);
+}
+
+/* Livery colours in the Layers column and the Workshop tab */
+.lp-colour .lp-colour-name {
+  font-family: var(--font-ui, inherit);
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.lp-colour small {
+  color: var(--muted);
+  font-size: 11px;
+}
+.ws-colour {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  justify-content: flex-start;
+  min-height: 0;
+  padding: 4px 0;
+}
+.ws-colour .ws-pill {
+  margin-left: auto;
+}
+@media (max-width: 1000px) {
+  .pc-shell {
+    grid-template-columns: 1fr;
+  }
+  .pc-side {
+    border-left: 0;
+    padding-left: 0;
+  }
+}
+
+/* Tins: undo the fixed 48 px rows and buttons of the older paint list. */
+.paint-list.pc-grid {
+  grid-auto-rows: auto;
+}
+.pc-tin .paint-pick {
+  height: auto;
+  overflow: visible;
+}
+.pc-lid {
+  display: block;
+}
+.lp-colour {
+  text-align: left;
+  font-family: inherit;
+}
+.paint-list.pc-grid {
+  grid-auto-rows: max-content;
+  align-content: start;
+}
+.pc-tin {
+  min-height: max-content;
+}
+.pc-lid {
+  flex: none;
+}

@@ -86,19 +86,12 @@ function swatchRow(label, colours, extra = '') {
 }
 function colourField(value) {
   const current = M.colour(value),
-    team = project?.palette || [],
     recent = store.settings?.recentColours || [],
-    // Basics use data-swatch; team and recent rows use data-pick-colour, so a
-    // colour shown in two rows never makes a data-swatch lookup ambiguous.
+    // Basics use data-swatch; recent ones use data-pick-colour, so a colour shown in
+    // two rows never makes a data-swatch lookup ambiguous.
     swatch = (c, attrs = '', label = 'Paint ' + c, key = 'data-pick-colour') =>
       `<button class="swatch" ${key}="${c}" ${attrs} style="background:${c}" title="${c.toUpperCase()}" aria-label="${label}"></button>`;
-  return `<div class="row"><input type="color" id="property-colour" value="${current}" aria-label="Selected colour"><input id="hex-colour" value="${current.toUpperCase()}" maxlength="7" aria-label="Hex colour"><button class="eyedropper" data-eyedropper="fill" title="Pick a colour from the screen" aria-label="Pick a colour from the screen">${icon('eyedropper')}</button></div>${project ? paintRefLine() : ''}${swatchRow(
-    'Team colours',
-    team.map(c => swatch(c, `data-team-colour="${c}"`, 'Use team colour ' + c + '. Right-click to remove.')),
-    team.length < M.PALETTE_SIZE
-      ? `<button class="swatch add" data-palette-add="${current}" title="Add ${current.toUpperCase()} to team colours" aria-label="Add the current colour to team colours">+</button>`
-      : ''
-  )}${
+  return `${project ? `<div class="palette-group"><span class="palette-label">Livery colours</span>${liveryColourCards(current)}</div><span class="palette-label lc-other">Any other colour</span>` : ''}<div class="row"><input type="color" id="property-colour" value="${current}" aria-label="Selected colour"><input id="hex-colour" value="${current.toUpperCase()}" maxlength="7" aria-label="Hex colour"><button class="eyedropper" data-eyedropper="fill" title="Pick a colour from the screen" aria-label="Pick a colour from the screen">${icon('eyedropper')}</button></div>${project ? paintRefLine() : ''}${
     recent.length
       ? swatchRow(
           'Recent',

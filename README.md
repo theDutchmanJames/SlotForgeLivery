@@ -98,7 +98,7 @@ The compact toolbox keeps the canvas open for designing. **Choose a shape tool a
 
 Lines remain editable paths. Finish one with **Enter**, **Escape**, right-click or **Finish line**; use **Cancel** to discard the unfinished line.
 
-Give shapes and text an **outline** in any colour and width. It sits outside the edge, so race numbers keep their full shape. Add a hard **drop shadow** for depth. Text can **bend** to follow a curved panel, and can keep its letter shapes while you widen it (**Space letters**). **Add a shape** includes number boards and roundels with an editable number, a chequered band, a shield and a star. Keep your livery's **team colours** with the design, reuse your **recent colours**, or use the **eyedropper** to pick any colour on screen, including from a reference photo.
+Give shapes and text an **outline** in any colour and width. It sits outside the edge, so race numbers keep their full shape. Add a hard **drop shadow** for depth. Text can **bend** to follow a curved panel, and can keep its letter shapes while you widen it (**Space letters**). **Add a shape** includes number boards and roundels with an editable number, a chequered band, a shield and a star. Paint with your livery's own **livery colours**, reuse your **recent colours**, or use the **eyedropper** to pick any colour on screen, including from a reference photo.
 
 ### Add decals, lettering and your own fonts
 
@@ -160,7 +160,8 @@ Prepare a car, design a livery, export both, and let a friend make their own ver
 ### Plan the real paint job
 
 - **Real size:** enter how wide a view is on the real shell (the **Workshop** tab beside Selection). Sizes then read in millimetres, and the rulers measure from the car's own edge.
-- **Paint catalogue:** choose the actual paint for the base, a panel or a shape. Tamiya (TS sprays, X/XF acrylics) and Humbrol are built in. Add your own Revell, Zero Paints or any other products under **My paints**. Screen colours are approximations; the product name is what matters.
+- **Livery colours:** each livery has up to 12 named colours (Gulf blue, Race white…), shown as cards under Colour. Click one to paint with it; edit it (✎) to rename it or change its shade, and every place painted in it changes too. Merge two colours into one, or remove one (what was painted stays).
+- **The real paint:** each livery colour can have a real paint, picked from the closest matches or from **Choose the real paint** (Tamiya TS and X/XF, Humbrol, and your own under **My paints**). The paint is set on every place painted in that colour. Mark the paints you have with **Have it?**; the rest form the **shopping list**, shown in the Workshop tab and printed in the workshop plan. Screen colours are approximations; the product name is what matters.
 - **Painting order:** the workshop PDF lists one step per paint, lightest first, with a picture of what each step sprays and a reminder to mask the earlier colours.
 - **Print at true size:** masking templates (one per colour) and the full design at the real size of your car, with a 50 mm bar to check the print scale.
 - **Send decals to SlotForge Decals:** save your numbers, logos and shapes as a `.sfdecal` pack at their real size, ready to arrange on decal paper.
@@ -197,7 +198,7 @@ Use pan, zoom, Snap, Grid and undo/redo while editing. Click empty canvas to cle
 | Select several paintable areas | Shift-click on the canvas; Shift-click or Ctrl-click in Layers |
 | Select several artwork layers | Shift-click shapes; Shift-click or Ctrl-click their Layers rows |
 | Nudge selected artwork | Arrow keys; Shift + arrow for 10 units |
-| Remove a team colour | Right-click its swatch |
+| Remove a livery colour | Right-click its card |
 | Clear selection | Click empty canvas, or Escape when not drawing |
 | Draw a corner / curve | Click / press and drag |
 | Close a freeform shape | Click near its first point, or press Enter |

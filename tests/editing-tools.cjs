@@ -136,7 +136,7 @@ async function run() {
   await page.locator('[data-team-colour="#f3d36a"]').click();
   assert.equal((await layerById(ids.c)).fill, '#f3d36a', 'team swatch applies its colour');
   await page.locator('[data-palette-add]').click();
-  assert.match(await page.locator('#toast').textContent(), /already a team colour/);
+  assert.match(await page.locator('#toast').textContent(), /already one of this livery/);
   await page.locator('[data-swatch="#479b81"]').click();
   await page.locator('[data-palette-add]').click();
   await page.locator('[data-team-colour="#f3d36a"]').click({ button: 'right' });

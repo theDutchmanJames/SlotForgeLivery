@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Colours and paints remake</title>
+<style>
+@font-face{font-family:'SF Cond';src:url('../../../renderer/fonts/barlowcondensed/BarlowCondensed-BoldItalic.ttf') format('truetype');font-weight:700;font-style:italic}
+@font-face{font-family:'SF Mono';src:url('../../../renderer/fonts/robotomono/RobotoMono[wght].ttf') format('truetype');font-weight:100 700}
+:root{--bg:#171b21;--panel:#222831;--panel2:#1c2129;--raise:#2a313b;--ink:#e8e6e1;--ink2:#c4c8ce;--muted:#98a0ab;--faint:#6b7380;--line:#343b47;--line2:#2b313b;
+  --accent:#e5484d;--accent-text:#f06b6f;--ok:#3ecf8e;--warn:#f2b705;--blue:#4c9aff;--board:#e9ecf0;
+  --ui:'Segoe UI',system-ui,sans-serif;--cond:'SF Cond','Bahnschrift',sans-serif;--mono:'SF Mono',Consolas,monospace}
+[data-theme=light]{--bg:#eef0f3;--panel:#fff;--panel2:#f6f7f9;--raise:#eef0f3;--ink:#1c2129;--ink2:#3a414c;--muted:#5f6875;--faint:#8a929d;--line:#d5d9df;--line2:#e3e6ea;--accent-text:#c9363b;--board:#f3f5f7}
+*{box-sizing:border-box}html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:13px/1.45 var(--ui);display:flex;flex-direction:column}
+button{font:inherit;color:inherit;cursor:pointer}
+svg.i{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.muted{color:var(--muted)}.faint{color:var(--faint)}.mono{font-family:var(--mono)}.grow{flex:1}
+.title{font:italic 700 15px/1 var(--cond);letter-spacing:.02em;text-transform:uppercase}
+.eyebrow{font:600 10px/1 var(--ui);letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
+.switch{flex:none;display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;padding:9px 18px;background:#0d1014;color:#e8e6e1;border-bottom:1px solid #2b313b}
+.switch b{font:600 10.5px var(--ui);letter-spacing:.14em;text-transform:uppercase;color:#98a0ab}
+.switch p{margin:0 0 0 auto;font-size:12px;color:#8a929d;max-width:620px}
+.seg{display:inline-flex;gap:2px;padding:3px;border:1px solid #343b47;border-radius:9px;background:#171b21}
+.seg button{height:26px;padding:0 11px;border:0;border-radius:6px;background:none;color:#c4c8ce;font-size:12.5px}
+.seg button[aria-pressed=true]{background:#e5484d;color:#fff}
+.stage{flex:1;min-height:780px;display:flex}
+.opt{flex:1;display:none;min-width:0;flex-direction:column}.opt.on{display:flex}
+.state{display:none;flex:1;min-height:0}.state.on{display:flex}
+.btn{height:32px;display:inline-flex;align-items:center;gap:7px;padding:0 12px;border:1px solid var(--line);border-radius:8px;background:var(--panel);font-size:12.5px;white-space:nowrap}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+.btn.sm{height:28px;padding:0 10px;font-size:12px}
+.ib{width:30px;height:30px;display:inline-grid;place-items:center;border:1px solid transparent;border-radius:7px;background:none;color:var(--ink2)}
+.pill{font:600 10.5px var(--ui);padding:2px 8px;border-radius:999px;background:var(--raise);color:var(--muted);white-space:nowrap}
+.pill.good{background:color-mix(in srgb,var(--ok) 16%,var(--panel));color:var(--ok)}
+.pill.warn{background:color-mix(in srgb,var(--warn) 16%,var(--panel));color:color-mix(in srgb,var(--warn) 85%,var(--ink))}
+.callout{position:absolute;font:600 10.5px var(--ui);letter-spacing:.06em;text-transform:uppercase;color:#fff;background:#4c9aff;border-radius:999px;padding:3px 9px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.25);z-index:5}
+.topbar{height:52px;flex:none;display:flex;align-items:center;gap:10px;padding:0 12px;border-bottom:1px solid var(--line2);background:var(--panel2)}
+.logo{width:28px;height:28px;border-radius:7px;background:var(--accent);display:grid;place-items:center;color:#fff;font:italic 700 15px var(--cond)}
+.crumbs{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--muted)}
+.crumbs strong{font:italic 700 19px/1 var(--cond);text-transform:uppercase;color:var(--ink)}
+.sw{border-radius:6px;border:1px solid rgba(0,0,0,.25);box-shadow:inset 0 0 0 1px rgba(255,255,255,.15);flex:none}
+.board{background:var(--board);background-image:radial-gradient(circle,rgba(0,0,0,.06) 1px,transparent 1px);background-size:22px 22px;position:relative;overflow:hidden;border-radius:12px;display:grid;place-items:center}
+.board svg.car{width:min(82%,820px);height:auto}
+.field{display:flex;flex-direction:column;gap:5px}.field label{font-size:11.5px;color:var(--muted)}
+.inp{height:32px;border:1px solid var(--line);border-radius:8px;background:var(--panel2);display:flex;align-items:center;gap:7px;padding:0 10px;font-size:12.5px}
+.chip{height:28px;padding:0 11px;border:1px solid var(--line);border-radius:999px;background:none;font-size:12px;color:var(--ink2);display:inline-flex;align-items:center;gap:6px}
+.chip.on{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 14%,var(--panel));color:var(--ink)}
+/* studio frame shared by both */
+.studio{flex:1;display:grid;grid-template-columns:48px 1fr 330px;min-height:0}
+.tools{border-right:1px solid var(--line2);background:var(--panel2)}
+.canvasarea{padding:12px;display:flex;flex-direction:column;min-height:0;position:relative}
+.canvasarea .board{flex:1}
+.insp{border-left:1px solid var(--line2);background:var(--panel);display:flex;flex-direction:column;min-height:0;overflow:auto}
+.itabs{display:flex;padding:6px 10px 0;border-bottom:1px solid var(--line2)}
+.itabs span{flex:1;text-align:center;height:34px;line-height:34px;color:var(--muted);font-size:12.5px}
+.itabs span.on{color:var(--ink);font-weight:600;border-bottom:2px solid var(--accent)}
+.ihead{display:flex;align-items:center;gap:10px;padding:12px 14px}
+.ihead .ico{width:34px;height:34px;border-radius:8px;background:var(--raise);display:grid;place-items:center}
+.ihead strong{display:block;font-size:14px}.ihead small{color:var(--muted);font-size:11.5px}
+.sec{border-top:1px solid var(--line2);padding:12px 14px;display:flex;flex-direction:column;gap:9px}
+.sec h4{margin:0;display:flex;justify-content:space-between;align-items:center;font:600 10.5px var(--ui);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+
+/* ===== A · Livery colours ===== */
+.rack{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.rc{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--panel2);text-align:left;padding:0}
+.rc .top{height:34px;position:relative}
+.rc .top small{position:absolute;right:6px;top:4px;font:600 10px var(--mono);color:rgba(0,0,0,.6)}
+.rc .top.dk small{color:rgba(255,255,255,.75)}
+.rc .bd{padding:6px 8px}
+.rc .bd b{display:block;font-size:12px}.rc .bd small{display:block;font-size:10.5px;color:var(--muted);font-family:var(--mono)}
+.rc.on{outline:2px solid var(--accent);outline-offset:1px}
+.rc.add{border-style:dashed;background:none;align-items:center;justify-content:center;color:var(--muted);min-height:72px;gap:4px;font-size:12px}
+.editor{position:absolute;right:342px;top:70px;width:340px;background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:0 18px 40px rgba(0,0,0,.35);display:flex;flex-direction:column;z-index:6}
+.editor .hd{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line2)}
+.editor .bd{padding:12px 14px;display:flex;flex-direction:column;gap:12px}
+.editor .ft{display:flex;gap:6px;padding:10px 14px;border-top:1px solid var(--line2)}
+.match{display:flex;align-items:center;gap:10px;padding:8px;border:1px solid var(--line);border-radius:9px}
+.match.on{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 8%,var(--panel))}
+.match b{display:block;font-size:12.5px}.match small{color:var(--muted);font-size:11px}
+.match .de{margin-left:auto;font:11px var(--mono);color:var(--muted)}
+.uses{display:flex;flex-wrap:wrap;gap:5px}
+.uses span{font-size:11.5px;padding:2px 8px;border-radius:999px;background:var(--raise);color:var(--ink2)}
+.brands{display:flex;gap:4px;flex-wrap:wrap}
+/* A · catalogue page */
+.cat{flex:1;display:grid;grid-template-columns:240px 1fr 330px;min-height:0}
+.cat-rail{border-right:1px solid var(--line2);background:var(--panel2);padding:14px 10px;display:flex;flex-direction:column;gap:2px}
+.ritem{display:flex;align-items:center;gap:9px;height:34px;padding:0 9px;border-radius:8px;font-size:13px;color:var(--ink2)}
+.ritem.on{background:color-mix(in srgb,var(--accent) 14%,var(--panel));color:var(--ink);box-shadow:inset 3px 0 0 var(--accent)}
+.ritem .n{margin-left:auto;font:11.5px var(--mono);color:var(--faint)}
+.cat-main{padding:18px 22px;display:flex;flex-direction:column;gap:14px;min-height:0;overflow:auto}
+.tins{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.tin{border:1px solid var(--line);border-radius:12px;background:var(--panel);overflow:hidden;position:relative}
+.tin .lid{height:66px;position:relative}
+.tin .lid::after{content:'';position:absolute;left:0;right:0;bottom:0;height:10px;background:linear-gradient(transparent,rgba(0,0,0,.18))}
+.tin .bd{padding:8px 10px}
+.tin .bd b{display:block;font-size:12.5px}.tin .bd small{display:block;font-size:11px;color:var(--muted)}
+.tin .flag{position:absolute;right:6px;top:6px}
+.tin.on{outline:2px solid var(--accent);outline-offset:1px}
+.list{display:flex;flex-direction:column;gap:2px}
+.lrow{display:flex;align-items:center;gap:10px;padding:7px 4px;border-bottom:1px solid var(--line2);font-size:12.5px}
+.lrow:last-child{border-bottom:0}
+.lrow small{display:block;color:var(--muted);font-size:11px}
+.lrow .r{margin-left:auto}
+
+/* ===== B · Paint shelf ===== */
+.pop{position:absolute;right:342px;top:118px;width:360px;background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:0 18px 40px rgba(0,0,0,.35);z-index:6;display:flex;flex-direction:column}
+.pop .hd{padding:10px 12px;border-bottom:1px solid var(--line2);display:flex;gap:8px;align-items:center}
+.pop .grp{padding:10px 12px;border-bottom:1px solid var(--line2);display:flex;flex-direction:column;gap:6px}
+.pop .grp:last-child{border-bottom:0}
+.bottles{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
+.bottle{display:flex;flex-direction:column;align-items:center;gap:3px;font:10px var(--mono);color:var(--muted)}
+.bottle i{width:34px;height:42px;border-radius:7px 7px 10px 10px;position:relative;border:1px solid rgba(0,0,0,.3)}
+.bottle i::before{content:'';position:absolute;left:8px;right:8px;top:-7px;height:8px;border-radius:3px;background:#1f2730}
+.bottle.on i{outline:2px solid var(--accent);outline-offset:2px}
+.bottle.buy i{opacity:.55;border-style:dashed}
+.shelf{flex:1;display:grid;grid-template-columns:1fr 330px;min-height:0}
+.shelf-main{padding:18px 22px;overflow:auto;display:flex;flex-direction:column;gap:18px}
+.plank{display:flex;flex-direction:column;gap:8px}
+.plank .row{display:flex;align-items:flex-end;gap:12px;padding:12px 14px 0;border-bottom:6px solid #6b4f36;border-radius:4px;background:linear-gradient(transparent 70%,color-mix(in srgb,#6b4f36 15%,transparent))}
+.jar{display:flex;flex-direction:column;align-items:center;gap:4px;width:64px}
+.jar i{width:44px;height:56px;border-radius:8px 8px 12px 12px;position:relative;border:1px solid rgba(0,0,0,.3)}
+.jar i::before{content:'';position:absolute;left:10px;right:10px;top:-9px;height:10px;border-radius:3px;background:#1f2730}
+.jar.can i{width:40px;height:70px;border-radius:6px}
+.jar.can i::before{left:6px;right:6px;top:-7px;height:8px;background:#9aa3ad}
+.jar small{font:10.5px var(--mono);color:var(--muted);text-align:center;line-height:1.2}
+.jar.low i::after{content:'low';position:absolute;bottom:4px;left:50%;transform:translateX(-50%);font:600 9px var(--ui);color:#fff;background:rgba(0,0,0,.45);padding:0 4px;border-radius:3px}
+.jar.need i{opacity:.4;border-style:dashed}
+.plank h3{margin:0;display:flex;align-items:baseline;gap:10px}
+.plank h3 .title{font-size:17px}
+.side{border-left:1px solid var(--line2);background:var(--panel);display:flex;flex-direction:column;overflow:auto}
+</style>
+</head>
+<body>
+<div class="switch">
+  <b>Colours &amp; paints remake</b>
+  <span class="seg" id="opt"><button data-v="A" aria-pressed="true">A · Livery colours</button><button data-v="B">B · Paint shelf</button></span>
+  <span class="seg" id="sub"></span>
+  <span class="seg" id="theme"><button data-v="dark" aria-pressed="true">Dark</button><button data-v="light">Light</button></span>
+  <p id="say"></p>
+</div>
+<svg width="0" height="0" style="position:absolute"><defs>
+  <path id="sil" d="M62 268 L70 226 Q78 204 122 196 L292 176 Q336 146 392 112 Q424 94 476 92 L632 94 Q684 96 724 126 L796 178 Q894 188 926 212 Q944 232 938 268 L868 270 A72 72 0 0 0 724 270 L334 270 A72 72 0 0 0 190 270 Z"/>
+  <clipPath id="clip"><use href="#sil"/></clipPath>
+  <symbol id="car" viewBox="40 70 920 290">
+    <use href="#sil" style="fill:var(--b,#8fc3e8)"/>
+    <g clip-path="url(#clip)"><rect x="40" y="206" width="920" height="34" style="fill:var(--s,#f28a35)"/><rect x="40" y="244" width="920" height="7" style="fill:var(--w,#f6f4ef)"/></g>
+    <path d="M318 176 L398 120 Q426 104 470 104 L500 104 L500 176 Z" fill="#33404d"/><path d="M516 104 L628 106 Q670 108 702 132 L758 176 L516 176 Z" fill="#33404d"/>
+    <use href="#sil" fill="none" stroke="#1f2730" stroke-width="3.5"/>
+    <circle cx="610" cy="196" r="44" style="fill:var(--w,#f6f4ef)" stroke="#1f2730" stroke-width="2"/>
+    <text x="610" y="214" text-anchor="middle" font-family="Bahnschrift,Arial Narrow,sans-serif" font-weight="700" font-size="54" style="fill:var(--g,#1f2730)">27</text>
+    <g fill="#1f2730"><circle cx="262" cy="272" r="60"/><circle cx="796" cy="272" r="60"/></g><g fill="#c4c8ce" stroke="#1f2730" stroke-width="3"><circle cx="262" cy="272" r="34"/><circle cx="796" cy="272" r="34"/></g>
+  </symbol>
+</defs></svg>
+
+<div class="stage">
+<!-- ========================== A ========================== -->
+<section class="opt A on" id="A">
+  <header class="topbar"><button class="ib"><i data-i="menu"></i></button><span class="logo">L</span><nav class="crumbs"><span>Garage</span><span>/</span><span>Club GT · 1:32</span><span>/</span><strong>Gulf tribute</strong></nav></header>
+  <div class="state on" data-s="rack">
+    <div class="studio">
+      <aside class="tools"></aside>
+      <main class="canvasarea"><div class="board"><svg class="car" viewBox="40 70 920 290" style="--b:#7fb7e2"><use href="#car"/></svg><span class="callout" style="left:14px;top:12px">Change Gulf blue once: every place it is used follows</span></div></main>
+      <aside class="insp">
+        <div class="itabs"><span class="on">Selection</span><span>Workshop</span></div>
+        <div class="ihead"><span class="ico" style="background:#7fb7e2"></span><span><strong>Body</strong><small>3 panels · Left view</small></span></div>
+        <div class="sec"><h4>Colour <span class="faint" style="letter-spacing:0;text-transform:none;font-weight:400">from this livery</span></h4>
+          <div class="rack">
+            <button class="rc on"><span class="top" style="background:#7fb7e2"><small>5×</small></span><span class="bd"><b>Gulf blue</b><small>TS-23 Light Blue</small></span></button>
+            <button class="rc"><span class="top" style="background:#f28a35"><small>2×</small></span><span class="bd"><b>Gulf orange</b><small>TS-56</small></span></button>
+            <button class="rc"><span class="top" style="background:#f6f4ef"><small>3×</small></span><span class="bd"><b>Race white</b><small>TS-26</small></span></button>
+            <button class="rc"><span class="top dk" style="background:#1f2730"><small>4×</small></span><span class="bd"><b>Graphite</b><small>no paint yet</small></span></button>
+            <button class="rc add"><i data-i="plus"></i>New colour</button>
+          </div></div>
+        <div class="sec"><h4>Finish</h4><div class="brands"><span class="chip">Matte</span><span class="chip">Satin</span><span class="chip on">Gloss</span><span class="chip">Metallic</span><span class="chip">Pearl</span></div></div>
+        <div class="sec"><h4>Any other colour</h4><div class="inp mono"><span class="sw" style="width:18px;height:18px;background:#7fb7e2"></span>#7FB7E2<span class="grow"></span><i data-i="drop"></i></div><span class="faint" style="font-size:11.5px">A colour picked here can become a livery colour with one click.</span></div>
+      </aside>
+      <div class="editor">
+        <div class="hd"><span class="sw" style="width:30px;height:30px;background:#7fb7e2"></span><span class="grow"><b style="font-size:13.5px">Gulf blue</b><small class="muted" style="display:block;font-size:11.5px">Used 5× on this livery</small></span><button class="ib"><i data-i="x"></i></button></div>
+        <div class="bd">
+          <div style="display:grid;grid-template-columns:1fr 120px;gap:8px"><div class="field"><label>Name</label><div class="inp">Gulf blue</div></div><div class="field"><label>Colour</label><div class="inp mono">#7FB7E2</div></div></div>
+          <div class="field"><label>Used on</label><div class="uses"><span>Body · Left</span><span>Body · Right</span><span>Bonnet</span><span>Roof stripe</span><span>Mirror caps</span></div></div>
+          <div class="field"><label>The real paint · closest to this colour</label>
+            <div class="match on"><span class="sw" style="width:28px;height:28px;background:#8cbde6"></span><span><b>Tamiya TS-23 Light Blue</b><small>Spray · gloss · on your shelf</small></span><span class="de">very close</span></div>
+            <div class="match"><span class="sw" style="width:28px;height:28px;background:#78acd8"></span><span><b>Humbrol 65 Aircraft Blue</b><small>Enamel · matt</small></span><span class="de">close</span></div>
+            <div class="match"><span class="sw" style="width:28px;height:28px;background:#6aa6d6"></span><span><b>Zero Paints Gulf Blue</b><small>My paints · gloss</small></span><span class="de">close</span></div>
+            <button class="btn sm" style="align-self:flex-start"><i data-i="search"></i>Browse all paints…</button></div>
+          <label style="display:flex;gap:8px;align-items:center;font-size:12.5px"><span class="sw" style="width:16px;height:16px;border-radius:4px;background:var(--accent)"></span>Use the paint's own colour on screen</label>
+        </div>
+        <div class="ft"><button class="btn">Duplicate</button><span class="grow"></span><button class="btn">Merge into…</button><button class="btn primary">Done</button></div>
+      </div>
+    </div>
+  </div>
+  <div class="state" data-s="catalogue">
+    <div class="cat">
+      <aside class="cat-rail">
+        <span class="eyebrow" style="padding:4px 9px 8px">Paints</span>
+        <span class="ritem on"><i data-i="star"></i>Closest to Gulf blue</span>
+        <span class="ritem"><i data-i="home"></i>My paints<span class="n">14</span></span>
+        <span class="eyebrow" style="padding:14px 9px 8px">Makers</span>
+        <span class="ritem">Tamiya TS sprays<span class="n">62</span></span><span class="ritem">Tamiya X/XF<span class="n">71</span></span><span class="ritem">Humbrol enamel<span class="n">58</span></span><span class="ritem">Revell Aqua<span class="n">40</span></span><span class="ritem">Zero Paints<span class="n">35</span></span>
+        <span class="ritem" style="color:var(--muted)"><i data-i="plus"></i>Add a paint of your own</span>
+      </aside>
+      <main class="cat-main">
+        <div style="display:flex;align-items:flex-end;gap:12px"><div class="grow"><span class="eyebrow">Choose the real paint for</span><h1 style="margin:6px 0 0;font:italic 700 28px/1 var(--cond);text-transform:uppercase">Gulf blue</h1></div><span class="inp" style="width:260px"><i data-i="search"></i><span class="faint">Code or name…</span></span><span class="chip on">Gloss</span><span class="chip">Spray</span><span class="chip">On my shelf</span></div>
+        <div class="tins">
+          <div class="tin on"><div class="lid" style="background:#8cbde6"></div><span class="flag pill good">on shelf</span><div class="bd"><b>TS-23 Light Blue</b><small>Tamiya · spray · gloss</small></div></div>
+          <div class="tin"><div class="lid" style="background:#6aa6d6"></div><span class="flag pill">mine</span><div class="bd"><b>Gulf Blue</b><small>Zero Paints · airbrush</small></div></div>
+          <div class="tin"><div class="lid" style="background:#78acd8"></div><div class="bd"><b>65 Aircraft Blue</b><small>Humbrol · enamel · matt</small></div></div>
+          <div class="tin"><div class="lid" style="background:#7fb0d9"></div><div class="bd"><b>X-23 Clear Blue</b><small>Tamiya · acrylic · clear</small></div></div>
+          <div class="tin"><div class="lid" style="background:#5d9bd0"></div><div class="bd"><b>TS-10 French Blue</b><small>Tamiya · spray · gloss</small></div></div>
+          <div class="tin"><div class="lid" style="background:#9ac6ea"></div><div class="bd"><b>Aqua 49 Light Blue</b><small>Revell · acrylic · matt</small></div></div>
+        </div>
+        <p class="faint" style="margin:0;font-size:12px">Sorted by how close they look on screen. Screen colours are approximate: check the maker's chart or a test card.</p>
+      </main>
+      <aside class="side">
+        <div class="sec" style="border-top:0"><h4>This livery's paints</h4>
+          <div class="list">
+            <div class="lrow"><span class="sw" style="width:22px;height:22px;background:#f6f4ef"></span><span>Race white<small>TS-26 Pure White</small></span><span class="r pill good">have</span></div>
+            <div class="lrow"><span class="sw" style="width:22px;height:22px;background:#f28a35"></span><span>Gulf orange<small>TS-56 Brilliant Orange</small></span><span class="r pill warn">buy</span></div>
+            <div class="lrow"><span class="sw" style="width:22px;height:22px;background:#7fb7e2"></span><span>Gulf blue<small>choosing…</small></span></div>
+            <div class="lrow"><span class="sw" style="width:22px;height:22px;background:#1f2730"></span><span>Graphite<small>no paint yet</small></span></div>
+          </div></div>
+        <div class="sec"><h4>Shopping list</h4><div class="lrow" style="border:0"><span>Tamiya TS-56 Brilliant Orange<small>For Gulf orange · 1 can</small></span></div><button class="btn sm" style="align-self:flex-start"><i data-i="pdf"></i>Into the workshop plan</button></div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- ========================== B ========================== -->
+<section class="opt B" id="B">
+  <header class="topbar"><button class="ib"><i data-i="menu"></i></button><span class="logo">L</span><nav class="crumbs"><span>Garage</span><span>/</span><span>Club GT · 1:32</span><span>/</span><strong>Gulf tribute</strong></nav></header>
+  <div class="state on" data-s="pick">
+    <div class="studio">
+      <aside class="tools"></aside>
+      <main class="canvasarea"><div class="board"><svg class="car" viewBox="40 70 920 290" style="--b:#8cbde6"><use href="#car"/></svg><span class="callout" style="left:14px;top:12px">You paint with the paints you have</span></div></main>
+      <aside class="insp">
+        <div class="itabs"><span class="on">Selection</span><span>Workshop</span></div>
+        <div class="ihead"><span class="ico" style="background:#8cbde6"></span><span><strong>Body</strong><small>3 panels · Left view</small></span></div>
+        <div class="sec"><h4>Paint</h4><div class="match on"><span class="sw" style="width:30px;height:30px;background:#8cbde6"></span><span><b>Tamiya TS-23 Light Blue</b><small>Spray · gloss · on your shelf</small></span><i data-i="chev"></i></div></div>
+        <div class="sec"><h4>Finish <span class="faint" style="letter-spacing:0;text-transform:none;font-weight:400">from the paint</span></h4><div class="brands"><span class="chip">Matte</span><span class="chip">Satin</span><span class="chip on">Gloss</span></div></div>
+      </aside>
+      <div class="pop">
+        <div class="hd"><span class="inp" style="flex:1"><i data-i="search"></i><span class="faint">Find a paint: blue, TS-23…</span></span></div>
+        <div class="grp"><span class="eyebrow">On your shelf</span>
+          <div class="bottles">
+            <span class="bottle on"><i style="background:#8cbde6"></i>TS-23</span><span class="bottle"><i style="background:#f6f4ef"></i>TS-26</span><span class="bottle"><i style="background:#1f2730"></i>TS-42</span><span class="bottle"><i style="background:#c8102e"></i>TS-8</span><span class="bottle"><i style="background:#f2b705"></i>TS-16</span><span class="bottle"><i style="background:#2b8887"></i>X-13</span>
+          </div></div>
+        <div class="grp"><span class="eyebrow">Used in this livery, still to buy</span>
+          <div class="bottles"><span class="bottle buy"><i style="background:#f28a35"></i>TS-56</span></div></div>
+        <div class="grp"><span class="eyebrow">Close to #7FB7E2, not on your shelf</span>
+          <div class="bottles"><span class="bottle buy"><i style="background:#78acd8"></i>H65</span><span class="bottle buy"><i style="background:#5d9bd0"></i>TS-10</span><span class="bottle buy"><i style="background:#9ac6ea"></i>R49</span></div>
+          <span class="faint" style="font-size:11.5px">Picking one puts it on the shopping list.</span></div>
+        <div class="grp" style="flex-direction:row;align-items:center"><button class="btn sm"><i data-i="drop"></i>Any colour (no paint)</button><span class="grow"></span><button class="btn sm">Open the shelf…</button></div>
+      </div>
+    </div>
+  </div>
+  <div class="state" data-s="shelf">
+    <div class="shelf">
+      <main class="shelf-main">
+        <div style="display:flex;align-items:flex-end;gap:12px"><div class="grow"><span class="eyebrow">Garage · Safe keeping</span><h1 style="margin:6px 0 0;font:italic 700 30px/1 var(--cond);text-transform:uppercase">My paint shelf</h1><div class="muted" style="margin-top:7px">14 paints · 2 running low</div></div><span class="inp" style="width:240px"><i data-i="search"></i><span class="faint">Add a paint: code or name…</span></span><button class="btn primary"><i data-i="plus"></i>Add paints</button></div>
+        <div class="plank"><h3><span class="title">Tamiya TS sprays</span><span class="muted">6</span></h3><div class="row">
+          <span class="jar can"><i style="background:#8cbde6"></i><small>TS-23<br>Light Blue</small></span><span class="jar can"><i style="background:#f6f4ef"></i><small>TS-26<br>Pure White</small></span><span class="jar can low"><i style="background:#1f2730"></i><small>TS-42<br>Gun Metal</small></span><span class="jar can"><i style="background:#c8102e"></i><small>TS-8<br>Italian Red</small></span><span class="jar can"><i style="background:#f2b705"></i><small>TS-16<br>Yellow</small></span><span class="jar can"><i style="background:#2b2b2b"></i><small>TS-6<br>Matt Black</small></span><span class="jar can need"><i style="background:#f28a35"></i><small>TS-56<br>to buy</small></span></div></div>
+        <div class="plank"><h3><span class="title">Tamiya X / XF</span><span class="muted">5</span></h3><div class="row">
+          <span class="jar"><i style="background:#2b8887"></i><small>X-13<br>Metallic Blue</small></span><span class="jar"><i style="background:#c0392b"></i><small>X-7<br>Red</small></span><span class="jar low"><i style="background:#ffffff"></i><small>X-2<br>White</small></span><span class="jar"><i style="background:#4b5320"></i><small>XF-62<br>Olive</small></span><span class="jar"><i style="background:#9aa3ad"></i><small>XF-16<br>Aluminium</small></span></div></div>
+        <div class="plank"><h3><span class="title">My own paints</span><span class="muted">3</span></h3><div class="row">
+          <span class="jar"><i style="background:#6aa6d6"></i><small>Zero<br>Gulf Blue</small></span><span class="jar"><i style="background:#ee6657"></i><small>Zero<br>Coral</small></span><span class="jar"><i style="background:#e9e4d8"></i><small>Revell<br>Ivory</small></span></div></div>
+      </main>
+      <aside class="side">
+        <div class="sec" style="border-top:0"><h4>Shopping list <span class="pill warn" style="letter-spacing:0">3</span></h4>
+          <div class="list">
+            <div class="lrow"><span class="sw" style="width:22px;height:22px;background:#f28a35"></span><span>TS-56 Brilliant Orange<small>For Gulf tribute</small></span></div>
+            <div class="lrow"><span class="sw" style="width:22px;height:22px;background:#1f2730"></span><span>TS-42 Light Gun Metal<small>Running low</small></span></div>
+            <div class="lrow"><span class="sw" style="width:22px;height:22px;background:#ffffff"></span><span>X-2 White<small>Running low</small></span></div>
+          </div>
+          <div style="display:flex;gap:6px"><button class="btn sm"><i data-i="copy"></i>Copy the list</button><button class="btn sm"><i data-i="pdf"></i>Print</button></div></div>
+        <div class="sec"><h4>TS-42 Light Gun Metal</h4><div class="lrow" style="border:0;padding:0"><span class="sw" style="width:40px;height:40px;background:#1f2730"></span><span>Tamiya · spray · gloss<small>Used in 3 liveries</small></span></div><div class="brands"><span class="chip">Full</span><span class="chip on">Running low</span><span class="chip">Empty</span></div></div>
+      </aside>
+    </div>
+  </div>
+</section>
+</div>
+<script>
+const P={menu:'M4 7h16 M4 12h16 M4 17h16',plus:'M12 5v14 M5 12h14',drop:'M14 4l6 6-3 3-6-6z M11 9l-7 7v4h4l7-7',x:'M6 6l12 12 M18 6L6 18',search:'M11 4a7 7 0 1 0 0 14a7 7 0 1 0 0-14 M20 20l-4-4',star:'M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6-5.3-3-5.3 3 1.2-6L3.4 9.3l6-.7z',home:'M3 11l9-7 9 7 M5 10v10h14V10',pdf:'M5 2h9l5 5v15H5z M14 2v6h5 M8 12h8 M8 16h8',chev:'M9 6l6 6-6 6',copy:'M8 8h13v13H8z M16 8V3H3v13h5'};
+document.querySelectorAll('i[data-i]').forEach(i=>{i.outerHTML=`<svg class="i" viewBox="0 0 24 24"><path d="${P[i.dataset.i]||''}"/></svg>`});
+const SUB={A:[['rack','Livery colours'],['catalogue','Choosing a paint']],B:[['pick','Picking a paint'],['shelf','My paint shelf']]};
+const SAY={A:'A · Livery colours: each livery has its own named colours (Gulf blue, Race white…). Paint with them; change one and every place it is used follows. Each colour links to a real paint, picked from the closest matches or the full catalogue. Paints you have and the shopping list follow from that.',
+           B:'B · Paint shelf: you paint with real paints. Your shelf (the paints you own) comes first when you pick a colour, then paints this livery still needs, then close matches to buy. The shelf is a page of jars and cans, with running low and a shopping list across all liveries.'};
+let opt='A',sub={A:'rack',B:'pick'};
+function show(){document.querySelectorAll('.opt').forEach(o=>o.classList.toggle('on',o.id===opt));document.querySelectorAll('#opt button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===opt));document.getElementById('sub').innerHTML=SUB[opt].map(([v,l])=>`<button data-v="${v}" aria-pressed="${sub[opt]===v}">${l}</button>`).join('');document.getElementById('say').textContent=SAY[opt];document.getElementById(opt).querySelectorAll('.state').forEach(s=>s.classList.toggle('on',s.dataset.s===sub[opt]));}
+document.getElementById('opt').onclick=e=>{const v=e.target.closest('button')?.dataset.v;if(v){opt=v;show();}};
+document.getElementById('sub').onclick=e=>{const v=e.target.closest('button')?.dataset.v;if(v){sub[opt]=v;show();}};
+document.getElementById('theme').onclick=e=>{const v=e.target.closest('button')?.dataset.v;if(!v)return;document.documentElement.dataset.theme=v;document.querySelectorAll('#theme button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===v));};
+const q=new URLSearchParams(location.search);if(q.get('opt'))opt=q.get('opt');if(q.get('sub'))sub[opt]=q.get('sub');if(q.get('theme'))document.documentElement.dataset.theme=q.get('theme');
+show();
+</script>
+</body>
+</html>

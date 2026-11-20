@@ -137,7 +137,7 @@ function placeLayers(dock) {
   layersPlaced = true;
   const panel = $('#layers-panel'),
     scroll = panel.querySelector('.layer-list')?.scrollTop || 0,
-    team = project?.palette || [];
+    team = liveryColours();
   const h3 = dock.querySelector('h3');
   if (h3)
     h3.outerHTML = `<div class="lp-head"><h3>Layers</h3><span class="lp-view">${M.LABELS[currentView]} view</span></div>`;
@@ -145,10 +145,10 @@ function placeLayers(dock) {
     .querySelector('.layer-list')
     ?.insertAdjacentHTML(
       'afterend',
-      `<div class="lp-team"><div class="lp-group"><span>Team colours</span><span>${team.length}</span></div>${
+      `<div class="lp-team"><div class="lp-group"><span>Livery colours</span><span>${team.length}</span></div>${
         team.length
-          ? `<div class="lp-team-list">${team.map(c => `<button class="lp-colour" data-pick-colour="${c}" data-layer-team="${c}" title="Paint the selection ${c.toUpperCase()}. Right-click to remove it from the team colours."><span class="lp-swatch" style="background:${c}"></span>${c.toUpperCase()}</button>`).join('')}</div>`
-          : '<p class="note">Add colours with + beside the swatches under Colour.</p>'
+          ? `<div class="lp-team-list">${team.map(c => `<button class="lp-colour" data-pick-colour="${c.hex}" data-layer-team="${c.hex}" title="Paint the selection ${e(c.name)}. Right-click to remove it from the livery colours."><span class="lp-swatch" style="background:${c.hex}"></span><span class="lp-colour-name">${e(c.name)}</span><small>${c.ref ? e(c.ref.split(' ').slice(1, 2).join(' ')) : ''}</small></button>`).join('')}</div>`
+          : '<p class="note">Add colours with New colour under Colour.</p>'
       }</div>`
     );
   panel.replaceChildren(dock);
@@ -174,16 +174,29 @@ function renderWorkshop() {
   box.innerHTML = `<div class="heading"><span class="section-icon">${icon('car')}</span><div><strong>${e(project.name)}</strong><small>${e(project.template.name)} · ${e(project.template.scale || 'Scale not set')} · ${views} ${views === 1 ? 'view' : 'views'}</small></div></div>
 <section class="ws-section"><h4>Real size · ${M.LABELS[currentView]} view</h4>${realSizeFields()}<span class="ws-pill ${v.realWidthMm ? 'good' : ''}">${v.realWidthMm ? 'Sizes, rulers and true-size prints use millimetres' : 'Not set yet: true-size printing and decals need it'}</span></section>
 <section class="ws-section"><h4>Both sides</h4>${other ? workshopRow('mirror-view', 'mirror', `Mirror this side to the ${M.LABELS[other]}`, `Copies every layer of the ${M.LABELS[currentView]} view, mirrored and fitted`) : `<p class="note">Mirroring works between the left and right views. To copy one layer, select it and use Copy to another view.</p>`}</section>
-<section class="ws-section"><h4>Paints in this livery <span class="ws-count">${steps.length}</span></h4>${steps
+${liveryColoursSection()}<section class="ws-section"><h4>Painting order <span class="ws-count">${steps.length}</span></h4>${steps
     .map(
       (s, i) =>
         `<div class="ws-paint"><span class="ws-swatch" style="background:${s.colour}"></span><span class="ws-text"><b>${s.ref ? e(s.ref) : s.colour.toUpperCase()}</b><small>${ORDINAL(i + 1)}${i === 0 && steps.length > 1 ? ', lightest' : ''} · ${e(s.uses.slice(0, 2).join(', '))}${s.uses.length > 2 ? ` and ${s.uses.length - 2} more` : ''}${s.ref ? '' : ' · no paint chosen'}</small></span></div>`
     )
-    .join(
-      ''
-    )}<p class="note">The order the workshop plan prints: lightest first. To choose a real paint, select a colour and use Choose paint… under Colour.</p></section>
+    .join('')}<p class="note">The order the workshop plan prints: lightest first.</p></section>
 <section class="ws-section"><h4>Workshop</h4>${workshopRow('notes', 'note', 'Notes', project.notes ? e(project.notes.split('\n')[0].slice(0, 70)) : 'Paint references, masking and decal notes')}${workshopRow('true-size', 'ruler', 'Print at true size', 'Masks and the design at the real size')}${workshopRow('send-decals', 'decal', 'Decals', 'Numbers and logos to SlotForge Decals')}${workshopRow('pdf', 'pdf', 'Workshop plan', 'PDF with the painting order, paints and notes')}</section>`;
   if (focusId) document.getElementById(focusId)?.focus({ preventScroll: true });
+}
+
+// Livery colours, each with its paint and whether you have it, and what is still to buy.
+function liveryColoursSection() {
+  const list = liveryColours(),
+    owned = ownedPaints(),
+    shop = shoppingList();
+  return `<section class="ws-section"><h4>Livery colours <span class="ws-count">${list.length}</span></h4>${
+    list
+      .map(
+        c =>
+          `<button class="ws-paint ws-colour" data-colour-edit="${c.hex}" title="Edit ${e(c.name)}"><span class="ws-swatch" style="background:${c.hex}"></span><span class="ws-text"><b>${e(c.name)}</b><small>${c.ref ? e(c.ref) : 'no paint yet'}</small></span>${c.ref ? `<span class="ws-pill ${owned.has(c.ref) ? 'good' : ''}">${owned.has(c.ref) ? 'have' : 'buy'}</span>` : ''}</button>`
+      )
+      .join('') || '<p class="note">Add livery colours with New colour under Colour.</p>'
+  }${shop.length ? `<p class="note"><b>Shopping list:</b> ${shop.map(s => e(s.ref)).join(', ')}</p>` : ''}</section>`;
 }
 
 // ------------------------------------------------------------- Quick bar

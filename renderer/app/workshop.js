@@ -52,15 +52,36 @@ function paintRefLine() {
   const ref = currentPaintRef();
   return `<div class="paint-ref-line">${ref ? `<span title="Paint product">${icon('paint')}${e(ref)}</span>` : '<span class="note">No paint product chosen</span>'}<button class="quiet" data-action="paint-catalogue">Choose paint…</button></div>`;
 }
-let paintBrand = 'All';
-function openPaintCatalogue() {
+// Choose a paint: for the selection (Choose paint… under Colour) or for a livery colour
+// (Browse all paints… in its editor). Closest paints first; "I have it" marks the paints you
+// own, and the shopping list beside it is what this livery still needs.
+let paintBrand = 'Closest',
+  paintTarget = null;
+const PAINT_VIEWS = ['Closest', 'All', ...PaintCatalogue.BRANDS, 'My paints', 'Paints I have'];
+function openPaintCatalogue(opts = {}) {
   if (!project) return;
+  const forColour = opts.forColour ? liveryColour(opts.forColour) : null,
+    hex = forColour?.hex || M.colour(currentPaint().fill);
+  paintTarget = {
+    forColour: forColour?.hex || null,
+    hex,
+    name: forColour?.name || liveryColour(hex)?.name || null,
+    ref: forColour ? forColour.ref : currentPaintRef()
+  };
+  if (!PAINT_VIEWS.includes(paintBrand)) paintBrand = 'Closest';
   openDialog(
-    'Paint catalogue',
-    'Pick the paint you will use. The colour and product name go into your workshop PDF.',
-    `<div class="row paint-filter"><input id="paint-search" placeholder="Search code or name…" aria-label="Search paints"><select id="paint-brand" aria-label="Brand">${['All', ...PaintCatalogue.BRANDS, 'My paints'].map(b => `<option ${b === paintBrand ? 'selected' : ''}>${b}</option>`).join('')}</select></div><div id="paint-list" class="paint-list"></div><details class="paint-add"><summary>Add one of my paints</summary><div class="row"><div class="field"><label for="my-paint-brand">Brand</label><input id="my-paint-brand" list="paint-brands" placeholder="e.g. Revell"><datalist id="paint-brands">${PaintCatalogue.BRANDS.map(b => `<option value="${b}">`).join('')}</datalist></div><div class="field"><label for="my-paint-code">Code</label><input id="my-paint-code" placeholder="e.g. 36131"></div></div><div class="row"><div class="field" style="flex:2"><label for="my-paint-name">Name</label><input id="my-paint-name" placeholder="e.g. Fiery red"></div><div class="field"><label for="my-paint-hex">Colour</label><input id="my-paint-hex" type="color" value="${M.colour(currentPaint().fill)}"></div></div><button id="my-paint-save">Add to My paints</button></details><p class="note">Screen colours are approximate. Check against the maker's chart or a painted test card.</p>`,
+    'Choose the real paint',
+    paintTarget.name
+      ? `For ${paintTarget.name}. Every place painted ${paintTarget.name} gets this paint in the workshop plan.`
+      : 'For the selection. Its name goes into the workshop plan; the paint becomes one of the livery colours.',
+    `<div class="pc-shell"><div class="pc-main"><div class="pc-head"><span class="pc-target"><span class="pc-sw" style="background:${hex}"></span><span><small>Choose the real paint for</small><b>${e(paintTarget.name || hex.toUpperCase())}</b></span></span><div class="row paint-filter"><input id="paint-search" placeholder="Code or name…" aria-label="Search paints"><select id="paint-brand" aria-label="Show">${PAINT_VIEWS.map(b => `<option value="${e(b)}" ${b === paintBrand ? 'selected' : ''}>${b === 'Closest' ? 'Closest to this colour' : b === 'All' ? 'All paints' : e(b)}</option>`).join('')}</select></div></div>${
+      forColour
+        ? `<label class="checkbox-line pc-use"><input id="paint-use-colour" type="checkbox">Also show ${e(forColour.name)} in the paint's own colour</label>`
+        : ''
+    }<div id="paint-list" class="paint-list pc-grid"></div><details class="paint-add"><summary>Add a paint of your own</summary><div class="row"><div class="field"><label for="my-paint-brand">Brand</label><input id="my-paint-brand" list="paint-brands" placeholder="e.g. Revell"><datalist id="paint-brands">${PaintCatalogue.BRANDS.map(b => `<option value="${b}">`).join('')}</datalist></div><div class="field"><label for="my-paint-code">Code</label><input id="my-paint-code" placeholder="e.g. 36131"></div></div><div class="row"><div class="field" style="flex:2"><label for="my-paint-name">Name</label><input id="my-paint-name" placeholder="e.g. Fiery red"></div><div class="field"><label for="my-paint-hex">Colour</label><input id="my-paint-hex" type="color" value="${hex}"></div></div><button id="my-paint-save">Add to My paints</button></details><p class="note">Sorted by how close they look on screen. Screen colours are approximate: check the maker's chart or a painted test card.</p></div><aside class="pc-side" id="paint-side"></aside></div>`,
     `<button data-action="close-dialog">Close</button>`
   );
+  $('#dialog').classList.add('paint-dialog');
   $('#paint-search').oninput = renderPaintList;
   $('#paint-brand').onchange = () => {
     paintBrand = $('#paint-brand').value;
@@ -84,18 +105,55 @@ function openPaintCatalogue() {
 }
 function renderPaintList() {
   const query = ($('#paint-search')?.value || '').toLowerCase(),
-    list = allPaints()
-      .map((p, index) => ({ ...p, index }))
-      .filter(p => (paintBrand === 'All' ? true : paintBrand === 'My paints' ? p.custom : p.brand === paintBrand))
-      .filter(p => PaintCatalogue.label(p).toLowerCase().includes(query));
+    owned = ownedPaints(),
+    target = paintTarget?.hex || '#ffffff';
+  let list = allPaints()
+    .map((p, index) => ({ ...p, index, distance: colourDistance(target, p.hex) }))
+    .filter(p =>
+      ['All', 'Closest'].includes(paintBrand)
+        ? true
+        : paintBrand === 'My paints'
+          ? p.custom
+          : paintBrand === 'Paints I have'
+            ? owned.has(PaintCatalogue.label(p))
+            : p.brand === paintBrand
+    )
+    .filter(p => PaintCatalogue.label(p).toLowerCase().includes(query));
+  if (paintBrand === 'Closest') list = list.sort((a, b) => a.distance - b.distance).slice(0, query ? 200 : 48);
   $('#paint-list').innerHTML = list.length
     ? list
-        .map(
-          p =>
-            `<button class="paint-pick" data-paint-pick="${p.index}" title="${e(PaintCatalogue.label(p))}"><span class="paint-dot" style="background:${p.hex}"></span><span class="paint-text"><strong>${e(p.code || '—')} ${e(p.name)}</strong><small>${e(p.brand)}${p.finish ? ' · ' + e(p.finish) : ''}</small></span>${p.custom ? `<span class="paint-remove" data-paint-remove="${p.index - PaintCatalogue.paints.length}" title="Remove from My paints" aria-label="Remove">×</span>` : ''}</button>`
-        )
+        .map(p => {
+          const label = PaintCatalogue.label(p),
+            have = owned.has(label);
+          return `<div class="pc-tin ${paintTarget?.ref === label ? 'on' : ''}"><button class="paint-pick" data-paint-pick="${p.index}" title="${e(label)}"><span class="pc-lid" style="background:${p.hex}"></span><span class="paint-text"><strong>${e(p.code || '—')} ${e(p.name)}</strong><small>${e(p.brand)}${p.finish ? ' · ' + e(p.finish) : ''}</small></span>${paintBrand === 'Closest' ? `<span class="pc-close">${closeness(p.distance)}</span>` : ''}</button><button class="pc-own ${have ? 'on' : ''}" data-paint-own="${e(label)}" aria-pressed="${have}" title="${have ? 'You have this paint' : 'Mark as a paint you have'}">${icon('check')}${have ? 'I have it' : 'Have it?'}</button>${p.custom ? `<button class="paint-remove" data-paint-remove="${p.index - PaintCatalogue.paints.length}" title="Remove from My paints" aria-label="Remove ${e(label)} from My paints">×</button>` : ''}</div>`;
+        })
         .join('')
-    : `<p class="note">${paintBrand === 'My paints' || ['Revell', 'Zero Paints'].includes(paintBrand) ? 'No paints here yet. Add the products you use below.' : 'No matching paints.'}</p>`;
+    : `<p class="note">${paintBrand === 'My paints' || ['Revell', 'Zero Paints'].includes(paintBrand) ? 'No paints here yet. Add the products you use below.' : paintBrand === 'Paints I have' ? 'Mark paints with Have it? to see them here.' : 'No matching paints.'}</p>`;
+  renderPaintSide();
+}
+// This livery's colours with their paints, and what is still to buy.
+function renderPaintSide() {
+  const side = $('#paint-side');
+  if (!side) return;
+  const owned = ownedPaints(),
+    shop = shoppingList();
+  side.innerHTML = `<h4>This livery's paints</h4><div class="pc-list">${
+    liveryColours()
+      .map(
+        c =>
+          `<div class="pc-row"><span class="pc-sw" style="background:${c.hex}"></span><span><b>${e(c.name)}</b><small>${c.ref ? e(c.ref) : 'no paint yet'}</small></span>${c.ref ? `<span class="pc-pill ${owned.has(c.ref) ? 'good' : 'warn'}">${owned.has(c.ref) ? 'have' : 'buy'}</span>` : ''}</div>`
+      )
+      .join('') || '<p class="note">No livery colours yet. Picking a paint for the selection adds one.</p>'
+  }</div><h4>Shopping list</h4><div class="pc-list">${
+    shop.length
+      ? shop
+          .map(
+            s =>
+              `<div class="pc-row"><span><b>${e(s.ref)}</b><small>${s.colourName ? 'For ' + e(s.colourName) : 'Used in this livery'}</small></span><button class="pc-own" data-paint-own="${e(s.ref)}">${icon('check')}Have it</button></div>`
+          )
+          .join('')
+      : '<p class="note">Nothing to buy: you have every paint this livery uses.</p>'
+  }</div><p class="note">The shopping list is part of the workshop plan.</p>`;
 }
 document.addEventListener('click', ev => {
   const remove = ev.target.closest('[data-paint-remove]');
@@ -109,13 +167,32 @@ document.addEventListener('click', ev => {
     renderPaintList();
     return;
   }
+  const own = ev.target.closest('[data-paint-own]');
+  if (own) {
+    setOwned(own.dataset.paintOwn, !ownedPaints().has(own.dataset.paintOwn));
+    renderPaintList();
+    return;
+  }
   const pick = ev.target.closest('[data-paint-pick]');
   if (!pick) return;
   const paint = allPaints()[Number(pick.dataset.paintPick)];
   if (!paint) return;
+  const label = PaintCatalogue.label(paint),
+    target = paintTarget;
+  if (target?.forColour) {
+    const useColour = $('#paint-use-colour')?.checked;
+    closeDialog();
+    changeLiveryColour(target.forColour, { ref: label, ...(useColour ? { hex: paint.hex } : {}) });
+    toast(`${target.name} is painted with ${label}.`);
+    return;
+  }
   closeDialog();
-  applyColour(paint.hex, PaintCatalogue.label(paint));
-  toast('Paint chosen: ' + PaintCatalogue.label(paint) + '.');
+  applyColour(paint.hex, label);
+  // A real paint chosen for the selection becomes one of the livery colours.
+  if (!liveryColour(paint.hex) && liveryColours().length < M.PALETTE_SIZE)
+    mutate(() => setLiveryColours([...liveryColours(), { name: paint.name || label, hex: paint.hex, ref: label }]));
+  else if (liveryColour(paint.hex) && !liveryColour(paint.hex).ref) changeLiveryColour(paint.hex, { ref: label });
+  toast('Paint chosen: ' + label + '.');
 });
 
 // ---------------------------------------------- Painting order and masking

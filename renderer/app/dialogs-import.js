@@ -20,7 +20,9 @@ function openDialog(title, subtitle, body, foot = '', kind = '') {
     'projects-dialog',
     'help-dialog',
     'monitor-dialog',
-    'setup-dialog'
+    'setup-dialog',
+    'colour-dialog',
+    'paint-dialog'
   );
   if (kind) dlg.classList.add('flag-dialog', 'flag-' + kind);
   $('#dialog-content').innerHTML =

@@ -22,6 +22,8 @@ function addLayer(l) {
 // catalogue; any other colour change clears it, as it no longer matches.
 function applyColour(c, ref = null) {
   c = M.colour(c, colour);
+  // A livery colour brings its real paint along.
+  ref = ref ?? (project ? liveryColour(c)?.ref : null) ?? null;
   colour = c;
   const recent = store.settings?.recentColours || [];
   store.settings = { ...store.settings, recentColours: [c, ...recent.filter(x => x !== c)].slice(0, 8) };

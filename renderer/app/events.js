@@ -143,10 +143,7 @@ document.addEventListener('click', async ev => {
       return;
     }
     if (b.dataset.paletteAdd) {
-      const c = b.dataset.paletteAdd;
-      if ((project.palette || []).includes(c)) return toast('That colour is already a team colour.');
-      mutate(() => (project.palette = M.validatePalette([...(project.palette || []), c])));
-      toast('Added ' + c.toUpperCase() + ' to team colours.');
+      addLiveryColour(b.dataset.paletteAdd);
       return;
     }
     if (b.dataset.eyedropper) {
@@ -603,9 +600,7 @@ document.addEventListener('contextmenu', ev => {
   const b = ev.target.closest('[data-team-colour],[data-layer-team]');
   if (!b || !project) return;
   ev.preventDefault();
-  const c = b.dataset.teamColour || b.dataset.layerTeam;
-  mutate(() => (project.palette = (project.palette || []).filter(x => x !== c)));
-  toast('Removed ' + c.toUpperCase() + ' from team colours.');
+  removeLiveryColour(b.dataset.teamColour || b.dataset.layerTeam);
 });
 
 // Text bend updates live while dragging; one undo step per drag.
