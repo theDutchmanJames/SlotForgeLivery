@@ -1,6 +1,7 @@
 const fs = require('node:fs/promises'),
   path = require('node:path'),
   assert = require('node:assert/strict');
+const { arrived } = require('./inspector-helpers.cjs');
 const { clickAction } = require('./inspector-helpers.cjs');
 const { _electron: electron } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const root = path.resolve(__dirname, '..'),
@@ -120,8 +121,7 @@ async function run() {
   assert(!pkg.data.settings);
   await click('close-dialog');
   await page.locator('#package-file').setInputFiles(file);
-  await page.waitForSelector('[data-action="confirm-import"]');
-  await click('confirm-import');
+  await arrived(page);
   assert.deepEqual(
     await page.evaluate(() => [
       store.templates.length,
@@ -129,7 +129,8 @@ async function run() {
       store.assets.length,
       store.projects.length
     ]),
-    [2, 2, 27, 2]
+    [1, 2, 27, 2],
+    'the same car is not added twice'
   );
   assert.equal(
     await page.evaluate(

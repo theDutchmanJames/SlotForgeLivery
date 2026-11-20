@@ -1,6 +1,7 @@
 const fs = require('node:fs/promises'),
   path = require('node:path'),
   assert = require('node:assert/strict');
+const { arrived } = require('./inspector-helpers.cjs');
 const { clickAction } = require('./inspector-helpers.cjs');
 const { _electron: electron } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const { convertVector } = require('../src/vector-converter.cjs');
@@ -308,8 +309,7 @@ async function run() {
   await page.waitForFunction(() => document.querySelector('#toast').textContent === 'Package exported.');
   await click('close-dialog');
   await page.locator('#package-file').setInputFiles(destination);
-  await page.waitForSelector('[data-action="confirm-import"]');
-  await click('confirm-import');
+  await arrived(page);
   assert.equal(await page.evaluate(() => layers().filter(l => l.kind === 'vector').length), 5);
   assert(await page.evaluate(() => layers().some(l => l.crop)));
   await page.evaluate(() => closeDialog());

@@ -1,6 +1,7 @@
 const fs = require('node:fs/promises'),
   path = require('node:path'),
   assert = require('node:assert/strict');
+const { arrived } = require('./inspector-helpers.cjs');
 const { _electron: electron } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const root = path.resolve(__dirname, '..'),
   out = path.join(root, 'test-output'),
@@ -98,8 +99,10 @@ async function launch() {
         'custom-project.sfpaint'
       )
     );
-    await importConfirmed();
-    closeDialog();
+    // It came in straight away (Arrivals): open the copy that arrived.
+    setProject(
+      await libraryClient.hydrate(store, 'projects', garageArrival.items.find(x => x.bucket === 'projects').id)
+    );
     chooseArtwork(layers()[0].id);
     render();
   });
@@ -112,8 +115,7 @@ async function launch() {
   });
   assert.equal((await fs.readFile(path.join(out, 'fonts.pdf'))).subarray(0, 4).toString(), '%PDF');
   await page.locator('#package-file').setInputFiles(fontPackage);
-  await page.waitForSelector('[data-action="confirm-import"]');
-  await page.locator('[data-action="confirm-import"]').click();
+  await arrived(page);
   await page.waitForFunction(() => store.fonts.length === 1);
   await page.evaluate(() => {
     closeDialog();

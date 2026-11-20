@@ -1,6 +1,7 @@
 const fs = require('node:fs/promises'),
   path = require('node:path'),
   assert = require('node:assert/strict');
+const { arrived } = require('./inspector-helpers.cjs');
 const { clickAction } = require('./inspector-helpers.cjs');
 const root = path.resolve(__dirname, '..');
 const playwrightPath = process.env.PLAYWRIGHT_MODULE || 'playwright';
@@ -141,8 +142,7 @@ async function run() {
   assert.equal(pkg.data.template.views.left.regions.length, 6);
   await click('close-dialog');
   await page.locator('#package-file').setInputFiles(packagePath);
-  await page.waitForSelector('[data-action="confirm-import"]');
-  await click('confirm-import');
+  await arrived(page);
   assert.equal(await page.evaluate(() => store.projects.length), 2);
   assert.equal(await page.evaluate(() => project.views.left.length), 3);
   // A second car receives the saved livery; original project and library source remain independent.

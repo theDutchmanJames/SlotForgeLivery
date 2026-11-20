@@ -1,6 +1,7 @@
 const fs = require('node:fs/promises'),
   path = require('node:path'),
   assert = require('node:assert/strict');
+const { arrived } = require('./inspector-helpers.cjs');
 const { clickAction } = require('./inspector-helpers.cjs');
 const { _electron: electron } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const root = path.resolve(__dirname, '..'),
@@ -175,8 +176,7 @@ async function run() {
   await click('close-dialog');
   assert.equal(JSON.parse(await fs.readFile(file, 'utf8')).data.layers.length, 2);
   await page.locator('#package-file').setInputFiles(file);
-  await page.waitForSelector('[data-action="confirm-import"]');
-  await click('confirm-import');
+  await arrived(page);
   await click('close-dialog');
   assert.equal(await page.evaluate(() => store.assets.length), 3);
   assert.equal(

@@ -93,8 +93,9 @@ async function run() {
     return M.mirrorView([s], b, b)[0].x;
   });
   assert.equal(Math.round(r.x), Math.round(expected), 'mirrored onto the other side');
-  assert(await page.locator('.pair-dot.on').count(), 'the spine shows the linked layer');
-  assert((await page.locator('#pair-marks .pair-guide').count()) === 2, 'a guide on both sides');
+  // The spine and the guide are drawn on the next frame.
+  await page.waitForFunction(() => document.querySelector('.pair-dot.on'));
+  await page.waitForFunction(() => document.querySelectorAll('#pair-marks .pair-guide').length === 2);
   assert(await page.locator('[data-pair-open]').count(), 'Layers shows ⇄');
   await shot('linked');
 

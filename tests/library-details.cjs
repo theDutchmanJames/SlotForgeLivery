@@ -1,6 +1,7 @@
 const fs = require('node:fs/promises'),
   path = require('node:path'),
   assert = require('node:assert/strict');
+const { arrived } = require('./inspector-helpers.cjs');
 const { clickAction } = require('./inspector-helpers.cjs');
 const { _electron: electron } = require('playwright');
 const root = path.resolve(__dirname, '..'),
@@ -121,14 +122,19 @@ async function run() {
     )
   );
   await page.locator('#package-file').setInputFiles(pkg);
-  await page.waitForSelector('[data-action="confirm-import"]');
-  await click('confirm-import');
+  await arrived(page);
   assert(
     await page.evaluate(() =>
       store.assets.slice(3).every(a => a.creator === 'Artist ' + a.type.replace('shape', 'shape'))
     )
   );
-  assert.equal(await page.evaluate(() => store.templates[1].description), 'Vintage coupe <script>text only</script>');
+  // The same car is not added twice; its details still travel in the package as text only.
+  assert.equal(await page.evaluate(() => store.templates.length), 1);
+  const shared = JSON.parse(await fs.readFile(pkg, 'utf8'));
+  assert.equal(
+    await page.evaluate(t => validateTemplate(t).description, shared.data.templates[0]),
+    'Vintage coupe <script>text only</script>'
+  );
   assert.equal(await page.evaluate(() => store.liveries[1].paints), 'Blue paint 123');
   assert.equal(await page.evaluate(() => store.liveries[1].creator), 'James');
   assert.equal(await page.evaluate(() => store.assets[5].description), 'Reusable group');

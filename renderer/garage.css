@@ -585,3 +585,93 @@ body.garage-open .crumbs .crumb {
   background: transparent;
   box-shadow: none;
 }
+
+/* ---------------------------------------------------------------- Arrivals (a package came in) */
+.gr-arrivals .icon {
+  color: #4c9aff;
+}
+.ar-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+  padding: 12px 14px;
+  border: 1px solid color-mix(in srgb, #4c9aff 50%, var(--line));
+  border-radius: 12px;
+  background: color-mix(in srgb, #4c9aff 9%, var(--panel));
+}
+.ar-bar b {
+  display: block;
+  font-size: 14px;
+}
+.ar-bar small {
+  color: var(--muted);
+}
+.ar-pkg {
+  flex: none;
+  width: 60px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--accent) 16%, var(--panel));
+  color: var(--accent-text, var(--accent));
+  font: 700 10.5px var(--font-mono);
+}
+.ar-card {
+  position: relative;
+}
+.ar-card:not(.ar-yours) {
+  border-color: color-mix(in srgb, #4c9aff 60%, var(--line));
+}
+.ar-card.on {
+  box-shadow: 0 0 0 2px #4c9aff;
+}
+.ar-ribbon {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 1;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: #4c9aff;
+  color: #fff;
+  font-size: 11px;
+}
+.ar-yours .ar-ribbon {
+  background: var(--panel);
+  color: var(--ink);
+  border: 1px solid var(--line);
+}
+.ar-font {
+  display: grid;
+  place-items: center;
+  height: 130px;
+  background: #e9edf1;
+  color: #1c2129;
+  font-size: 38px;
+}
+.ar-h3 {
+  margin: 0 0 8px;
+  font: italic 700 18px var(--font-title);
+  text-transform: uppercase;
+}
+.ar-cmp {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.ar-cmp > div {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.ar-cmp .library-preview {
+  height: 76px;
+}
+.ar-cmp small {
+  display: block;
+  padding: 5px 8px;
+  font-size: 11px;
+  color: var(--muted);
+}

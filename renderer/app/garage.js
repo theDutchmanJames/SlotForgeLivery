@@ -117,7 +117,7 @@ function railHTML(cars) {
   const s = garageSection,
     b = backupSettings(),
     last = store.settings?.lastBackup;
-  return `${project ? `<button class="gr-item gr-back" data-action="studio">${icon('back')}<span class="gr-text">Back to ${e(project.name)}</span></button>` : ''}${railItem('data-garage-section="recent"', 'clock', 'Recent', liveProjects().length, s === 'recent')}
+  return `${project ? `<button class="gr-item gr-back" data-action="studio">${icon('back')}<span class="gr-text">Back to ${e(project.name)}</span></button>` : ''}${arrivalRailHTML()}${railItem('data-garage-section="recent"', 'clock', 'Recent', liveProjects().length, s === 'recent')}
 <span class="gr-label">Cars</span>${cars
     .map(
       c =>
@@ -175,6 +175,7 @@ function gridHTML(list, { withCar = false, newCar = null } = {}) {
 }
 function mainHTML(cars) {
   const s = garageSection;
+  if (s === 'arrivals') return arrivalsMainHTML();
   if (s === 'recent')
     return (
       headHTML(
@@ -265,6 +266,7 @@ function backupRowsHTML() {
     .join('')}`;
 }
 function detailHTML(cars) {
+  if (garageSection === 'arrivals') return arrivalsDetailHTML();
   const s = garageSection,
     p = garageSelected && liveProjects().find(x => x.id === garageSelected);
   if (p && (s === 'recent' || s.startsWith('car:'))) {
@@ -314,6 +316,7 @@ function renderGarage() {
   if (!garageOpen) return;
   const cars = garageCars();
   if (garageSection.startsWith('car:') && !cars.some(c => 'car:' + c.key === garageSection)) garageSection = 'recent';
+  if (garageSection === 'arrivals' && !garageArrival) garageSection = 'recent';
   if (garageSelected && !liveProjects().some(p => p.id === garageSelected)) garageSelected = null;
   const page = $('#garage-page'),
     scroll = page.querySelector('.gr-main')?.scrollTop || 0,

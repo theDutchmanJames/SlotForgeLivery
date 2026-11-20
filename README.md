@@ -151,7 +151,7 @@ Apply a saved livery to another car as a starting point. Check its placement in 
 
 ### Share editable designs with other builders
 
-**Share the design itself, not just a picture of it.** Open **Import & Export → Export a package**, choose the library items you want to share, and save a **`.sfpaint` package**. Another Livery user opens **Import a package** to add it to their library.
+**Share the design itself, not just a picture of it.** Open **Import & Export → Export a package**, choose the library items you want to share, and save a **`.sfpaint` package**. Another Livery user opens **Import a package** (or drops it on the Start page). It comes in straight away, as their own copies, and the Garage opens on **Arrivals**: what is new, a car they had already (not added twice), and a livery with a name in use as *Name (2)* next to theirs. Each item has its next step (open it, a new livery on a car, use the artwork on the open livery), and one item or the whole package can be sent back.
 
 Packages can contain selected templates, liveries, shapes, images, fonts or complete projects. A project includes its car template and embedded artwork; grouped shapes retain their separate editable elements. Imports add independent copies instead of overwriting existing items.
 

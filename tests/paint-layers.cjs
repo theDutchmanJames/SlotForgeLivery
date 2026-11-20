@@ -1,6 +1,7 @@
 const fs = require('node:fs/promises'),
   path = require('node:path'),
   assert = require('node:assert/strict');
+const { arrived } = require('./inspector-helpers.cjs');
 const { clickAction } = require('./inspector-helpers.cjs');
 const { _electron: electron } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const root = path.resolve(__dirname, '..'),
@@ -122,8 +123,7 @@ async function run() {
   await page.waitForFunction(() => document.querySelector('#toast').textContent === 'Package exported.');
   await click('close-dialog');
   await page.locator('#package-file').setInputFiles(pkg);
-  await page.waitForSelector('[data-action="confirm-import"]');
-  await click('confirm-import');
+  await arrived(page);
   assert.equal(await page.evaluate(() => activeView().regions.find(r => r.partLabel === 'Wheels').finish), 'Matte');
   assert(
     await page.evaluate(() => {

@@ -1,6 +1,7 @@
 const fs = require('node:fs/promises'),
   path = require('node:path'),
   assert = require('node:assert/strict');
+const { arrived } = require('./inspector-helpers.cjs');
 const { clickAction } = require('./inspector-helpers.cjs');
 const { convertVector } = require('../src/vector-converter.cjs');
 const { _electron: electron } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
@@ -144,8 +145,7 @@ async function run() {
   await page.waitForFunction(() => document.querySelector('#toast').textContent === 'Package exported.');
   await click('close-dialog');
   await page.locator('#package-file').setInputFiles(destination);
-  await page.waitForSelector('[data-action="confirm-import"]');
-  await click('confirm-import');
+  await arrived(page);
   assert(await page.evaluate(() => activeView().regions.some(r => r.markup.includes('clipPath'))));
   // Invalid documents return to the import form without changing the open project.
   await upload({ name: 'broken.eps', mimeType: 'application/postscript', buffer: Buffer.from('bad') }, 'Broken import');

@@ -1,6 +1,7 @@
 const fs = require('node:fs/promises'),
   path = require('node:path'),
   assert = require('node:assert/strict');
+const { arrived } = require('./inspector-helpers.cjs');
 const { clickAction } = require('./inspector-helpers.cjs');
 const { _electron: electron } = require('playwright');
 const root = path.resolve(__dirname, '..'),
@@ -183,9 +184,9 @@ async function run() {
   await page.waitForFunction(() => document.querySelector('#toast').textContent === 'Package exported.');
   await click('close-dialog');
   await page.locator('#package-file').setInputFiles(pkg);
-  await page.waitForSelector('[data-action="confirm-import"]');
-  await click('confirm-import');
-  await page.locator('[data-library-use]').last().click();
+  await arrived(page);
+  await page.locator('[data-arrival-pick^="assets:"]').last().click();
+  await page.locator('[data-arrival-use]').click();
   assert.equal(await page.evaluate(() => artworkSelection().length), 3);
   assert(await page.evaluate(() => artworkSelection().every(l => l.projective?.length === 9)));
   // A line drawn near the first anchor stays open; cancel creates no layer.

@@ -86,3 +86,13 @@ exports.detailedEditor = async (page, options = {}) => {
   if (await page.locator('#setup-page').isVisible()) await page.locator('[data-setup-detailed]').click();
   return page.waitForSelector('#repair-preview', options);
 };
+
+// A package comes in straight away and the Garage opens on Arrivals. With `open`, the first
+// livery that came in is opened in the Paint Studio (what tests did after importing before).
+exports.arrived = async (page, { open = true } = {}) => {
+  await page.waitForSelector('#garage-page .ar-bar');
+  if (!open || !(await page.locator('[data-arrival-pick^="projects:"]').count())) return;
+  await page.locator('[data-arrival-pick^="projects:"]').first().click();
+  await page.locator('[data-arrival-open]').click();
+  await page.waitForFunction(() => !!project && document.querySelector('#garage-page').hidden);
+};

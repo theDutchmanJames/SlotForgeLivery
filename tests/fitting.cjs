@@ -1,6 +1,7 @@
 const fs = require('node:fs/promises'),
   path = require('node:path'),
   assert = require('node:assert/strict');
+const { arrived } = require('./inspector-helpers.cjs');
 const { clickAction } = require('./inspector-helpers.cjs');
 const { _electron: electron } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const root = path.resolve(__dirname, '..'),
@@ -169,9 +170,9 @@ async function run() {
   await page.waitForFunction(() => document.querySelector('#toast').textContent === 'Package exported.');
   await click('close-dialog');
   await page.locator('#package-file').setInputFiles(file);
-  await page.waitForSelector('[data-action="confirm-import"]');
-  await click('confirm-import');
-  await page.locator('[data-library-use]').last().click();
+  await arrived(page);
+  await page.locator('[data-arrival-pick^="assets:"]').last().click();
+  await page.locator('[data-arrival-use]').click();
   assert.equal(await page.evaluate(() => artworkSelection().length), 3);
   assert.equal(await page.evaluate(() => artworkSelection().every(l => Array.isArray(l.affine))), true);
   await click('pdf');

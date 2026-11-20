@@ -286,9 +286,12 @@ async function readPackage(file) {
     additions[spec[0]].push(spec[1](pkg.data));
   }
   await FontLibrary.loadAll(additions);
+  // Normally it comes in straight away and the Garage shows it (Arrivals). Restoring a library
+  // that could not be read still asks first, because it replaces what is saved.
+  if (!loadBlocked) return arrive(additions, { file: file.name, exported: pkg.exported });
   pendingPackage = additions;
   openDialog(
-    'Import this package?',
+    'Restore from this package?',
     'All items are added as independent copies. Existing items are kept.',
     `<div class="import-info"><strong>${e(file.name)}</strong><p style="margin:12px 0 0">${Object.entries(additions)
       .filter(([k, v]) => v.length)

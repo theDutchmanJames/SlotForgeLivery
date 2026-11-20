@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Import remake</title>
+<style>
+@font-face{font-family:'SF Cond';src:url('../../../renderer/fonts/barlowcondensed/BarlowCondensed-BoldItalic.ttf') format('truetype');font-weight:700;font-style:italic}
+@font-face{font-family:'SF Mono';src:url('../../../renderer/fonts/robotomono/RobotoMono[wght].ttf') format('truetype');font-weight:100 700}
+:root{--bg:#171b21;--panel:#222831;--panel2:#1c2129;--ink:#e8e6e1;--ink2:#c4c8ce;--muted:#98a0ab;--faint:#6b7380;--line:#343b47;--line2:#2b313b;
+  --accent:#e5484d;--accent-text:#f06b6f;--ok:#3ecf8e;--warn:#f2b705;--blue:#4c9aff;--board:#e9ecf0;--cond:'SF Cond','Bahnschrift',sans-serif;--mono:'SF Mono',Consolas,monospace}
+[data-theme=light]{--bg:#eef0f3;--panel:#fff;--panel2:#f6f7f9;--ink:#1c2129;--ink2:#3a414c;--muted:#5f6875;--faint:#8a929d;--line:#d5d9df;--line2:#e3e6ea;--accent-text:#c9363b;--board:#f3f5f7}
+*{box-sizing:border-box}html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:13px/1.5 'Segoe UI',system-ui,sans-serif;display:flex;flex-direction:column}
+button{font:inherit;color:inherit;cursor:pointer}
+.grow{flex:1}.muted{color:var(--muted)}.mono{font-family:var(--mono)}
+.eyebrow{font:600 10px/1 'Segoe UI';letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
+.switch{flex:none;display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;padding:9px 18px;background:#0d1014;color:#e8e6e1;border-bottom:1px solid #2b313b}
+.switch b{font:600 10.5px 'Segoe UI';letter-spacing:.14em;text-transform:uppercase;color:#98a0ab}
+.switch p{margin:0 0 0 auto;font-size:12px;color:#8a929d;max-width:640px}
+.seg{display:inline-flex;gap:2px;padding:3px;border:1px solid #343b47;border-radius:9px;background:#171b21}
+.seg button{height:26px;padding:0 11px;border:0;border-radius:6px;background:none;color:#c4c8ce;font-size:12.5px}
+.seg button[aria-pressed=true]{background:#e5484d;color:#fff}
+.seg.in{border-color:var(--line);background:var(--panel2)}.seg.in button{color:var(--ink2);height:24px;font-size:12px}
+.stage{flex:1;min-height:800px;display:flex}
+.opt{flex:1;display:none;min-width:0;flex-direction:column}.opt.on{display:flex}
+.state{display:none;flex:1;min-height:0;flex-direction:column;position:relative}.state.on{display:flex}
+.btn{height:32px;display:inline-flex;align-items:center;gap:7px;padding:0 12px;border:1px solid var(--line);border-radius:8px;background:var(--panel);font-size:12.5px;white-space:nowrap}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+.btn.sm{height:26px;padding:0 9px;font-size:12px}
+.callout{position:absolute;font:600 10.5px 'Segoe UI';letter-spacing:.06em;text-transform:uppercase;color:#fff;background:#4c9aff;border-radius:999px;padding:3px 9px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.25);z-index:9}
+.topbar{height:52px;flex:none;display:flex;align-items:center;gap:10px;padding:0 12px;border-bottom:1px solid var(--line2);background:var(--panel2)}
+.logo{width:28px;height:28px;border-radius:7px;background:var(--accent);display:grid;place-items:center;color:#fff;font:italic 700 15px var(--cond)}
+.crumbs strong{font:italic 700 19px/1 var(--cond);text-transform:uppercase}
+h1,h2,h3{font-family:var(--cond);font-style:italic;font-weight:700;text-transform:uppercase;margin:0}
+svg.car{display:block;width:100%;height:auto}
+.chip{display:inline-flex;align-items:center;gap:5px;padding:1px 8px;border-radius:999px;border:1px solid var(--line);font-size:11px;color:var(--ink2);background:var(--panel2)}
+.chip.warn{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 50%,var(--line))}
+.chip.ok{color:var(--ok);border-color:color-mix(in srgb,var(--ok) 50%,var(--line))}
+.chip.new{color:#fff;background:var(--blue);border-color:var(--blue)}
+/* A: unpack window */
+.dim{position:absolute;inset:0;background:rgba(8,10,14,.6)}
+.win{position:absolute;inset:40px 90px;background:var(--panel);border:1px solid var(--line);border-radius:16px;box-shadow:0 24px 60px rgba(0,0,0,.5);display:flex;flex-direction:column;overflow:hidden}
+.win-head{display:flex;align-items:center;gap:14px;padding:16px 20px;border-bottom:1px solid var(--line2)}
+.pkg{flex:none;width:64px;height:48px;border-radius:12px;font-size:10.5px !important;background:color-mix(in srgb,var(--accent) 16%,var(--panel));display:grid;place-items:center;color:var(--accent-text);font:700 13px var(--mono)}
+.win-head h2{font-size:24px}
+.win-body{flex:1;display:grid;grid-template-columns:1fr 290px;min-height:0}
+.items{padding:16px 20px;overflow:auto;display:flex;flex-direction:column;gap:16px}
+.grp h3{font-size:16px;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.card{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--panel2);display:flex;flex-direction:column}
+.card.off{opacity:.5}
+.card .pic{height:100px;background:var(--board);display:grid;place-items:center;padding:8px 18px;position:relative}
+.card .tick{position:absolute;left:8px;top:8px;width:20px;height:20px;border-radius:6px;background:var(--accent);color:#fff;display:grid;place-items:center;font-size:12px}
+.card.off .tick{background:var(--panel);border:1px solid var(--line);color:transparent}
+.card .bd{padding:8px 10px;display:flex;flex-direction:column;gap:4px}
+.card b{font-size:12.5px}.card small{color:var(--muted);font-size:11.5px}
+.dup{display:flex;flex-direction:column;gap:6px;padding:8px 10px;border-top:1px dashed color-mix(in srgb,var(--warn) 45%,var(--line));background:color-mix(in srgb,var(--warn) 6%,transparent)}
+.dup span{font-size:11.5px;color:var(--warn)}
+.sum{border-left:1px solid var(--line2);padding:16px;display:flex;flex-direction:column;gap:10px;background:var(--panel2)}
+.kv{display:flex;justify-content:space-between;font-size:12.5px;padding:4px 0;border-bottom:1px solid var(--line2)}
+.note{font-size:12px;color:var(--muted);margin:0}
+.fontcard{height:100px;display:grid;place-items:center;font:700 34px Georgia,serif;color:#1c2129}
+.win-foot{display:flex;align-items:center;gap:8px;padding:12px 20px;border-top:1px solid var(--line2)}
+.done{position:absolute;inset:140px 330px;background:var(--panel);border:1px solid var(--line);border-radius:16px;box-shadow:0 24px 60px rgba(0,0,0,.5);padding:24px;display:flex;flex-direction:column;gap:14px;align-items:center;text-align:center}
+.done .pic{width:70%;background:var(--board);border-radius:12px;padding:16px 30px}
+.done h2{font-size:28px}
+/* B: arrival in the Garage */
+.garage{flex:1;display:grid;grid-template-columns:230px 1fr 310px;min-height:0;position:relative}
+.rail{border-right:1px solid var(--line2);background:var(--panel2);padding:12px 10px;display:flex;flex-direction:column;gap:2px}
+.ri{display:flex;align-items:center;gap:9px;min-height:32px;padding:4px 9px;border-radius:8px;color:var(--ink2)}
+.ri.on{background:color-mix(in srgb,var(--blue) 14%,var(--panel));box-shadow:inset 3px 0 0 var(--blue);color:var(--ink)}
+.ri small{margin-left:auto;font:11px var(--mono);color:var(--faint)}
+.rail .eyebrow{padding:12px 9px 6px}
+.main{padding:18px 24px;display:flex;flex-direction:column;gap:16px;overflow:auto}
+.arrival{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid color-mix(in srgb,var(--blue) 50%,var(--line));background:color-mix(in srgb,var(--blue) 9%,var(--panel));border-radius:12px}
+.arrival b{font-size:14px}
+.gcards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.gcard{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--panel);position:relative}
+.gcard.new{border-color:var(--blue);box-shadow:0 0 0 1px var(--blue)}
+.gcard .pic{height:118px;background:var(--board);display:grid;place-items:center;padding:10px 24px}
+.gcard .bd{padding:9px 11px}.gcard b{display:block}.gcard small{color:var(--muted)}
+.gcard .rib{position:absolute;right:8px;top:8px}
+.detail{border-left:1px solid var(--line2);background:var(--panel);padding:16px;display:flex;flex-direction:column;gap:12px}
+.detail h3{font-size:20px}
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.cmp div{border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.cmp .pic{height:70px;background:var(--board);display:grid;place-items:center;padding:6px 12px}
+.cmp small{display:block;padding:5px 8px;font-size:11px;color:var(--muted)}
+.radio{display:flex;flex-direction:column;gap:6px}
+.radio label{display:flex;gap:9px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;font-size:12.5px}
+.radio label.on{border-color:var(--blue);background:color-mix(in srgb,var(--blue) 10%,var(--panel))}
+.o{width:14px;height:14px;border-radius:50%;border:2px solid var(--line);flex:none;margin-top:2px}.radio label.on .o{border:4px solid var(--blue)}
+.radio small{display:block;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="switch">
+  <b>Import remake</b>
+  <span class="seg" id="opt"><button data-v="A" aria-pressed="true">A · Unpack</button><button data-v="B">B · Arrivals</button></span>
+  <span class="seg" id="sub"></span>
+  <span class="seg" id="theme"><button data-v="dark" aria-pressed="true">Dark</button><button data-v="light">Light</button></span>
+  <p id="say"></p>
+</div>
+<svg width="0" height="0" style="position:absolute"><defs>
+  <path id="sil" d="M62 268 L70 226 Q78 204 122 196 L292 176 Q336 146 392 112 Q424 94 476 92 L632 94 Q684 96 724 126 L796 178 Q894 188 926 212 Q944 232 938 268 L868 270 A72 72 0 0 0 724 270 L334 270 A72 72 0 0 0 190 270 Z"/>
+  <clipPath id="clip"><use href="#sil"/></clipPath>
+  <symbol id="white" viewBox="40 70 920 290"><use href="#sil" fill="#f6f4ef" stroke="#1f2730" stroke-width="3.5"/><path d="M318 176 L398 120 Q426 104 470 104 L500 104 L500 176 Z" fill="#cfd6dd"/><path d="M516 104 L628 106 Q670 108 702 132 L758 176 L516 176 Z" fill="#cfd6dd"/><g fill="#1f2730"><circle cx="262" cy="272" r="60"/><circle cx="796" cy="272" r="60"/></g><g fill="#c4c8ce"><circle cx="262" cy="272" r="34"/><circle cx="796" cy="272" r="34"/></g></symbol>
+  <symbol id="gulf" viewBox="40 70 920 290"><use href="#sil" fill="#7fb7e2"/><g clip-path="url(#clip)"><rect x="40" y="206" width="920" height="34" fill="#f28a35"/></g><path d="M318 176 L398 120 Q426 104 470 104 L500 104 L500 176 Z" fill="#33404d"/><path d="M516 104 L628 106 Q670 108 702 132 L758 176 L516 176 Z" fill="#33404d"/><use href="#sil" fill="none" stroke="#1f2730" stroke-width="3.5"/><circle cx="610" cy="196" r="40" fill="#f6f4ef" stroke="#1f2730" stroke-width="2"/><text x="610" y="212" text-anchor="middle" font-family="Arial Black,Arial" font-weight="900" font-size="42" fill="#1f2730">27</text><g fill="#1f2730"><circle cx="262" cy="272" r="60"/><circle cx="796" cy="272" r="60"/></g><g fill="#c4c8ce"><circle cx="262" cy="272" r="34"/><circle cx="796" cy="272" r="34"/></g></symbol>
+  <symbol id="red" viewBox="40 70 920 290"><use href="#sil" fill="#e5484d"/><g clip-path="url(#clip)"><rect x="40" y="150" width="920" height="16" fill="#f6f4ef"/></g><path d="M318 176 L398 120 Q426 104 470 104 L500 104 L500 176 Z" fill="#33404d"/><path d="M516 104 L628 106 Q670 108 702 132 L758 176 L516 176 Z" fill="#33404d"/><use href="#sil" fill="none" stroke="#1f2730" stroke-width="3.5"/><g fill="#1f2730"><circle cx="262" cy="272" r="60"/><circle cx="796" cy="272" r="60"/></g><g fill="#c4c8ce"><circle cx="262" cy="272" r="34"/><circle cx="796" cy="272" r="34"/></g></symbol>
+  <symbol id="star" viewBox="0 0 100 100"><path d="M50 8l12 28 30 2-23 19 8 29-27-16-27 16 8-29L8 38l30-2z" fill="#f2b705" stroke="#1f2730" stroke-width="3"/></symbol>
+</defs></svg>
+<div class="stage">
+<!-- ===================== A ===================== -->
+<section class="opt on" id="A">
+  <header class="topbar"><span class="logo">L</span><span class="crumbs"><strong>Garage</strong></span><span class="grow"></span></header>
+  <div class="state on" data-s="unpack">
+    <div class="dim"></div>
+    <div class="win">
+      <div class="win-head"><span class="pkg">.sfpaint</span><div class="grow"><span class="eyebrow">Unpack a package</span><h2>gulf-tribute.sfpaint</h2><span class="muted" style="font-size:12px">A livery with its car · exported 18 Nov 2026 · 2.4 MB · checked: no scripts or outside links</span></div></div>
+      <div class="win-body">
+        <div class="items">
+          <div class="grp"><h3>Car <span class="chip">1</span></h3><div class="cards">
+            <div class="card"><div class="pic"><svg viewBox="40 70 920 290" class="car"><use href="#white"/></svg><span class="tick">✓</span></div><div class="bd"><b>Sample coupé</b><small>1:32 · 2 views · 12 panels</small></div><div class="dup"><span>You have this car already: same drawing and panels.</span><span class="seg in"><button aria-pressed="true">Use mine</button><button>Keep both</button></span></div></div>
+          </div></div>
+          <div class="grp"><h3>Liveries <span class="chip">2</span></h3><div class="cards">
+            <div class="card"><div class="pic"><svg viewBox="40 70 920 290" class="car"><use href="#gulf"/></svg><span class="tick">✓</span></div><div class="bd"><b>Gulf tribute</b><small>Sample coupé · 4 colours · 4 entries</small></div></div>
+            <div class="card"><div class="pic"><svg viewBox="40 70 920 290" class="car"><use href="#red"/></svg><span class="tick">✓</span></div><div class="bd"><b>Martini red</b><small>Sample coupé · 3 colours</small></div><div class="dup"><span>“Martini red” is in your Garage already. It comes in as “Martini red (2)”.</span></div></div>
+          </div></div>
+          <div class="grp"><h3>Artwork and fonts <span class="chip">2</span></h3><div class="cards">
+            <div class="card off"><div class="pic"><svg viewBox="0 0 100 100" style="width:30%"><use href="#star"/></svg><span class="tick">✓</span></div><div class="bd"><b>Sponsor star</b><small>Shape · used by Gulf tribute</small></div></div>
+            <div class="card"><div class="pic fontcard" style="background:var(--board)">Aa 27</div><div class="bd"><b>Racing Sans</b><small>Font · used by Gulf tribute</small></div></div>
+          </div></div>
+        </div>
+        <aside class="sum"><span class="eyebrow">What happens</span>
+          <div class="kv"><span>New in your library</span><b>3</b></div>
+          <div class="kv"><span>Already there, kept as is</span><b>1</b></div>
+          <div class="kv"><span>Left out</span><b>1</b></div>
+          <p class="note">Everything comes in as your own copy. Nothing you have is changed or replaced.</p>
+          <p class="note">The livery uses your Sample coupé; the star stays in the livery even without the library copy.</p>
+        </aside>
+      </div>
+      <div class="win-foot"><span class="muted" style="font-size:12px">Click a card to leave it out.</span><span class="grow"></span><button class="btn">Cancel</button><button class="btn primary">Add 3 to my library</button></div>
+    </div>
+    <span class="callout" style="left:110px;bottom:14px">See every item before it comes in, with what you have already</span>
+  </div>
+  <div class="state" data-s="done">
+    <div class="dim"></div>
+    <div class="done"><span class="chip ok">Unpacked</span><h2>3 new in your library</h2><div class="pic"><svg viewBox="40 70 920 290" class="car"><use href="#gulf"/></svg></div><span class="muted">Gulf tribute and Martini red (2) on your Sample coupé, and the font Racing Sans.</span><div style="display:flex;gap:8px"><button class="btn">Show in the Garage</button><button class="btn primary">Open Gulf tribute</button></div></div>
+    <span class="callout" style="left:110px;bottom:14px">After: open what came in, or see it in the Garage</span>
+  </div>
+</section>
+<!-- ===================== B ===================== -->
+<section class="opt" id="B">
+  <header class="topbar"><span class="logo">L</span><span class="crumbs"><strong>Garage</strong></span><span class="grow"></span></header>
+  <div class="state on" data-s="arrive">
+  <div class="garage">
+    <aside class="rail"><span class="ri">Recent<small>7</small></span><span class="ri on">Arrivals<small>4</small></span><span class="eyebrow">Cars</span><span class="ri">Sample coupé<small>5</small></span><span class="ri">Porsche 917K<small>1</small></span><span class="eyebrow">Reuse</span><span class="ri">Saved designs<small>2</small></span><span class="ri">Artwork &amp; shapes<small>6</small></span><span class="ri">Fonts<small>2</small></span><span class="eyebrow">Safe keeping</span><span class="ri">Backups</span><span class="ri">Trash<small>1</small></span></aside>
+    <main class="main">
+      <div class="arrival"><span class="pkg" style="width:60px;height:40px">.sfpaint</span><span class="grow"><b>gulf-tribute.sfpaint came in</b><br><span class="muted" style="font-size:12px">2 liveries, 1 shape and 1 font, as your own copies · exported 18 Nov 2026</span></span><button class="btn">Send it all back</button><button class="btn primary">Done</button></div>
+      <div><span class="eyebrow">Just arrived</span><h2 style="font-size:30px">Arrivals</h2></div>
+      <div class="gcards">
+        <div class="gcard new"><span class="rib chip new">New</span><div class="pic"><svg viewBox="40 70 920 290" class="car"><use href="#gulf"/></svg></div><div class="bd"><b>Gulf tribute</b><small>Sample coupé · on your car</small></div></div>
+        <div class="gcard new"><span class="rib chip new">New</span><div class="pic"><svg viewBox="40 70 920 290" class="car"><use href="#red"/></svg></div><div class="bd"><b>Martini red (2)</b><small>Sample coupé · on your car</small></div></div>
+        <div class="gcard new"><span class="rib chip new">New</span><div class="pic"><svg viewBox="0 0 100 100" style="width:30%"><use href="#star"/></svg></div><div class="bd"><b>Sponsor star</b><small>Artwork &amp; shapes</small></div></div>
+        <div class="gcard new"><span class="rib chip new">New</span><div class="pic fontcard" style="background:var(--board)">Aa 27</div><div class="bd"><b>Racing Sans</b><small>Fonts</small></div></div>
+        <div class="gcard"><span class="rib chip">Yours</span><div class="pic"><svg viewBox="40 70 920 290" class="car"><use href="#white"/></svg></div><div class="bd"><b>Sample coupé</b><small>The car was yours already: not added twice</small></div></div>
+      </div>
+    </main>
+    <aside class="detail"><span class="eyebrow">Arrived · Martini red (2)</span><h3>Same name as yours</h3>
+      <div class="cmp"><div><div class="pic"><svg viewBox="40 70 920 290" class="car"><use href="#red"/></svg></div><small>Yours · edited 12 Nov</small></div><div><div class="pic"><svg viewBox="40 70 920 290" class="car"><use href="#red"/></svg></div><small>Arrived · exported 18 Nov</small></div></div>
+      <div class="radio">
+        <label class="on"><span class="o"></span><span>Keep both<small>The new one is called Martini red (2).</small></span></label>
+        <label><span class="o"></span><span>Send the new one back<small>Keep only yours.</small></span></label>
+      </div>
+      <div style="display:flex;gap:6px"><button class="btn">Open</button><button class="btn">Rename…</button></div>
+    </aside>
+    <span class="callout" style="left:260px;bottom:20px">It comes in straight away, in its real place; send back what you don't want</span>
+  </div>
+  </div>
+  <div class="state" data-s="sheet">
+  <div class="garage">
+    <aside class="rail"><span class="ri">Recent<small>7</small></span><span class="ri on">Arrivals<small>1</small></span><span class="eyebrow">Cars</span><span class="ri">Sample coupé<small>5</small></span><span class="eyebrow">Reuse</span><span class="ri">Saved designs<small>2</small></span><span class="ri">Artwork &amp; shapes<small>6</small></span></aside>
+    <main class="main">
+      <div class="arrival"><span class="pkg" style="width:60px;height:40px">.sfpaint</span><span class="grow"><b>Porsche 917K came in</b><br><span class="muted" style="font-size:12px">A car with 2 views · it has no liveries yet</span></span><button class="btn">Send it back</button><button class="btn primary">New livery on it</button></div>
+      <div><span class="eyebrow">Just arrived</span><h2 style="font-size:30px">Arrivals</h2></div>
+      <div class="gcards"><div class="gcard new"><span class="rib chip new">New</span><div class="pic"><svg viewBox="40 70 920 290" class="car"><use href="#white"/></svg></div><div class="bd"><b>Porsche 917K</b><small>1:32 · Left and Right</small></div></div></div>
+    </main>
+    <aside class="detail"><span class="eyebrow">Arrived · a car</span><h3>Porsche 917K</h3><p class="note" style="font-size:12.5px">The next step for a car is a livery. Its panels and names came with it.</p><button class="btn primary">New livery on this car</button><button class="btn">Edit the car</button></aside>
+    <span class="callout" style="left:260px;bottom:20px">The next step fits what came in</span>
+  </div>
+  </div>
+</section>
+</div>
+<script>
+const SUB={A:[['unpack','Unpack'],['done','Unpacked']],B:[['arrive','A livery arrives'],['sheet','A car arrives']]};
+const SAY={A:'A · Unpack: a window that shows every item in the package as a card, grouped as cars, liveries, artwork and fonts, with what you have already ("you have this car: use mine / keep both") and a tick to leave one out. Afterwards: open what came in or see it in the Garage.',
+           B:'B · Arrivals: no question first. The package comes in straight away and the Garage opens on Arrivals: the new items marked New in their real places, what was yours already, and a choice for a name you have already. Send back one item or all of it.'};
+let opt='A',sub={A:'unpack',B:'arrive'};
+function show(){document.querySelectorAll('.opt').forEach(o=>o.classList.toggle('on',o.id===opt));document.querySelectorAll('#opt button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===opt));document.getElementById('sub').innerHTML=SUB[opt].map(([v,l])=>`<button data-v="${v}" aria-pressed="${sub[opt]===v}">${l}</button>`).join('');document.getElementById('say').textContent=SAY[opt];document.getElementById(opt).querySelectorAll('.state').forEach(s=>s.classList.toggle('on',s.dataset.s===sub[opt]));}
+document.getElementById('opt').onclick=e=>{const v=e.target.closest('button')?.dataset.v;if(v){opt=v;show();}};
+document.getElementById('sub').onclick=e=>{const v=e.target.closest('button')?.dataset.v;if(v){sub[opt]=v;show();}};
+document.getElementById('theme').onclick=e=>{const v=e.target.closest('button')?.dataset.v;if(!v)return;document.documentElement.dataset.theme=v;document.querySelectorAll('#theme button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===v));};
+const q=new URLSearchParams(location.search);if(q.get('opt'))opt=q.get('opt');if(q.get('sub'))sub[opt]=q.get('sub');if(q.get('theme'))document.documentElement.dataset.theme=q.get('theme');
+show();
+</script>
+</body>
+</html>
