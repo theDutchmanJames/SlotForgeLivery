@@ -17,15 +17,22 @@
       this.bytes = 0;
     }
     async digest(text) {
-      if (this.hashes.has(text)) return this.hashes.get(text);
+      if (this.hashes.has(text)) {
+        // Recently used bodies stay at the end, so the oldest are dropped first.
+        const known = this.hashes.get(text);
+        this.hashes.delete(text);
+        this.hashes.set(text, known);
+        return known;
+      }
       // JSON encoding also preserves lone UTF-16 surrogates exactly; plain UTF-8
       // would silently replace them and could merge distinct original strings.
       const digest = await hash(JSON.stringify(text));
       // Keep only a bounded cache of immutable bodies, not every imported asset.
-      if (text.length < 16 * 1024 * 1024) {
-        if (this.bytes + text.length > 24 * 1024 * 1024) {
-          this.hashes.clear();
-          this.bytes = 0;
+      if (text.length < 48 * 1024 * 1024) {
+        for (const old of this.hashes.keys()) {
+          if (this.bytes + text.length <= 160 * 1024 * 1024) break;
+          this.hashes.delete(old);
+          this.bytes -= old.length;
         }
         this.hashes.set(text, digest);
         this.bytes += text.length;

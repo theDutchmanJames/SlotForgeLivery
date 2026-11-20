@@ -253,7 +253,14 @@ function validateFontAsset(a) {
 function validateProject(p) {
   const t = validateTemplate(p.template, true),
     l = validateLivery(p);
-  return { ...l, template: t, guides: M.validateGuides(p.guides), id: M.uid() };
+  const trashed = typeof p.trashedAt === 'string' && Number.isFinite(Date.parse(p.trashedAt));
+  return {
+    ...l,
+    template: t,
+    guides: M.validateGuides(p.guides),
+    id: M.uid(),
+    ...(trashed ? { trashedAt: new Date(p.trashedAt).toISOString() } : {})
+  };
 }
 async function readPackage(file) {
   if (file.size > 180 * 1024 * 1024) throw new Error('Package exceeds the 180 MB import limit.');

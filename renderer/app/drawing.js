@@ -4,9 +4,12 @@
 'use strict';
 function mutate(fn) {
   record();
-  fn();
-  changed();
-  render();
+  try {
+    fn();
+  } finally {
+    changed();
+    render();
+  }
 }
 function addLayer(l) {
   if (!activeView()?.regions.some(r => r.role === 'body'))

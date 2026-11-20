@@ -36,7 +36,7 @@ function applyEntryTo(p, entry) {
   p.activeEntry = entry.id;
   return p;
 }
-const withEntry = (p, entry) => applyEntryTo(M.clone(p), entry);
+const withEntry = (p, entry) => applyEntryTo(M.snapshotCopy(p), entry);
 function showEntry(id) {
   const entry = entryList().find(x => x.id === id);
   if (!entry || !project) return;

@@ -96,7 +96,11 @@ function packPages(p = project) {
     if (s.design)
       for (const k of sized)
         pages.push(maskPage(p, null, [k], pack, 'design:' + k, 'Design at true size', M.LABELS[k]));
+    const masked = new Set();
     paintingSteps(p).forEach((step, i) => {
+      // A mask is per colour: the same colour with another paint reference is the same mask.
+      if (masked.has(step.colour)) return;
+      masked.add(step.colour);
       const keys = sized.filter(k => usesColourInView(p, k, step.colour)),
         name = liveryColour(step.colour)?.name || step.ref || step.colour.toUpperCase(),
         sides = keys.filter(k => ['left', 'right'].includes(k)),

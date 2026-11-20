@@ -195,6 +195,9 @@ function generateVectorRegions() {
         }
     }
     generated.regions.push(...existing);
+    // Every vector object becomes an explicit region (the source is no longer needed); the real
+    // size you set for this view is kept.
+    if (view.realWidthMm) generated.realWidthMm = view.realWidthMm;
     project.template.views[currentView] = generated;
     selectedRegion = null;
     changed();

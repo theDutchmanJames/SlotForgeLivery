@@ -92,6 +92,7 @@ function showGarage(section = garageSection) {
   }
   garageOpen = true;
   garageSection = section;
+  if (section === 'backups') garageBackups = null;
   if (LIBRARY_SECTIONS.includes(section)) libraryTab = section;
   $('.workspace').hidden = true;
   $('#garage-page').hidden = false;

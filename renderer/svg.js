@@ -700,19 +700,31 @@
   function renderViewParts(project, key, opts = {}) {
     const v = project?.template.views[key];
     if (!v) return { under: '', over: '', art: '' };
+    // Long strings (photos, drawing markup) are compared by reference, not copied into the key.
+    const heavy = [],
+      light = (k, value) =>
+        typeof value === 'string' && value.length > 4096 ? (heavy.push(value), '\u0000' + (heavy.length - 1)) : value;
     const slot = opts.id || key,
-      signature = JSON.stringify([
-        v,
-        M.paintOf(project),
-        !!opts.prepare,
-        !!opts.interactive,
-        !!opts.effects,
-        !!opts.live,
-        opts.preview && slot === 'main' ? window.MaskPreview?.revision() : 0
-      ]);
+      signature = JSON.stringify(
+        [
+          v,
+          M.paintOf(project),
+          !!opts.prepare,
+          !!opts.interactive,
+          !!opts.effects,
+          !!opts.live,
+          opts.preview && slot === 'main' ? window.MaskPreview?.revision() : 0
+        ],
+        light
+      );
     let cached = viewCache.get(slot);
-    if (!cached || cached.signature !== signature) {
-      cached = { signature, ...renderViewRaw(project, key, { ...opts, parts: true, staticOnly: true }) };
+    const same =
+      cached &&
+      cached.signature === signature &&
+      cached.heavy.length === heavy.length &&
+      cached.heavy.every((h, i) => h === heavy[i]);
+    if (!same) {
+      cached = { signature, heavy, ...renderViewRaw(project, key, { ...opts, parts: true, staticOnly: true }) };
       viewCache.set(slot, cached);
       while (viewCache.size > 8) viewCache.delete(viewCache.keys().next().value);
     }

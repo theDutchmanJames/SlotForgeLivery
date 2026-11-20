@@ -27,9 +27,11 @@ function maintenanceSettingsHTML() {
   <p class="note">Only Livery's own backup files in that folder are ever removed.</p></section>`;
 }
 // Builds the same package as Import & Export → Back up my whole library.
+let backupBusy = false;
 async function runBackup({ automatic = false } = {}) {
   const b = backupSettings();
-  if (!window.desktop?.writeBackup || !b.folder || loadBlocked) return null;
+  if (!window.desktop?.writeBackup || !b.folder || loadBlocked || backupBusy) return null;
+  backupBusy = true;
   try {
     const data = await libraryClient.materialize(store, store);
     const result = await window.desktop.writeBackup({
@@ -49,11 +51,17 @@ async function runBackup({ automatic = false } = {}) {
     if (!automatic) toast('Library backed up.');
     return result;
   } catch (error) {
+    if (/changed during export/.test(error?.message || '')) {
+      if (automatic) setTimeout(() => runBackup({ automatic: true }), 2 * 60 * 1000);
+      else toast('The library changed while it was being backed up. Try again in a moment.');
+      return null;
+    }
     store.settings = { ...store.settings, lastBackupError: String(error.message || error).slice(0, 200) };
     scheduleSave();
     toast('Backup failed: ' + (error.message || error));
     return null;
   } finally {
+    backupBusy = false;
     const status = $('#backup-status');
     if (status)
       status.textContent =

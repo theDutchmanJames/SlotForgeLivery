@@ -43,11 +43,16 @@ async function launch() {
 async function seed() {
   const { app, page } = await launch();
   const click = a => page.locator(`[data-action="${a}"]:visible`).first().click();
+  // The sample car opens the guided setup; every panel gets paint, then the last step.
   await click('sample-car');
-  await page.waitForFunction(() => project && preparing && activeView()?.vectorSource);
-  await page.locator('[data-action="close-dialog"]:visible').first().click();
-  await click('generate-regions');
-  await click('finish-preparation');
+  await page.waitForSelector('#setup-page:not([hidden])');
+  await page.evaluate(() => {
+    setup.entries.forEach(a => (a.paint = true));
+    setup.step = 5;
+    renderSetup();
+  });
+  await page.locator('[data-setup-next]').click();
+  await page.waitForFunction(() => project && !preparing && activeView());
   const seeded = await page.evaluate(async count => {
     // A noisy 900×600 PNG stands in for an imported photo decal (≈2 MB).
     const c = document.createElement('canvas');
@@ -150,8 +155,21 @@ async function measure() {
       'renderStepHint',
       'fillIcons',
       'renderCompare',
-      'renderRulers'
-    ];
+      'renderRulers',
+      // Inside the inspector (nested, so these overlap the totals above).
+      'afterInspector',
+      'renderWorkshop',
+      'placeLayers',
+      'liveryColourCards',
+      'colourUses',
+      'artworkRows',
+      'paintLayerRows',
+      'orderButtons',
+      'renderQuickBar',
+      'renderEntrySwitch',
+      'renderStart',
+      'queueHelp'
+    ].filter(n => typeof window[n] === 'function');
     const spent = Object.fromEntries(parts.map(n => [n, 0])),
       saved = {};
     for (const n of parts) {

@@ -25,7 +25,7 @@ let pairSignature = '',
   pairPopFor = null;
 
 const pairHas = k => !!project?.template.views[k];
-const pairOn = () => store.settings?.compareOn === true && !!project && !!activeView() && !preparing;
+const pairOn = () => store.settings?.compareOn === true && !!project && !!activeView() && !preparing && !!compareView();
 const pairLabel = k => M.LABELS[k] || k;
 // The other side of the pair: the one chosen with the current side, else its natural opposite.
 function compareView() {
@@ -118,7 +118,8 @@ function syncPairs() {
   pairTidy();
   const source = layers().filter(l => l.pairLink);
   if (!source.length) return;
-  const signature = JSON.stringify([currentView, source, Object.keys(project.template.views)]);
+  const outlines = Object.entries(project.template.views).map(([k, v]) => [k, v?.bounds]),
+    signature = JSON.stringify([currentView, source, outlines]);
   if (signature === pairSignature) return;
   for (const [k, list] of Object.entries(project.views)) {
     if (k === currentView || !list?.length || !pairHas(k)) continue;
@@ -126,7 +127,8 @@ function syncPairs() {
       const pairs = source
         .filter(l => (l.pairMode || 'mirror') === mode)
         .map(l => [l, list.find(x => x.pairLink === l.pairLink)])
-        .filter(([, p]) => p);
+        // A locked layer on the other side stays where it is.
+        .filter(([, p]) => p && !p.locked);
       if (!pairs.length) continue;
       const made = pairCopies(
           pairs.map(([l]) => l),
@@ -151,7 +153,7 @@ function syncPairs() {
       });
     }
   }
-  pairSignature = JSON.stringify([currentView, layers().filter(l => l.pairLink), Object.keys(project.template.views)]);
+  pairSignature = JSON.stringify([currentView, layers().filter(l => l.pairLink), outlines]);
 }
 // The sides a layer is on, besides this one.
 const pairSidesOf = l =>

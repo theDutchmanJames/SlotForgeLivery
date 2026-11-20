@@ -37,9 +37,17 @@ function arrivalName(bucket, name) {
   const base = name.replace(/ \(\d+\)$/, '');
   for (let n = 2; ; n++) if (!taken.has(`${base} (${n})`)) return `${base} (${n})`;
 }
-// Adds the validated items of a package and opens the Garage on them.
-async function arrive(additions, info = {}) {
-  const yours = [];
+// Adds the validated items of a package and opens the Garage on them. Imports run one at a
+// time, so the same package dropped twice cannot add its car twice.
+let arriving = Promise.resolve();
+function arrive(additions, info = {}) {
+  const run = arriving.then(() => arriveNow(additions, info));
+  arriving = run.catch(() => {});
+  return run;
+}
+async function arriveNow(additions, info) {
+  const yours = [],
+    carIds = new Map();
   // A car you have already: keep yours. Only cars with the same name are compared.
   const kept = [];
   for (const t of additions.templates) {
@@ -53,8 +61,14 @@ async function arrive(additions, info = {}) {
     }
     if (mine) yours.push(mine.id);
     else kept.push(t);
+    carIds.set(carSignature(t), mine ? mine.id : t.id);
   }
   additions.templates = kept;
+  // Each livery belongs to its own car (by id), not to any car that happens to share the name.
+  for (const p of additions.projects) {
+    const id = p.template && carIds.get(carSignature(p.template));
+    if (id) p.template.id = id;
+  }
   const items = [];
   for (const bucket of ARRIVAL_BUCKETS)
     for (const item of additions[bucket] || []) {
@@ -62,7 +76,8 @@ async function arrive(additions, info = {}) {
         ['projects', 'liveries'].includes(bucket) && store[bucket].find(x => !x.trashedAt && x.name === item.name);
       if (clash) item.name = arrivalName(bucket, item.name);
       store[bucket].push(item);
-      items.push({ bucket, id: item.id, clash: clash ? clash.id : null });
+      // A livery that was in the Trash goes back there, not into Arrivals.
+      if (!item.trashedAt) items.push({ bucket, id: item.id, clash: clash ? clash.id : null });
     }
   garageArrival = { file: info.file || 'package', exported: info.exported || null, items, yours };
   arrivalPick = items[0] ? items[0].bucket + ':' + items[0].id : null;
@@ -114,14 +129,14 @@ function arrivalRailHTML() {
 }
 function arrivalPicture(x) {
   if (x.bucket === 'fonts')
-    return `<span class="ar-font" style="font-family:'${e(x.item.family || x.item.name)}'">Aa 27</span>`;
+    return `<span class="ar-font" style="font-family:'${String(x.item.family || x.item.name).replace(/[^\w \-]/g, '')}'">Aa 27</span>`;
   return cardPreview(x.item, x.bucket);
 }
 function arrivalCard(x) {
   const key = x.bucket + ':' + x.id,
     where =
       x.bucket === 'projects'
-        ? `${projectCarName(x.item)} · ${garageArrival.yours.length || store.templates.some(t => t.id === projectCarKey(x.item)) ? 'on your car' : 'a livery'}`
+        ? `${projectCarName(x.item)} · ${garageArrival.yours.includes(projectCarKey(x.item)) ? 'on your car' : garageArrival.items.some(a => a.bucket === 'templates' && a.id === projectCarKey(x.item)) ? 'with its car' : 'a livery'}`
         : { templates: 'A car', liveries: 'Saved designs', assets: 'Artwork & shapes', fonts: 'Fonts' }[x.bucket];
   return `<button class="gr-card ar-card ${arrivalPick === key ? 'on' : ''}" data-arrival-pick="${e(key)}" aria-pressed="${arrivalPick === key}">${arrivalPicture(x)}<span class="ar-ribbon">${x.clash ? 'New · name in use' : 'New'}</span><span class="gr-card-body"><strong>${e(x.item.name)}</strong><small class="gr-card-car">${e(where)}</small></span></button>`;
 }

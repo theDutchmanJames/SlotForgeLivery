@@ -391,7 +391,9 @@ function trueSizeHTML(p, key, { masks = true, design = true } = {}) {
 // ------------------------------------------------------ SlotForge Decals
 // Text, images, decals and shapes become SVG decals at their real size.
 function decalScale() {
-  const n = Number(String(project?.template.scale || '').split(':')[1]);
+  const scale = String(project?.template.scale || '').trim();
+  if (/^HO$/i.test(scale)) return 87;
+  const n = Number(scale.split(':')[1]);
   return Number.isFinite(n) && n > 0 ? n : 32;
 }
 function decalUnits() {

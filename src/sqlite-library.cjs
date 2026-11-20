@@ -76,6 +76,7 @@ class SQLiteLibrary {
         db.prepare('PRAGMA user_version').get().user_version !== VERSION
       )
         throw Error('Unsupported Livery database. Keep this file and use a compatible app.');
+      db.exec('CREATE INDEX IF NOT EXISTS blob_ref_hash ON blob_refs(hash)');
       return db;
     } catch (e) {
       db.close();
@@ -94,6 +95,11 @@ class SQLiteLibrary {
   async load() {
     try {
       let warning;
+      const opened = this.file + '.opened';
+      if (!fs.existsSync(this.file) && fs.existsSync(opened))
+        throw Error(
+          'Your library database is missing. Livery did not bring back the older copy from before it moved to SQLite. Bring back a backup instead.'
+        );
       if (!fs.existsSync(this.file)) {
         let original;
         try {
@@ -118,6 +124,7 @@ class SQLiteLibrary {
       if (this.sql('PRAGMA quick_check').get().quick_check !== 'ok')
         throw Error('Library database integrity check failed.');
       this.blocked = false;
+      if (!fs.existsSync(opened)) fs.writeFileSync(opened, new Date().toISOString());
       return { ...this.catalog(), warning };
     } catch (e) {
       this.db?.close();

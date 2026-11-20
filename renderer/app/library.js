@@ -113,8 +113,11 @@ function cardPreview(item, bucket) {
     );
   return '<div class="library-preview">' + packagePreview(item, bucket, item.id, true) + '</div>';
 }
+// Pictures being loaded: a second call while the first runs does not load them twice.
+const previewsLoading = new WeakSet();
 async function loadCardPreviews() {
-  const targets = [...document.querySelectorAll('[data-preview-id]')];
+  const targets = [...document.querySelectorAll('[data-preview-id]')].filter(el => !previewsLoading.has(el));
+  targets.forEach(el => previewsLoading.add(el));
   // Two thumbnails at a time prevents large imports from flooding the canvas renderer.
   async function next() {
     while (targets.length) {
@@ -195,7 +198,7 @@ function carUsage(template) {
       ? false
       : p.template
         ? p.template.id === template.id || p.template.name === template.name
-        : p.storageSummary?.templateName === template.name
+        : p.storageSummary?.templateId === template.id || p.storageSummary?.templateName === template.name
   ).length;
   return count ? `Used by ${count} project${count === 1 ? '' : 's'}` : 'Not used yet';
 }
@@ -260,15 +263,18 @@ function editLibraryDetails(id) {
   const tab = libraryTab,
     item = store[tab].find(a => a.id === id);
   if (!item) return;
-  const query = $('#library-search').value,
-    sort = $('#library-sort').value,
-    scroll = $('#library-items').scrollTop;
+  // Opened from a library list or from a car page in the Garage.
+  const section = garageOpen ? garageSection : null,
+    query = $('#library-search')?.value ?? '',
+    sort = $('#library-sort')?.value,
+    scroll = $('#library-items')?.scrollTop || 0;
   const back = () => {
+    if (section && !LIBRARY_SECTIONS.includes(section)) return showGarage(section);
     openLibrary(tab);
-    $('#library-search').value = query;
-    $('#library-sort').value = sort;
+    if ($('#library-search')) $('#library-search').value = query;
+    if (sort && $('#library-sort')) $('#library-sort').value = sort;
     renderLibraryItems();
-    $('#library-items').scrollTop = scroll;
+    if ($('#library-items')) $('#library-items').scrollTop = scroll;
   };
   const field = (id, label, value, max = 180) =>
     `<div class="field"><label for="${id}">${label}</label><input id="${id}" maxlength="${max}" value="${e(value || '')}"></div>`;
@@ -311,6 +317,9 @@ function editLibraryDetails(id) {
       item.notes = $('#library-detail-notes').value.slice(0, 12000);
     }
     item.updated = new Date().toISOString();
+    // A save while the window was open may have put a light copy in the library: put this one back.
+    const at = store[tab].findIndex(a => a.id === id);
+    if (at >= 0 && store[tab][at] !== item) store[tab][at] = item;
     scheduleSave();
     closeDialog();
     toast('Library details saved.');

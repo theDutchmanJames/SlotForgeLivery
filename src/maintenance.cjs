@@ -24,7 +24,9 @@ async function writeBackup({ folder, data, keep = 10 }, assertTarget) {
   if (text.length > 180 * 1024 * 1024) throw new Error('The library exceeds 180 MB; export it in parts instead.');
   const file = path.join(folder, backupName());
   await assertTarget(file);
-  await fs.writeFile(file, text);
+  const partial = file + '.partial';
+  await fs.writeFile(partial, text);
+  await fs.rename(partial, file);
   const limit = Math.min(100, Math.max(1, Math.round(Number(keep) || 10)));
   const ours = (await fs.readdir(folder)).filter(name => BACKUP_PATTERN.test(name)).sort();
   const removed = ours.slice(0, Math.max(0, ours.length - limit));

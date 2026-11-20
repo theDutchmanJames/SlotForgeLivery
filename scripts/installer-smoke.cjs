@@ -34,7 +34,7 @@ async function launch(executablePath, label) {
   const app = await electron.launch({ executablePath, args: [], env, timeout: 60000 });
   try {
     const page = await app.firstWindow();
-    await page.waitForSelector('#tools button', { timeout: 60000 });
+    await page.waitForSelector('#tools button', { state: 'attached', timeout: 60000 });
     assert.equal(await page.evaluate(() => typeof store), 'object');
   } finally {
     await app.close();

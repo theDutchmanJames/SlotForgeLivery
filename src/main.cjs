@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog, utilityProcess, net, shell } = require('electron');
+const { app, BrowserWindow, Menu, ipcMain, dialog, utilityProcess, net, shell } = require('electron');
 const maintenance = require('./maintenance.cjs');
 const { UpdateCheck } = require('./update-check.cjs');
 const { LIVERY } = require('./update-names.cjs');
@@ -8,6 +8,7 @@ const path = require('node:path');
 const root = path.join(__dirname, '..');
 let mainWindow;
 let rendererReady = false,
+  closeAsked = false,
   startupTimer,
   recoveryOpen = false;
 async function recoverWindow(reason) {
@@ -318,7 +319,10 @@ ipcMain.handle('pdf:save', async (_, { name, html }) => {
   if (result.canceled) return false;
   await assertExportTarget(result.filePath, app.getPath('userData'));
   const win = safeWindow({ show: false, width: 1100, height: 800 });
-  const temp = path.join(app.getPath('userData'), 'workshop-report.html');
+  const temp = path.join(
+    app.getPath('userData'),
+    `workshop-report-${Date.now()}-${Math.random().toString(36).slice(2)}.html`
+  );
   try {
     await fs.writeFile(temp, html);
     await win.loadFile(temp);
@@ -338,7 +342,18 @@ ipcMain.handle('pdf:save', async (_, { name, html }) => {
     await fs.unlink(temp).catch(() => {});
   }
 });
+// No default menu: it brought Reload (Ctrl+R, which skips the last save) and the developer tools.
+// macOS keeps an app and an Edit menu so copy and paste work in text fields.
+function appMenu() {
+  if (process.platform !== 'darwin') return null;
+  return Menu.buildFromTemplate([
+    { role: 'appMenu' },
+    { label: 'Edit', submenu: [{ role: 'cut' }, { role: 'copy' }, { role: 'paste' }, { role: 'selectAll' }] },
+    { role: 'windowMenu' }
+  ]);
+}
 app.whenReady().then(() => {
+  Menu.setApplicationMenu(appMenu());
   earlyLoad = libraryStorage.load();
   startUpdateCheck();
   earlyLoad.catch(() => {});
@@ -368,6 +383,15 @@ app.whenReady().then(() => {
     if (!mainWindow.closing && rendererReady) {
       e.preventDefault();
       mainWindow.webContents.send('app:closing');
+      closeAsked = true;
+    }
+  });
+  // Closing waits for the last save; a window that stops answering after you closed it still closes.
+  // ("Keep editing" after a failed save leaves it open: that window still answers.)
+  mainWindow.on('unresponsive', () => {
+    if (closeAsked && !mainWindow.isDestroyed()) {
+      mainWindow.closing = true;
+      mainWindow.destroy();
     }
   });
   ipcMain.on('app:close-ready', async () => {

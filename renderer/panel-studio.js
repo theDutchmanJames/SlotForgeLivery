@@ -168,7 +168,7 @@
         visible()
           .map(
             a =>
-              `<label class="panel-area-row ${selected.has(a.region.id) ? 'selected' : ''}"><input type="checkbox" data-repair-check="${a.region.id}" ${selected.has(a.region.id) ? 'checked' : ''}><span class="panel-area-dot" style="background:${colour(a)}"></span><span><b>Area ${a.index}</b><small>${a.label || 'Unlabelled'}</small></span><span class="panel-area-state ${a.paintable ? 'paintable' : ''}">${a.paintable ? 'Paintable' : 'Reference'}</span></label>`
+              `<label class="panel-area-row ${selected.has(a.region.id) ? 'selected' : ''}"><input type="checkbox" data-repair-check="${a.region.id}" ${selected.has(a.region.id) ? 'checked' : ''}><span class="panel-area-dot" style="background:${colour(a)}"></span><span><b>Area ${a.index}</b><small>${M.escape(a.label || 'Unlabelled')}</small></span><span class="panel-area-state ${a.paintable ? 'paintable' : ''}">${a.paintable ? 'Paintable' : 'Reference'}</span></label>`
           )
           .join('') || '<p class="note">No matching areas.</p>';
       list.scrollTop = scroll;

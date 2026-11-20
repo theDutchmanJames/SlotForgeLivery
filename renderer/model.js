@@ -802,12 +802,12 @@
       const cx = to.x + (n.x + n.w / 2 - from.x) * sx,
         cy = to.y + (n.y + n.h / 2 - from.y) * sy,
         preserve = ['text', 'image', 'vector', 'ellipse'].includes(n.kind);
-      n.w *= preserve ? Math.min(sx, sy) : sx;
-      n.h *= preserve ? Math.min(sx, sy) : sy;
+      n.w *= preserve ? Math.sqrt(sx * sy) : sx;
+      n.h *= preserve ? Math.sqrt(sx * sy) : sy;
       n.x = cx - n.w / 2;
       n.y = cy - n.h / 2;
       if (n.kind === 'line') {
-        const scale = Math.min(sx, sy);
+        const scale = Math.sqrt(sx * sy);
         n.lineStripes = n.lineStripes.map(s => ({ ...s, width: s.width * scale }));
         n.lineGap *= scale;
       }

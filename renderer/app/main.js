@@ -3,7 +3,11 @@
 // Load order is fixed in index.html.
 'use strict';
 document.addEventListener('keydown', ev => {
-  if (settingsOpen || ev.target.matches('input,textarea,select') || $('#dialog').open) return;
+  // Studio keys only work in the Paint Studio, not on the Garage, Setup, Print pack or Start page.
+  const elsewhere = ['garage-open', 'setup-open', 'pack-open', 'start-open'].some(c =>
+    document.body.classList.contains(c)
+  );
+  if (settingsOpen || elsewhere || ev.target.matches('input,textarea,select') || $('#dialog').open) return;
   const mod = ev.ctrlKey || ev.metaKey,
     k = ev.key.toLowerCase();
   if (mod && k === 's') {
@@ -15,11 +19,13 @@ document.addEventListener('keydown', ev => {
   }
   if (mod && k === 'z') {
     ev.preventDefault();
+    if (drag) return;
     actions[ev.shiftKey ? 'redo' : 'undo']();
     return;
   }
   if (mod && k === 'y') {
     ev.preventDefault();
+    if (drag) return;
     actions.redo();
     return;
   }
@@ -75,14 +81,19 @@ document.addEventListener('keydown', ev => {
   if (artworkSelection().length && ['arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(k)) {
     ev.preventDefault();
     if (artworkSelection().some(l => l.locked)) return toast('Unlock the layer to move it.');
-    const step = ev.shiftKey ? 10 : 1;
-    mutate(() =>
-      moveArtwork(
-        M.clone(artworkSelection()),
-        k === 'arrowleft' ? -step : k === 'arrowright' ? step : 0,
-        k === 'arrowup' ? -step : k === 'arrowdown' ? step : 0
-      )
-    );
+    const step = ev.shiftKey ? 10 : 1,
+      nudge = () =>
+        moveArtwork(
+          M.clone(artworkSelection()),
+          k === 'arrowleft' ? -step : k === 'arrowright' ? step : 0,
+          k === 'arrowup' ? -step : k === 'arrowdown' ? step : 0
+        );
+    // Holding the key repeats the nudge within one undo step.
+    if (ev.repeat) {
+      nudge();
+      changed();
+      render();
+    } else mutate(nudge);
     return;
   }
 

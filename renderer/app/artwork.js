@@ -3,16 +3,16 @@
 // Load order is fixed in index.html.
 'use strict';
 function moveArtwork(originals, dx, dy) {
-  const ids = new Set(originals.map(l => l.id));
+  const ids = new Set(originals.map(l => l.id)),
+    byId = new Map(layers().map(l => [l.id, l])),
+    whole = new Map();
+  for (const l of layers()) if (l.groupId) whole.set(l.groupId, (whole.get(l.groupId) ?? true) && ids.has(l.id));
   for (const original of originals) {
-    const l = layers().find(l => l.id === original.id);
+    const l = byId.get(original.id);
     if (!l) continue;
-    const complete =
-        original.groupId &&
-        layers()
-          .filter(a => a.groupId === original.groupId)
-          .every(a => ids.has(a.id)),
-      copy = M.clone(original);
+    // Only the position and group pose change, so a shallow copy is enough.
+    const complete = original.groupId && whole.get(original.groupId),
+      copy = { ...original, groupPose: original.groupPose ? { ...original.groupPose } : undefined };
     M.translateLayer(copy, dx, dy, !!complete);
     l.x = copy.x;
     l.y = copy.y;
@@ -119,6 +119,7 @@ function replaceScaledArtwork(copies) {
   project.views[currentView] = layers().map(l => byId.get(l.id) || l);
 }
 function scaleSelectedArtwork(factor) {
+  if (artworkSelection().some(l => l.locked)) return toast('Unlock the layer to resize it.');
   const copies = M.scaleArtwork(artworkSelection(), factor);
   mutate(() => replaceScaledArtwork(copies));
 }

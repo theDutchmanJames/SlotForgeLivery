@@ -249,6 +249,8 @@ async function goToStart() {
   if (setup) leaveSetup();
   closeDialog();
   if (project) closeOpenProject(project.id);
+  startLast = null;
+  startSignature = '';
   multiSelected.clear();
   scheduleSave();
   render();

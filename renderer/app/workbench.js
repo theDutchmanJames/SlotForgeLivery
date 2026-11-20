@@ -134,10 +134,11 @@ function standaloneLayers() {
   dock.innerHTML = `<h3>Layers</h3><div class="layer-list"><div class="layer-row locked">${icon('eye')}Body details ${icon('lock')}</div>${artworkRows()}${paintLayerRows()}<div class="layer-row ${!selected && !paintRegions().length ? 'active' : ''}"><button class="layer-name" data-action="base">${icon('paint')}Base paint</button></div></div>`;
   return dock;
 }
+let layerScroll = 0;
 function placeLayers(dock) {
   layersPlaced = true;
   const panel = $('#layers-panel'),
-    scroll = panel.querySelector('.layer-list')?.scrollTop || 0,
+    scroll = layerScroll,
     team = liveryColours();
   const h3 = dock.querySelector('h3');
   if (h3)
@@ -155,7 +156,9 @@ function placeLayers(dock) {
   panel.replaceChildren(dock);
   panel.hidden = false;
   const list = panel.querySelector('.layer-list');
-  if (list) list.scrollTop = scroll;
+  if (!list) return;
+  if (scroll) list.scrollTop = scroll;
+  list.addEventListener('scroll', () => (layerScroll = list.scrollTop), { passive: true });
 }
 
 // -------------------------------------------------------- Workshop tab

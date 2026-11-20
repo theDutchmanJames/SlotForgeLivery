@@ -44,7 +44,7 @@ const { _electron: electron } = require('playwright');
     const page = await app.firstWindow(),
       errors = [];
     page.on('pageerror', e => errors.push(e.message));
-    await page.waitForSelector('#tools button');
+    await page.waitForSelector('#tools button', { state: 'attached' });
     assert(page.url().includes('app.asar'), 'Launch packaged source');
     assert.equal(await page.evaluate(() => libraryClient.enabled), true, 'Packaged SQLite worker starts');
     assert.deepEqual(
@@ -53,11 +53,12 @@ const { _electron: electron } = require('playwright');
       'Packaged migration preserves existing content'
     );
     assert.equal(
-      await page.locator('.version').innerText(),
+      (await page.locator('#app-menu .version').textContent()).trim(),
       `v${require('../package.json').version}`,
       'Official version label is packaged'
     );
-    await page.locator('[data-action="settings"]').click();
+    // Settings and Add a car live in the ≡ menu, which is closed.
+    await page.evaluate(() => actions.settings());
     await page.locator('[data-theme-pick="forest"]').click();
     assert.equal(await page.locator('html').getAttribute('data-theme'), 'forest');
     await page.locator('#edit-theme-colors').click();
@@ -68,15 +69,11 @@ const { _electron: electron } = require('playwright');
     await page.locator('#save-theme-colors').click();
     assert.equal(await page.evaluate(() => store.settings.customColors.accent), '#ffaa00');
     await page.locator('#settings-back').click();
-    await page.locator('[data-action="add-car"]').first().click();
+    await page.evaluate(() => actions['add-car']());
     await page.locator('#car-name').fill('Native release verification');
     await page.locator('#choose-svg').click({ noWaitAfter: true });
     await page.locator('#car-file').setInputFiles(path.resolve('tests/fixtures/car.eps'));
-    await page.waitForFunction(
-      () => preparing && activeView()?.vectorSource?.regions.length > 0,
-      {},
-      { timeout: 45000 }
-    );
+    await page.waitForFunction(() => activeView()?.vectorSource?.regions.length > 0, {}, { timeout: 45000 });
     await page.evaluate(() => flushSave());
     assert.equal(fs.readFileSync(legacy, 'utf8'), originalBytes, 'Migration original remains unchanged');
     assert(fs.existsSync(path.join(env.PAINTSHOP_TEST_DATA, 'paintshop-library.sqlite')));
@@ -84,7 +81,7 @@ const { _electron: electron } = require('playwright');
     await app.close();
     app = await electron.launch({ executablePath, args: [], env, timeout: 60000 });
     const reopened = await app.firstWindow();
-    await reopened.waitForSelector('#tools button');
+    await reopened.waitForSelector('#tools button', { state: 'attached' });
     assert.equal(await reopened.evaluate(() => project.template.name), 'Native release verification');
     assert.equal(await reopened.evaluate(() => store.assets[0].name), 'Preserved shape');
     console.log('PASS: packaged SQLite migration/worker/save/reopen, themes and bundled EPS import');

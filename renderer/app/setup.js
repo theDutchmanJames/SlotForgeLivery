@@ -246,7 +246,7 @@ function footHTML() {
     next = { 3: 'Next: name the parts', 4: 'Next: size', 5: 'Save the car and start painting' }[s.step];
   return `<div class="setup-foot">${s.step > 3 ? `<button data-setup-back>${icon('back')}Back</button>` : `<button data-setup-cancel>Cancel</button>`}<span class="setup-grow"></span>${
     s.step === 4 ? '<button class="ghost" data-setup-skip>Skip: one Body is fine</button>' : ''
-  }<span class="setup-foot-note">${s.step === 5 ? '' : 'Nothing is saved until the last step.'}</span><button class="primary setup-next" data-setup-next ${s.step === 3 && !painted().length ? 'disabled title="Choose at least one panel"' : ''}>${s.step === 5 ? icon('brush') : ''}${next}${s.step < 5 ? icon('chev') : ''}</button></div>`;
+  }<span class="setup-foot-note">${s.step === 5 ? '' : 'Cancel keeps the car, so you can finish it later.'}</span><button class="primary setup-next" data-setup-next ${s.step === 3 && !painted().length ? 'disabled title="Choose at least one panel"' : ''}>${s.step === 5 ? icon('brush') : ''}${next}${s.step < 5 ? icon('chev') : ''}</button></div>`;
 }
 function renderSetup() {
   if (!setup) return;

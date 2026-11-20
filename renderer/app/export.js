@@ -79,7 +79,7 @@ async function preparePrintableReport(html) {
   const doc = new DOMParser().parseFromString(html, 'text/html');
   // Painting-order pictures are small on the page, so they rasterise smaller.
   for (const svg of doc.querySelectorAll('.car > svg, .step-views svg')) {
-    if (!svg.querySelector('[id^="warp-"],style')) continue;
+    if (!svg.querySelector('[id^="warp-"],[id*="-warp-"],style')) continue;
     const [width, height] = svg.closest('.step-views') ? [1200, 720] : [3000, 1800];
     svg.setAttribute('width', String(width));
     svg.setAttribute('height', String(height));
