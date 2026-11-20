@@ -42,6 +42,7 @@ async function run() {
     'Start page',
     'Garage',
     'Add a car',
+    'Stock cars',
     'Import & Export',
     'Settings',
     'Help here\nF1',

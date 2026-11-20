@@ -11,3 +11,4 @@ package-lock.json
 *.html
 *.yml
 *.json
+renderer/stock-cars.js

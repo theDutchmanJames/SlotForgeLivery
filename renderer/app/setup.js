@@ -94,6 +94,7 @@ function setupFit() {
   setup.vb = { x: b.x - b.w * 0.06, y: b.y - b.h * 0.1, w: Math.max(50, b.w * 1.12), h: Math.max(30, b.h * 1.2) };
 }
 function showSetup() {
+  if (showOpen) leaveShowroom();
   hideGarage();
   leavePack();
   closeDialog();

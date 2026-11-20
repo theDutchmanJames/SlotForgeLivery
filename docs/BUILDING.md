@@ -55,7 +55,9 @@ Desktop tests use Playwright and Electron in isolated `test-output/` profiles. T
 
 `scripts/package-smoke.cjs` starts the unpacked native build and imports an EPS through the bundled converters. This catches missing packaged binaries/WASM files as well as startup errors. GitHub runs it on each native platform before publishing. `scripts/installer-smoke.cjs` then checks the installer and portable app: on Windows it silently installs the setup into a temporary folder, starts it, uninstalls it and starts the portable exe; on macOS and Linux it confirms that the DMG, ZIP, .deb and AppImage contain the app. See `TESTING.md` for the earlier detailed review record.
 
-The README demonstration car is original test artwork. It is not installed as a user template. To regenerate the application icon, run `npm run build:icons`.
+The README demonstration car is original test artwork. It is not installed as a user template.
+
+The Showroom's nine stock cars live in `renderer/stock-cars.js`, which the app loads only when the Showroom opens. Rebuild it with `node scripts/build-stock-cars.cjs [path to livery-templates]` after the cars change in SlotForge Decal Creator: it takes the left, right and top views from `SlotForge-Stock-Cars.sfpaint` and the angled view from `photo-angled/SlotForge-Angled-Cars.sfpaint`, and never changes the source folder. `tests/showroom.cjs` covers the Showroom. To regenerate the application icon, run `npm run build:icons`.
 
 ## Corresponding source and third-party builds
 

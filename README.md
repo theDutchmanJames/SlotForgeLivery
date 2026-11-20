@@ -273,7 +273,9 @@ AppImage permission labels vary between Linux desktops. Some distributions need 
 
 ### Your first livery
 
-No artwork yet? Choose **Try the sample car** on the Start page (or in **Add car**) to walk through every step with a ready-made car.
+No drawing of your own? Open the **Showroom** (**Pick a stock car** on the Start page, **A stock car** in **Add a car**, or **≡ → Stock cars**). It has nine SlotForge race cars (GT3, Classic GT, Touring Car, Group C Prototype, Modern Prototype, Classic Formula, Modern Formula, Rally Hatchback and Stock Car), each with a left and right side, the top and an angled view, and the panels already named. Choose one, name the livery and the scale of your model, and paint straight away. The car is added to your Garage the first time you paint it.
+
+To learn how a car of your own is prepared, **try the sample car** on the Start page (or in **Add a car**): it walks through every step.
 
 1. Choose **Add car**, name the car and select a view.
 2. Import vector artwork, or choose a photograph and trace the areas you need.

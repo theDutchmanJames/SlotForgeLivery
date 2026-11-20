@@ -71,7 +71,7 @@ async function run() {
   await page.locator('#dialog [data-action="close-dialog"]').first().click();
 
   // The sample car, then back to the Start page from the menu.
-  await page.locator('#start-page .st-hero [data-action="sample-car"]').click();
+  await page.locator('#start-page .st-sample-note [data-action="sample-car"]').click();
   await page.waitForSelector('#setup-page:not([hidden])');
   await page.evaluate(() => {
     setup.entries.forEach(a => (a.paint = true));

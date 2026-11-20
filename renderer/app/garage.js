@@ -73,6 +73,7 @@ const statusPill = p =>
 
 // ------------------------------------------------------------------ Show and hide
 function showGarage(section = garageSection) {
+  if (showOpen) leaveShowroom();
   if (setup) leaveSetup();
   leavePack();
   if (settingsOpen) {

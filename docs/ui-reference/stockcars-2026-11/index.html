@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Stock cars</title>
+<style>
+@font-face{font-family:'SF Cond';src:url('../../../renderer/fonts/barlowcondensed/BarlowCondensed-BoldItalic.ttf') format('truetype');font-weight:700;font-style:italic}
+@font-face{font-family:'SF Mono';src:url('../../../renderer/fonts/robotomono/RobotoMono[wght].ttf') format('truetype');font-weight:100 700}
+:root{--bg:#171b21;--panel:#222831;--panel2:#1c2129;--ink:#e8e6e1;--ink2:#c4c8ce;--muted:#98a0ab;--faint:#6b7380;--line:#343b47;--line2:#2b313b;
+  --accent:#e5484d;--accent-text:#f06b6f;--ok:#3ecf8e;--board:#e9edf1;--cond:'SF Cond','Bahnschrift',sans-serif;--mono:'SF Mono',Consolas,monospace}
+[data-theme=light]{--bg:#eef0f3;--panel:#fff;--panel2:#f6f7f9;--ink:#1c2129;--ink2:#3a414c;--muted:#5f6875;--faint:#8a929d;--line:#d5d9df;--line2:#e3e6ea;--accent-text:#c9363b}
+*{box-sizing:border-box}html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:13px/1.5 'Segoe UI',system-ui,sans-serif;display:flex;flex-direction:column}
+button{font:inherit;color:inherit;cursor:pointer}
+.grow{flex:1}.muted{color:var(--muted)}
+.eyebrow{font:600 10px/1 'Segoe UI';letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
+.switch{flex:none;display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;padding:9px 18px;background:#0d1014;color:#e8e6e1;border-bottom:1px solid #2b313b}
+.switch b{font:600 10.5px 'Segoe UI';letter-spacing:.14em;text-transform:uppercase;color:#98a0ab}
+.switch p{margin:0 0 0 auto;font-size:12px;color:#8a929d;max-width:640px}
+.seg{display:inline-flex;gap:2px;padding:3px;border:1px solid #343b47;border-radius:9px;background:#171b21}
+.seg button{height:26px;padding:0 11px;border:0;border-radius:6px;background:none;color:#c4c8ce;font-size:12.5px}
+.seg button[aria-pressed=true]{background:#e5484d;color:#fff}
+.seg.in{border-color:var(--line);background:var(--panel2)}.seg.in button{color:var(--ink2)}
+.stage{flex:1;min-height:820px;display:flex}
+.opt{flex:1;display:none;min-width:0;flex-direction:column}.opt.on{display:flex}
+.state{display:none;flex:1;min-height:0;flex-direction:column;position:relative}.state.on{display:flex}
+.btn{height:32px;display:inline-flex;align-items:center;gap:7px;padding:0 12px;border:1px solid var(--line);border-radius:8px;background:var(--panel);font-size:12.5px;white-space:nowrap}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+.btn.big{height:40px;padding:0 18px;font-size:14px}
+.callout{position:absolute;font:600 10.5px 'Segoe UI';letter-spacing:.06em;text-transform:uppercase;color:#fff;background:#4c9aff;border-radius:999px;padding:3px 9px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.25);z-index:9}
+.topbar{height:52px;flex:none;display:flex;align-items:center;gap:10px;padding:0 12px;border-bottom:1px solid var(--line2);background:var(--panel2)}
+.logo{width:28px;height:28px;border-radius:7px;background:var(--accent);display:grid;place-items:center;color:#fff;font:italic 700 15px var(--cond)}
+.crumbs strong{font:italic 700 19px/1 var(--cond);text-transform:uppercase}
+h1,h2,h3{font-family:var(--cond);font-style:italic;font-weight:700;text-transform:uppercase;margin:0}
+.chip{display:inline-flex;align-items:center;padding:1px 8px;border-radius:999px;border:1px solid var(--line);font-size:11px;color:var(--ink2);background:var(--panel2)}
+.chip.sf{color:#fff;background:var(--accent);border-color:var(--accent)}
+img.car{display:block;width:100%;height:100%;object-fit:contain}
+/* A: showroom */
+.show{flex:1;display:grid;grid-template-columns:1fr 380px;min-height:0}
+.show-main{padding:22px 28px;overflow:auto;display:flex;flex-direction:column;gap:16px}
+.show-main h1{font-size:40px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.car-card{border:1px solid var(--line);border-radius:14px;background:var(--panel);overflow:hidden;text-align:left;padding:0;display:flex;flex-direction:column}
+.car-card.on{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
+.car-card .pic{height:150px;background:var(--board);padding:10px 18px}
+.car-card .bd{padding:9px 12px;display:flex;align-items:center;gap:8px}
+.car-card b{font-size:13.5px}
+.side{border-left:1px solid var(--line2);background:var(--panel);display:flex;flex-direction:column;min-height:0}
+.side-pic{height:210px;background:var(--board);padding:14px 22px;flex:none}
+.side-bd{padding:16px 18px;display:flex;flex-direction:column;gap:12px;overflow:auto}
+.views{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.views div{background:var(--board);border-radius:8px;height:62px;padding:5px;position:relative}
+.views small{position:absolute;left:6px;bottom:3px;font-size:10px;color:#5f6875}
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-size:11.5px;color:var(--muted)}
+.field input,.field select{height:34px;border:1px solid var(--line);border-radius:8px;background:var(--panel2);color:var(--ink);padding:0 10px;font:inherit}
+.dim{position:absolute;inset:0;background:rgba(8,10,14,.6)}
+.dialog{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:720px;background:var(--panel);border:1px solid var(--line);border-radius:16px;box-shadow:0 24px 60px rgba(0,0,0,.5);overflow:hidden}
+.dialog .hd{padding:18px 22px 12px;border-bottom:1px solid var(--line2)}
+.dialog .hd h2{font-size:24px}
+.choices{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;padding:16px 22px 20px}
+.choice{border:1px solid var(--line);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:6px;background:var(--panel2)}
+.choice.best{border-color:color-mix(in srgb,var(--accent) 55%,var(--line))}
+.choice .pic{height:70px;background:var(--board);border-radius:8px;padding:6px}
+.choice b{font-size:13.5px}.choice small{color:var(--muted)}
+/* B: garage */
+.garage{flex:1;display:grid;grid-template-columns:240px 1fr 330px;min-height:0;position:relative}
+.rail{border-right:1px solid var(--line2);background:var(--panel2);padding:12px 10px;display:flex;flex-direction:column;gap:2px}
+.ri{display:flex;align-items:center;gap:9px;min-height:32px;padding:4px 9px;border-radius:8px;color:var(--ink2)}
+.ri.on{background:color-mix(in srgb,var(--accent) 14%,var(--panel));box-shadow:inset 3px 0 0 var(--accent);color:var(--ink)}
+.ri small{margin-left:auto;font:11px var(--mono);color:var(--faint)}
+.ri .th{width:34px;height:20px;background:var(--board);border-radius:4px;padding:1px}
+.rail .eyebrow{padding:12px 9px 6px}
+.main{padding:20px 24px;display:flex;flex-direction:column;gap:14px;overflow:auto}
+.main h1{font-size:34px}
+.cat{display:flex;flex-direction:column;gap:8px}
+.row3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.detail{border-left:1px solid var(--line2);background:var(--panel);display:flex;flex-direction:column}
+.start{padding:30px 48px;display:flex;flex-direction:column;gap:18px;overflow:auto;flex:1}
+.start h1{font-size:54px;line-height:.95}
+.strip{display:grid;grid-template-columns:repeat(9,1fr);gap:8px}
+.strip button{border:1px solid var(--line);border-radius:10px;background:var(--panel);padding:0;overflow:hidden;text-align:left}
+.strip .pic{height:70px;background:var(--board);padding:4px 6px}
+.strip span{display:block;padding:5px 7px;font-size:11.5px}
+</style>
+</head>
+<body>
+<div class="switch">
+  <b>Stock cars</b>
+  <span class="seg" id="opt"><button data-v="A" aria-pressed="true">A · Showroom</button><button data-v="B">B · In the Garage</button></span>
+  <span class="seg" id="sub"></span>
+  <span class="seg" id="theme"><button data-v="dark" aria-pressed="true">Dark</button><button data-v="light">Light</button></span>
+  <p id="say"></p>
+</div>
+<div class="stage">
+<!-- ===================== A ===================== -->
+<section class="opt on" id="A">
+  <header class="topbar"><span class="logo">L</span><span class="crumbs"><strong>Stock cars</strong></span><span class="grow"></span><span class="btn">Back</span></header>
+  <div class="state on" data-s="room">
+  <div class="show">
+    <main class="show-main">
+      <div><span class="eyebrow">No drawing of your own? Start from one of ours</span><h1>Showroom</h1><p class="muted" style="margin:4px 0 0">Nine race cars, each with a left and right side, the top and a front three-quarter view, ready to paint.</p></div>
+      <span class="seg in"><button aria-pressed="true">All 9</button><button>GT &amp; touring</button><button>Prototypes</button><button>Formula</button><button>Rally &amp; stock</button></span>
+      <div class="grid" id="room"></div>
+    </main>
+    <aside class="side">
+      <div class="side-pic"><img class="car" src="img/gt-angled.svg" alt=""></div>
+      <div class="side-bd"><div style="display:flex;align-items:center;gap:8px"><h2 style="font-size:26px">GT3</h2><span class="chip sf">SlotForge</span></div>
+        <div class="views"><div><img class="car" src="img/gt-left.svg" alt=""><small>Left</small></div><div><img class="car" src="img/gt-left.svg" alt="" style="transform:scaleX(-1)"><small style="transform:none">Right</small></div><div><img class="car" src="img/gt-top.svg" alt=""><small>Top</small></div></div>
+        <p class="muted" style="margin:0;font-size:12.5px">5 panels on each side, 5 on top and 8 in the angled view, already named: paint them straight away.</p>
+        <div class="field"><label>Livery name</label><input value="GT3 · Livery 1"></div>
+        <div class="field"><label>Scale of your model</label><select><option>1:32</option><option>1:24</option><option>1:43</option><option>HO</option></select></div>
+        <button class="btn primary big">Start painting</button>
+        <small class="muted">The car is added to your Garage the first time you use it.</small>
+      </div>
+    </aside>
+  </div>
+  <span class="callout" style="left:28px;bottom:16px">A page to browse the cars: pick one, name the livery, paint</span>
+  </div>
+  <div class="state" data-s="add">
+    <header class="topbar" style="display:none"></header>
+    <div style="flex:1;background:var(--bg)"></div>
+    <div class="dim"></div>
+    <div class="dialog"><div class="hd"><span class="eyebrow">Step 1 of 5</span><h2>Add a car</h2><p class="muted" style="margin:2px 0 0">Bring your own drawing, or start from one of ours.</p></div>
+      <div class="choices">
+        <div class="choice"><div class="pic" style="display:grid;place-items:center;color:#5f6875;font-size:28px">⟐</div><b>Import vector artwork</b><small>SVG, EPS or PDF: click the panels you want to paint.</small></div>
+        <div class="choice"><div class="pic" style="display:grid;place-items:center;color:#5f6875;font-size:28px">▣</div><b>Trace a photograph</b><small>PNG, JPG or WebP, traced by hand.</small></div>
+        <div class="choice best"><div class="pic"><img class="car" src="img/touring-angled.svg" alt=""></div><b>A stock car</b><small>Nine ready cars with four views. Opens the Showroom.</small></div>
+      </div>
+    </div>
+    <span class="callout" style="left:28px;bottom:16px">Reached from Add a car and the Start page</span>
+  </div>
+</section>
+<!-- ===================== B ===================== -->
+<section class="opt" id="B">
+  <header class="topbar"><span class="logo">L</span><span class="crumbs"><strong>Garage</strong></span><span class="grow"></span></header>
+  <div class="state on" data-s="garage">
+  <div class="garage">
+    <aside class="rail"><span class="ri">Recent<small>2</small></span><span class="eyebrow">Your cars</span><span class="ri">Porsche 917K<small>1</small></span><span class="eyebrow">Stock cars · SlotForge</span><span class="ri on">All stock cars<small>9</small></span><span class="ri"><span class="th"><img class="car" src="img/gt-left.svg" alt=""></span>GT3</span><span class="ri"><span class="th"><img class="car" src="img/group-c-left.svg" alt=""></span>Group C</span><span class="ri"><span class="th"><img class="car" src="img/modern-formula-left.svg" alt=""></span>Modern Formula</span><span class="ri" style="color:var(--faint)">+ 6 more</span><span class="eyebrow">Reuse</span><span class="ri">Saved designs</span><span class="ri">Artwork &amp; shapes</span></aside>
+    <main class="main">
+      <div><span class="eyebrow">Built in · always here</span><h1>Stock cars</h1><p class="muted" style="margin:4px 0 0">Ready to paint, with four views. A stock car becomes yours the moment you start a livery on it.</p></div>
+      <div class="cat" id="cats"></div>
+    </main>
+    <aside class="detail"><div class="side-pic"><img class="car" src="img/group-c-angled.svg" alt=""></div><div class="side-bd"><div style="display:flex;align-items:center;gap:8px"><h2 style="font-size:24px">Group C Prototype</h2><span class="chip sf">SlotForge</span></div><div class="views"><div><img class="car" src="img/group-c-left.svg" alt=""><small>Left</small></div><div><img class="car" src="img/group-c-left.svg" alt="" style="transform:scaleX(-1)"><small>Right</small></div><div><img class="car" src="img/group-c-top.svg" alt=""><small>Top</small></div></div><p class="muted" style="margin:0;font-size:12.5px">Panels named and ready. Glass, wheels and lights keep their colours.</p><button class="btn primary big">New livery on this car</button><button class="btn">Use the angled view only</button></div></aside>
+  </div>
+  <span class="callout" style="left:260px;bottom:20px">Always in the Garage, next to your own cars</span>
+  </div>
+  <div class="state" data-s="start">
+    <div class="start">
+      <div><span class="eyebrow">From white kit to your colours</span><h1>Make it your own.</h1></div>
+      <div style="display:flex;gap:8px"><button class="btn primary big">Add your car</button><button class="btn big">Import a shared package</button></div>
+      <div><span class="eyebrow">No drawing to hand? Paint one of ours</span><div class="strip" id="strip" style="margin-top:10px"></div></div>
+      <p class="muted" style="margin:0">Click a car to start a livery on it straight away.</p>
+    </div>
+    <span class="callout" style="left:48px;bottom:20px">The Start page shows the nine cars: one click starts a livery</span>
+  </div>
+</section>
+</div>
+<script>
+const CARS=[['gt','GT3','GT & touring'],['classic-gt','Classic GT','GT & touring'],['touring','Touring Car','GT & touring'],['rally','Rally Hatchback','Rally & stock'],['stock-car','Stock Car','Rally & stock'],['group-c','Group C Prototype','Prototypes'],['modern-prototype','Modern Prototype','Prototypes'],['classic-formula','Classic Formula','Formula'],['modern-formula','Modern Formula','Formula']];
+document.getElementById('room').innerHTML=CARS.map(([k,n,c],i)=>`<button class="car-card ${i===0?'on':''}"><div class="pic"><img class="car" src="img/${k}-angled.svg" alt=""></div><div class="bd"><b class="grow">${n}</b><span class="chip">${c}</span></div></button>`).join('');
+document.getElementById('strip').innerHTML=CARS.map(([k,n])=>`<button><div class="pic"><img class="car" src="img/${k}-angled.svg" alt=""></div><span>${n}</span></button>`).join('');
+const groups=[...new Set(CARS.map(c=>c[2]))];
+document.getElementById('cats').innerHTML=groups.map(g=>`<span class="eyebrow">${g}</span><div class="row3">${CARS.filter(c=>c[2]===g).map(([k,n])=>`<button class="car-card ${k==='group-c'?'on':''}"><div class="pic" style="height:120px"><img class="car" src="img/${k}-left.svg" alt=""></div><div class="bd"><b class="grow">${n}</b><span class="chip">4 views</span></div></button>`).join('')}</div>`).join('');
+const SUB={A:[['room','Showroom'],['add','From Add a car']],B:[['garage','Garage'],['start','Start page']]};
+const SAY={A:'A · Showroom: a page to browse the nine stock cars by kind, with the angled view large. Choose one to see all its views, name the livery and pick the scale, then Start painting. Reached from Add a car (a third choice next to vector and photo) and from the Start page.',
+           B:'B · In the Garage: the stock cars are always there, in their own part of the Garage rail next to your cars, grouped by kind. A stock car has the same details as your own cars, with New livery on this car. The Start page shows the nine as a strip: one click starts a livery.'};
+let opt='A',sub={A:'room',B:'garage'};
+function show(){document.querySelectorAll('.opt').forEach(o=>o.classList.toggle('on',o.id===opt));document.querySelectorAll('#opt button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===opt));document.getElementById('sub').innerHTML=SUB[opt].map(([v,l])=>`<button data-v="${v}" aria-pressed="${sub[opt]===v}">${l}</button>`).join('');document.getElementById('say').textContent=SAY[opt];document.getElementById(opt).querySelectorAll('.state').forEach(s=>s.classList.toggle('on',s.dataset.s===sub[opt]));}
+document.getElementById('opt').onclick=e=>{const v=e.target.closest('button')?.dataset.v;if(v){opt=v;show();}};
+document.getElementById('sub').onclick=e=>{const v=e.target.closest('button')?.dataset.v;if(v){sub[opt]=v;show();}};
+document.getElementById('theme').onclick=e=>{const v=e.target.closest('button')?.dataset.v;if(!v)return;document.documentElement.dataset.theme=v;document.querySelectorAll('#theme button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===v));};
+const q=new URLSearchParams(location.search);if(q.get('opt'))opt=q.get('opt');if(q.get('sub'))sub[opt]=q.get('sub');if(q.get('theme'))document.documentElement.dataset.theme=q.get('theme');
+show();
+</script>
+</body>
+</html>

@@ -9,6 +9,7 @@ const actions = {
   studio: () => showSettings(false),
   settings: () => showSettings(),
   'start-page': () => goToStart().catch(reportError),
+  showroom: () => showShowroom(),
   projects: () => {
     if (settingsOpen) showSettings(false);
     openProjects();

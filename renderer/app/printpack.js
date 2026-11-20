@@ -211,6 +211,7 @@ function fillPaper(host, pg, width) {
 function showPack() {
   if (!project) return toast('Open a livery first.');
   if (setup) leaveSetup();
+  if (showOpen) leaveShowroom();
   hideGarage();
   closeDialog();
   closeMenus();

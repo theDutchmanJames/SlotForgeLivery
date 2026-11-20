@@ -142,6 +142,20 @@ function helpContext() {
       keys: []
     };
   }
+  if (showOpen)
+    return {
+      where: 'Showroom',
+      sub: 'Stock cars',
+      can: [
+        { label: 'Choose a car', point: '.sr-grid', tip: 'Click a car to see its views.' },
+        { label: 'Start painting it', point: '#show-start', tip: 'Name the livery and choose the scale first.' }
+      ],
+      know: [
+        'Every stock car has a left and right side, the top and an angled view, with the panels already named.',
+        'The car is added to your Garage the first time you paint it.'
+      ],
+      keys: []
+    };
   if (garageOpen) {
     const section =
       { recent: 'Recent liveries', cars: 'Your cars', trash: 'The Trash', backups: 'Backups' }[garageSection] ||
@@ -195,6 +209,7 @@ function helpContext() {
       sub: 'No livery open',
       can: [
         { label: 'Try the sample car', run: () => actions['sample-car']() },
+        { label: 'Pick a stock car', run: () => actions.showroom() },
         { label: 'Add your own car', run: () => actions['add-car']() },
         { label: 'Open a shared package', run: () => actions.import() },
         { label: 'Go to the Garage', run: () => actions.projects() }
@@ -608,7 +623,7 @@ window.addEventListener('resize', () => {
 });
 // Help here follows the page: the pages redraw themselves, and the studio calls queueHelp().
 new MutationObserver(queueHelp).observe(document.body, { attributes: true, attributeFilter: ['class'] });
-for (const id of ['garage-page', 'setup-page', 'pack-page', 'settings-page'])
+for (const id of ['garage-page', 'setup-page', 'pack-page', 'settings-page', 'show-page'])
   new MutationObserver(queueHelp).observe(document.getElementById(id), { childList: true });
 
 // The version comes from the app, so it is never out of date.

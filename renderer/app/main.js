@@ -4,7 +4,7 @@
 'use strict';
 document.addEventListener('keydown', ev => {
   // Studio keys only work in the Paint Studio, not on the Garage, Setup, Print pack or Start page.
-  const elsewhere = ['garage-open', 'setup-open', 'pack-open', 'start-open'].some(c =>
+  const elsewhere = ['garage-open', 'setup-open', 'pack-open', 'start-open', 'show-open'].some(c =>
     document.body.classList.contains(c)
   );
   if (settingsOpen || elsewhere || ev.target.matches('input,textarea,select') || $('#dialog').open) return;

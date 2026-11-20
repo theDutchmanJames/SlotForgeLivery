@@ -14,7 +14,9 @@ let startShown = false,
 const startOpen = () =>
   !project &&
   !loadBlocked &&
-  ['garage-page', 'setup-page', 'pack-page', 'settings-page'].every(id => document.getElementById(id).hidden);
+  ['garage-page', 'setup-page', 'pack-page', 'settings-page', 'show-page'].every(
+    id => document.getElementById(id).hidden
+  );
 const liveRecent = () =>
   store.projects
     .filter(p => !p.trashedAt)
@@ -57,7 +59,7 @@ function renderStart() {
 
 // ------------------------------------------------------------------------ First time
 function startFirstHTML() {
-  return `<div class="st-home"><section class="st-hero"><div class="st-hero-text"><span class="st-eyebrow">From white kit to your colours</span><h1>Make it<br>your own.</h1><p>Start from a drawing of your car. Livery turns its panels into parts you can paint, then plans the paints, masks and decals for your workbench.</p><div class="st-row"><button class="primary st-big" data-action="add-car">${icon('carplus')}Add your car</button><button class="st-big" data-action="sample-car">${icon('car')}Try the sample car</button></div></div><div class="st-drop" id="start-drop" role="group" aria-label="Drop a drawing of your car here"><span class="st-drop-icon">${icon('import')}</span><b>Drop a drawing of your car here</b><span class="st-formats"><span>SVG</span><span>EPS</span><span>PDF</span><span>PNG · JPG photo</span></span><small>A side view works best. A photo is traced by hand.</small><button class="quiet" data-action="add-car">or choose a file…</button></div></section>
+  return `<div class="st-home"><section class="st-hero"><div class="st-hero-text"><span class="st-eyebrow">From white kit to your colours</span><h1>Make it<br>your own.</h1><p>Start from a drawing of your car. Livery turns its panels into parts you can paint, then plans the paints, masks and decals for your workbench.</p><div class="st-row"><button class="primary st-big" data-action="add-car">${icon('carplus')}Add your car</button><button class="st-big" data-action="showroom">${icon('car')}Pick a stock car</button></div></div><div class="st-drop" id="start-drop" role="group" aria-label="Drop a drawing of your car here"><span class="st-drop-icon">${icon('import')}</span><b>Drop a drawing of your car here</b><span class="st-formats"><span>SVG</span><span>EPS</span><span>PDF</span><span>PNG · JPG photo</span></span><small>A side view works best. A photo is traced by hand.</small><button class="quiet" data-action="add-car">or choose a file…</button></div></section>
 <section><span class="st-eyebrow">Three ways to start</span><div class="st-starts">${[
     [
       `<span class="st-pic-icon">${icon('carplus')}</span>`,
@@ -66,10 +68,10 @@ function startFirstHTML() {
       `<button class="primary" data-action="add-car">Add your car</button>`
     ],
     [
-      sampleCarPicture(),
-      'The sample car',
-      'A ready coupé at 1:32 to try everything first: livery colours, stripes, numbers and the Print pack.',
-      `<button data-action="sample-car">Try it</button>`
+      '<img class="st-sample" alt="" src="../assets/showroom-gt3.svg">',
+      'A stock car',
+      'Nine race cars from the Showroom, with both sides, the top and an angled view, ready to paint.',
+      `<button data-action="showroom">Open the Showroom</button>`
     ],
     [
       `<span class="st-pic-icon">${icon('share')}</span>`,
@@ -82,7 +84,9 @@ function startFirstHTML() {
       ([pic, title, text, button]) =>
         `<article class="st-start"><div class="st-pic">${pic}</div><div class="st-body"><b>${title}</b><p>${text}</p>${button}</div></article>`
     )
-    .join('')}</div></section>
+    .join(
+      ''
+    )}</div><p class="st-foot st-sample-note">Or <button class="link-button" data-action="sample-car">try the sample car</button>: it walks you through preparing a car of your own.</p></section>
 <section><span class="st-eyebrow">How it goes</span><div class="st-how">${[
     ['Add a car', 'Choose the panels that get paint'],
     ['Paint', 'Livery colours, stripes, numbers, decals'],
@@ -119,7 +123,7 @@ function startBackHTML(recent) {
     todo = startTodo(full),
     cars = garageCars().filter(c => c.template),
     others = recent.slice(1, 4);
-  return `<div class="st-home"><header class="st-head"><div><span class="st-eyebrow">Welcome back</span><h1>Pick up where you left off</h1><p class="st-note">Drop a drawing of a car anywhere on this page to add it.</p></div><span class="st-grow"></span><button data-action="projects">${icon('projects')}Garage</button><button class="primary" data-action="add-car">${icon('carplus')}Add a car</button></header>
+  return `<div class="st-home"><header class="st-head"><div><span class="st-eyebrow">Welcome back</span><h1>Pick up where you left off</h1><p class="st-note">Drop a drawing of a car anywhere on this page to add it.</p></div><span class="st-grow"></span><button data-action="projects">${icon('projects')}Garage</button><button data-action="showroom">${icon('car')}Stock cars</button><button class="primary" data-action="add-car">${icon('carplus')}Add a car</button></header>
 <div class="st-back"><article class="st-cont"><button class="st-cont-pic" data-project-open="${e(last.id)}" aria-label="Continue ${e(last.name)}">${cardPreview(last, 'projects')}<span class="st-status ${isFinished(last) ? 'good' : ''}">${isFinished(last) ? 'Finished' : 'Being painted'}</span></button><div class="st-cont-body"><div class="st-grow"><b>${e(last.name)}</b><small>${e(projectCarName(last))}${last.template?.scale ? ' · ' + e(last.template.scale) : ''}${last.updated ? ' · edited ' + e(ago(last.updated)) : ''}</small><span class="st-chips">${colours
     .slice(0, 5)
     .map(c => `<span class="st-chip"><span class="st-dot" style="background:${e(c.hex)}"></span>${e(c.name)}</span>`)
@@ -235,7 +239,7 @@ document.addEventListener('drop', ev => {
   if (file) Promise.resolve(dropOnStart(file)).catch(reportError);
 });
 // The Start page comes back when another page closes with no livery open.
-for (const id of ['garage-page', 'setup-page', 'pack-page', 'settings-page'])
+for (const id of ['garage-page', 'setup-page', 'pack-page', 'settings-page', 'show-page'])
   new MutationObserver(() => renderStart()).observe(document.getElementById(id), {
     attributes: true,
     attributeFilter: ['hidden']
