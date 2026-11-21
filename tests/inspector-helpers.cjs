@@ -67,11 +67,9 @@ exports.clickAction = async (page, action) => {
   }
 };
 
-// The Light and Dark switch lives in the app menu (the ≡ button in the top bar).
+// The Light and Dark switch is in the top right corner of the top bar.
 exports.chooseTone = async (page, tone) => {
-  await page.locator('#app-menu-button').click();
-  await page.locator(`[data-theme-choice="${tone}"]`).click();
-  await page.keyboard.press('Escape');
+  await page.locator(`.tb-theme [data-theme-choice="${tone}"]`).click();
 };
 
 // After a drawing is imported, the guided setup opens; tests of the detailed panel editor

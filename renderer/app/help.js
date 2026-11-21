@@ -109,7 +109,7 @@ function helpContext() {
     return {
       where: 'Settings',
       sub: 'For the whole app',
-      can: [{ label: 'Choose light or dark', point: '[data-theme-choice]', tip: 'Also in the ≡ menu.' }],
+      can: [{ label: 'Choose light or dark', point: '.tb-theme', tip: 'In the top right corner, on every page.' }],
       know: [
         'Settings are kept as soon as you change them.',
         'The tips in the corner of the canvas can be turned back on here.'

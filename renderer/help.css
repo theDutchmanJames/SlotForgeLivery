@@ -14,6 +14,16 @@
   padding: 0 12px;
   gap: 7px;
 }
+/* Light and dark, in the top right corner on every page. */
+.tb-theme {
+  flex: none;
+  flex-wrap: nowrap;
+  margin-left: 2px;
+}
+.tb-theme > button {
+  min-height: 26px;
+  gap: 5px;
+}
 .tb-help[aria-pressed='true'] {
   background: color-mix(in srgb, var(--accent) 14%, var(--panel));
   border-color: color-mix(in srgb, var(--accent) 40%, var(--line));
@@ -299,4 +309,20 @@ body.help-open > main {
   margin: 14px 0 0;
   color: var(--muted);
   font-size: 12px;
+}
+/* Narrow windows: Help and Light/Dark show their icons only, so the livery name keeps its room. */
+@media (max-width: 1300px) {
+  .tb-help {
+    font-size: 0;
+    gap: 0;
+    width: 34px;
+    padding: 0;
+  }
+  .tb-theme-label {
+    display: none;
+  }
+  .tb-theme > button {
+    padding: 0 9px;
+    font-size: 13px;
+  }
 }

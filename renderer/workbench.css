@@ -833,7 +833,8 @@ body.settings-open .crumbs .crumb {
   .workspace:has(> #layers-panel[hidden]) {
     grid-template-columns: 52px 0 minmax(0, 1fr) 280px;
   }
-  .crumb-meta {
+  .crumb-meta,
+  .crumb-meta + .crumb-sep {
     display: none;
   }
   #tool-label {
