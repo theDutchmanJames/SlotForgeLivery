@@ -96,6 +96,14 @@ class SQLiteLibrary {
     try {
       let warning;
       const opened = this.file + '.opened';
+      // A restore or first migration that was cut off leaves its staging copy
+      // behind. It never became the library, so it is removed on the next open.
+      const staging = path.basename(this.file) + '.migration-';
+      for (const name of fs.existsSync(path.dirname(this.file)) ? fs.readdirSync(path.dirname(this.file)) : [])
+        if (name.startsWith(staging))
+          try {
+            fs.unlinkSync(path.join(path.dirname(this.file), name));
+          } catch {}
       if (!fs.existsSync(this.file) && fs.existsSync(opened))
         throw Error(
           'Your library database is missing. Livery did not bring back the older copy from before it moved to SQLite. Bring back a backup instead.'
@@ -124,6 +132,7 @@ class SQLiteLibrary {
       if (this.sql('PRAGMA quick_check').get().quick_check !== 'ok')
         throw Error('Library database integrity check failed.');
       this.blocked = false;
+      this.refreshSummaries();
       if (!fs.existsSync(opened)) fs.writeFileSync(opened, new Date().toISOString());
       return { ...this.catalog(), warning };
     } catch (e) {
@@ -132,6 +141,40 @@ class SQLiteLibrary {
       this.blocked = true;
       return { data: null, error: e.message };
     }
+  }
+  // Liveries saved by older versions have Garage summaries without their car and
+  // colours, so the Garage cannot group them. Those summaries are rebuilt once.
+  refreshSummaries() {
+    const stale = this.sql("SELECT key FROM items WHERE bucket='projects'")
+      .all()
+      .filter(row => {
+        const s = JSON.parse(this.sql('SELECT summary FROM items WHERE key=?').get(row.key).summary).storageSummary;
+        return !s || !Array.isArray(s.colours);
+      });
+    if (!stale.length) return 0;
+    this.db.exec('BEGIN IMMEDIATE');
+    try {
+      for (const { key } of stale) {
+        let value;
+        try {
+          value = this.get(key).value;
+        } catch {
+          continue; // A damaged item is reported when it is opened, not here.
+        }
+        const item = this.sql('SELECT * FROM items WHERE key=?').get(key),
+          summary = encoded(C.summary('projects', value));
+        this.sql('UPDATE items SET summary=?,checksum=? WHERE key=?').run(
+          summary,
+          itemDigest({ ...item, summary }),
+          key
+        );
+      }
+      this.db.exec('COMMIT');
+    } catch (e) {
+      this.db.exec('ROLLBACK');
+      throw e;
+    }
+    return stale.length;
   }
   catalog() {
     const metaResult = this.get('$meta'),

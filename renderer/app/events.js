@@ -333,6 +333,9 @@ document.addEventListener('click', async ev => {
 });
 document.addEventListener('change', async ev => {
   const el = ev.target;
+  // A field removed while the inspector is rebuilt for another selection reports
+  // its last edit here; it belonged to what was selected before, so it is dropped.
+  if (rebuildingInspector) return;
   try {
     if (el.id === 'line-draw-colour') {
       colour = el.value;

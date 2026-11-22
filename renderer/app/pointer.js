@@ -9,6 +9,9 @@ function canvasPoint(ev, snap = true) {
   return { x: p.x, y: p.y };
 }
 art.addEventListener('pointerdown', ev => {
+  // Finish a field being typed in (a name, a size) while its artwork is still
+  // the selection; this click may select something else.
+  if (document.activeElement?.closest?.('#inspector, #layers-panel')) document.activeElement.blur();
   if (zoomSurface) renderCanvas();
   if (!project) return;
   const temporaryPan = ev.button === 1 || (ev.button === 0 && ev.ctrlKey);

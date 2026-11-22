@@ -3,7 +3,12 @@
 const fs = require('node:fs/promises');
 const path = require('node:path');
 
+const { writeFileAtomic } = require('./export-path.cjs');
+
 const BACKUP_PATTERN = /^Livery backup \d{4}-\d{2}-\d{2} \d{4}\.sfpaint$/;
+// Unfinished backups: the current form (see writeFileAtomic) and the older one.
+const PARTIAL_PATTERN =
+  /^(?:\.Livery backup \d{4}-\d{2}-\d{2} \d{4}\.sfpaint\.[\w-]+|Livery backup \d{4}-\d{2}-\d{2} \d{4}\.sfpaint)\.partial$/;
 
 function backupName(date = new Date()) {
   const pad = n => String(n).padStart(2, '0');
@@ -24,11 +29,15 @@ async function writeBackup({ folder, data, keep = 10 }, assertTarget) {
   if (text.length > 180 * 1024 * 1024) throw new Error('The library exceeds 180 MB; export it in parts instead.');
   const file = path.join(folder, backupName());
   await assertTarget(file);
-  const partial = file + '.partial';
-  await fs.writeFile(partial, text);
-  await fs.rename(partial, file);
+  await writeFileAtomic(file, text);
   const limit = Math.min(100, Math.max(1, Math.round(Number(keep) || 10)));
-  const ours = (await fs.readdir(folder)).filter(name => BACKUP_PATTERN.test(name)).sort();
+  const names = await fs.readdir(folder);
+  // A backup interrupted by a crash leaves its unfinished file behind; it was never a backup.
+  for (const name of names.filter(name => PARTIAL_PATTERN.test(name))) {
+    const stat = await fs.stat(path.join(folder, name)).catch(() => null);
+    if (stat && Date.now() - stat.mtimeMs > 10 * 60 * 1000) await fs.unlink(path.join(folder, name)).catch(() => {});
+  }
+  const ours = names.filter(name => BACKUP_PATTERN.test(name)).sort();
   const removed = ours.slice(0, Math.max(0, ours.length - limit));
   for (const name of removed) await fs.unlink(path.join(folder, name)).catch(() => {});
   return { file, removed: removed.length };

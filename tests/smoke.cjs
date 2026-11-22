@@ -149,7 +149,8 @@ async function run() {
   await click('library');
   await page.locator('[data-library-tab="templates"]').click();
   await page.locator('[data-library-use]').first().click();
-  assert.equal(await page.evaluate(() => layers().length), 0);
+  // The car loads from the library first; on a slow run that takes a moment.
+  await page.waitForFunction(() => layers().length === 0, null, { timeout: 10000 });
   await click('library');
   await page.locator('[data-library-tab="liveries"]').click();
   await page.locator('[data-library-use]').first().click();

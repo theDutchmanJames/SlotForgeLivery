@@ -94,6 +94,8 @@
           deleteNodes: [],
           replaceOwners: []
         };
+      // Two items with one id would be stored as one, losing the other without a word.
+      if (current.size !== entries.length) throw Error('Two library items share an id. Nothing was saved.');
       const next = new Map(),
         media = new Map();
       async function prepare(client, key, bucket, value, position) {

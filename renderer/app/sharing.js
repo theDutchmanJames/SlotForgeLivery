@@ -266,8 +266,14 @@ function validateProject(p) {
 }
 async function readPackage(file) {
   if (file.size > 180 * 1024 * 1024) throw new Error('Package exceeds the 180 MB import limit.');
-  const pkg = JSON.parse(await file.text()),
-    additions = await packageAdditions(pkg);
+  let pkg;
+  try {
+    pkg = JSON.parse(await file.text());
+  } catch {
+    // A drawing, picture or damaged download, not a package.
+    throw new Error(`“${file.name}” is not a Livery package. Open a .sfpaint package or backup.`);
+  }
+  const additions = await packageAdditions(pkg);
   // Normally it comes in straight away and the Garage shows it (Arrivals). Restoring a library
   // that could not be read goes through the rescue window, which shows what it holds first.
   if (!loadBlocked) return arrive(additions, { file: file.name, exported: pkg.exported });

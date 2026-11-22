@@ -28,4 +28,25 @@ async function assertExportTarget(file, userData) {
         throw Error('This export would overwrite your library. Choose another file.');
     }
 }
-module.exports = { assertExportTarget };
+// Exports replace the chosen file only once the new one is completely written,
+// so a crash or a full disk never leaves a half-written file in its place.
+async function writeFileAtomic(file, data) {
+  const partial = path.join(
+    path.dirname(file),
+    `.${path.basename(file)}.${process.pid}-${Math.random().toString(36).slice(2)}.partial`
+  );
+  try {
+    const handle = await fs.open(partial, 'wx');
+    try {
+      await handle.writeFile(data);
+      await handle.sync();
+    } finally {
+      await handle.close();
+    }
+    await fs.rename(partial, file);
+  } catch (e) {
+    await fs.unlink(partial).catch(() => {});
+    throw e;
+  }
+}
+module.exports = { assertExportTarget, writeFileAtomic };

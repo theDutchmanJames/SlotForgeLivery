@@ -74,3 +74,9 @@ test('ordinary edits to a loaded item still save only changed records', async t 
   assert(client.lastSave.transferredNodes < total, `sent ${client.lastSave.transferredNodes} of ${total} records`);
   assert.equal(lib.snapshot().projects[0].notes, 'Edited');
 });
+test('a save with two items under one id is refused instead of merging them', async t => {
+  const { lib, client, store } = await setup(t, empty());
+  store.assets.push({ id: 'same', name: 'One', type: 'shape' }, { id: 'same', name: 'Two', type: 'shape' });
+  await assert.rejects(client.save(store), /share an id/);
+  assert.deepEqual(lib.snapshot().assets, []);
+});

@@ -348,3 +348,78 @@ test('publication cannot overwrite a database created during migration', async t
   assert.equal(fs.readFileSync(file, 'utf8'), 'another process owns this file');
   assert.deepEqual(JSON.parse(fs.readFileSync(legacy)), fixture());
 });
+// Found by the coverage map: these refusals had never run in a test.
+test('a library database that disappears after it was used is reported, not replaced by the old JSON', async t => {
+  const { lib } = await setup(t, fixture());
+  assert(!(await lib.load()).error);
+  lib.close();
+  fs.unlinkSync(lib.file);
+  const result = await lib.load();
+  assert.match(result.error, /database is missing/);
+  assert(!fs.existsSync(lib.file), 'no new empty library is created over the loss');
+});
+test('a damaged database page fails the integrity check and blocks saving', async t => {
+  const { lib } = await setup(t, fixture());
+  await lib.load();
+  lib.close();
+  const bytes = fs.readFileSync(lib.file);
+  // Scribble over every page but the first, leaving the file header intact.
+  bytes.fill(0x5a, 4096, bytes.length);
+  fs.writeFileSync(lib.file, bytes);
+  const result = await lib.load();
+  assert(result.error, 'the damage is reported');
+  assert.throws(() => lib.commit({}), /Restore/);
+});
+test('malformed save requests are refused and change nothing', async t => {
+  const { lib } = await setup(t, fixture());
+  await lib.load();
+  const before = lib.snapshot(),
+    revision = lib.revision();
+  const base = { revision, items: [], nodes: [], blobs: [], deleteItems: [], deleteNodes: [] };
+  assert.throws(() => lib.commit({ ...base, items: null }), /Invalid library transaction/);
+  assert.throws(() => lib.commit({ ...base, replaceOwners: [3] }), /Invalid library transaction/);
+  const edited = fixture();
+  edited.assets[0].name = 'Changed';
+  const patch = await lib.fullPatch(edited);
+  patch.blobs[0][1] = 'not the picture this hash names';
+  assert.throws(() => lib.commit(patch), /Invalid library media/);
+  const item = {
+    key: C.keyOf('assets', 'x'),
+    bucket: 'assets',
+    identity: 'other',
+    position: 0,
+    root: '[]',
+    summary: {}
+  };
+  assert.throws(() => lib.commit({ ...base, items: [item] }), /Invalid library item identity/);
+  assert.throws(
+    () => lib.commit({ ...base, nodes: [{ key: JSON.stringify(['elsewhere']), owner: '$meta', data: '["v",1]' }] }),
+    /Invalid library object/
+  );
+  assert.throws(() => lib.missingMedia(['nope']), /Invalid media references/);
+  assert.throws(() => lib.thumbnail({ key: 'x', data: 'javascript:alert(1)', revision }), /Invalid library thumbnail/);
+  assert.equal(lib.revision(), revision);
+  assert.deepEqual(lib.snapshot(), before);
+});
+test('Garage summaries written by older versions are rebuilt when the library opens', async t => {
+  const { lib } = await setup(t, fixture());
+  await lib.load();
+  const key = C.keyOf('projects', 'project'),
+    row = lib.db.prepare('SELECT * FROM items WHERE key=?').get(key),
+    old = JSON.parse(row.summary);
+  delete old.storageSummary.colours;
+  delete old.storageSummary.templateId;
+  // Store it the way an older version did, with a valid checksum.
+  const { createHash } = require('node:crypto');
+  const summary = JSON.stringify(old),
+    checksum = createHash('sha256')
+      .update(JSON.stringify([row.key, row.bucket, row.identity, row.position, row.root, summary]))
+      .digest('hex');
+  lib.db.prepare('UPDATE items SET summary=?,checksum=? WHERE key=?').run(summary, checksum, key);
+  const revision = lib.revision();
+  lib.close();
+  const { data } = await lib.load();
+  assert.equal(data.projects[0].storageSummary.templateId, 'car');
+  assert(Array.isArray(data.projects[0].storageSummary.colours));
+  assert.equal(lib.revision(), revision, 'nothing else changes');
+});

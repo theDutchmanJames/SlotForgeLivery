@@ -47,13 +47,15 @@ function orderButtons() {
     .join('')}</div>`;
 }
 let layerDrag = null;
+// A drag that starts on selected text has a text node as its target.
+const dragElement = ev => (ev.target.nodeType === 1 ? ev.target : ev.target.parentElement || document.body);
 function clearLayerDrop() {
   document
     .querySelectorAll('.layer-drop-above,.layer-drop-below,.layer-dragging')
     .forEach(n => n.classList.remove('layer-drop-above', 'layer-drop-below', 'layer-dragging'));
 }
 document.addEventListener('dragstart', ev => {
-  const row = ev.target.closest('[data-sort-key]');
+  const row = dragElement(ev).closest('[data-sort-key]');
   if (!row || !project) return;
   const key = row.dataset.sortKey,
     scope = row.dataset.sortParent || null,
@@ -75,7 +77,7 @@ document.addEventListener('dragover', ev => {
   document
     .querySelectorAll('.layer-drop-above,.layer-drop-below')
     .forEach(n => n.classList.remove('layer-drop-above', 'layer-drop-below'));
-  const row = ev.target.closest('[data-sort-key]');
+  const row = dragElement(ev).closest('[data-sort-key]');
   if (!row || (row.dataset.sortParent || null) !== layerDrag.scope) return;
   ev.preventDefault();
   ev.dataTransfer.dropEffect = 'move';
@@ -86,7 +88,7 @@ document.addEventListener('dragover', ev => {
 document.addEventListener('drop', ev => {
   if (!layerDrag) return;
   ev.preventDefault();
-  const row = ev.target.closest('[data-sort-key]'),
+  const row = dragElement(ev).closest('[data-sort-key]'),
     state = layerDrag;
   layerDrag = null;
   const side = row?.classList.contains('layer-drop-above') ? 'above' : 'below';

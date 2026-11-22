@@ -6,6 +6,7 @@ const { pathToFileURL } = require('node:url');
 const fs = require('node:fs/promises');
 const path = require('node:path');
 const root = path.join(__dirname, '..');
+if (process.env.LIVERY_COVERAGE && !app.isPackaged) require('./coverage-hook.cjs')(app, process.env.LIVERY_COVERAGE);
 let mainWindow;
 let rendererReady = false,
   closeAsked = false,
@@ -37,7 +38,7 @@ async function recoverWindow(reason) {
   mainWindow.destroy();
 }
 const { SQLiteService } = require('./sqlite-service.cjs');
-const { assertExportTarget } = require('./export-path.cjs');
+const { assertExportTarget, writeFileAtomic } = require('./export-path.cjs');
 let converting = false;
 ipcMain.handle('vector:convert', async (_, payload) => {
   if (converting) throw new Error('Please wait for the current import to finish.');
@@ -131,7 +132,7 @@ ipcMain.handle('package:save', async (_, { name, data }) => {
   });
   if (result.canceled) return false;
   await assertExportTarget(result.filePath, app.getPath('userData'));
-  await fs.writeFile(result.filePath, JSON.stringify(data));
+  await writeFileAtomic(result.filePath, JSON.stringify(data));
   return true;
 });
 // Automatic backups: the user picks a folder; Livery writes dated .sfpaint
@@ -140,7 +141,7 @@ ipcMain.handle('package:save', async (_, { name, data }) => {
 // backups when the library itself cannot be read.
 const backupMemo = () => path.join(app.getPath('userData'), 'backup-folder.json');
 function rememberBackupFolder(folder) {
-  if (typeof folder === 'string' && folder) fs.writeFile(backupMemo(), JSON.stringify({ folder })).catch(() => {});
+  if (typeof folder === 'string' && folder) writeFileAtomic(backupMemo(), JSON.stringify({ folder })).catch(() => {});
 }
 ipcMain.handle('backup:choose-folder', async () => {
   if (process.env.PAINTSHOP_TEST_BACKUP_DIR) {
@@ -281,7 +282,7 @@ ipcMain.handle('decals:save', async (_, { name, data }) => {
       });
   if (result.canceled) return false;
   await assertExportTarget(result.filePath, app.getPath('userData'));
-  await fs.writeFile(result.filePath, text);
+  await writeFileAtomic(result.filePath, text);
   return true;
 });
 ipcMain.handle('png:save', async (_, { name, dataURL }) => {
@@ -304,7 +305,7 @@ ipcMain.handle('png:save', async (_, { name, dataURL }) => {
   });
   if (result.canceled) return false;
   await assertExportTarget(result.filePath, app.getPath('userData'));
-  await fs.writeFile(result.filePath, bytes);
+  await writeFileAtomic(result.filePath, bytes);
   return true;
 });
 ipcMain.handle('pdf:save', async (_, { name, html }) => {
@@ -335,7 +336,7 @@ ipcMain.handle('pdf:save', async (_, { name, html }) => {
       preferCSSPageSize: true,
       margins: { top: 0.35, bottom: 0.35, left: 0.35, right: 0.35 }
     });
-    await fs.writeFile(result.filePath, pdf);
+    await writeFileAtomic(result.filePath, pdf);
     return true;
   } finally {
     win.destroy();

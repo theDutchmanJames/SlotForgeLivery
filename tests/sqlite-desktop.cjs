@@ -67,7 +67,8 @@ async function launch() {
   assert(edit.bytes < 12000, JSON.stringify(edit));
   await page.evaluate(() => openLibrary('assets'));
   assert.equal(await page.locator('.library-card').count(), 32);
-  await page.waitForFunction(() => document.querySelectorAll('[data-preview-id] img').length === 32);
+  // Only the cards: the car's own picture in the Garage rail may load first.
+  await page.waitForFunction(() => document.querySelectorAll('.library-card [data-preview-id] img').length === 32);
   assert.equal(
     await page.evaluate(() => store.assets.filter(x => libraryClient.isLazy(x)).length),
     1200,

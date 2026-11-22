@@ -130,8 +130,19 @@ function renderInspector() {
   buildInspector();
   afterInspector();
 }
+let rebuildingInspector = false;
 function buildInspector() {
   const box = $('#inspector');
+  // Let go of a focused field before replacing it, so its blur/change cannot
+  // rebuild the inspector in the middle of this rebuild.
+  if (document.activeElement?.closest?.('#inspector, #layers-panel')) {
+    rebuildingInspector = true;
+    try {
+      document.activeElement.blur();
+    } finally {
+      rebuildingInspector = false;
+    }
+  }
   rememberInspectorFolders(box);
   box.classList.remove('docked');
   if (!project) {
